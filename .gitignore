@@ -1,5 +1,7 @@
-node_modules/**/*
+./**/node_modules/**/*
 dist/**/*
+node_modules
+.vscode/
 .env
 # compiled output
 /dist
