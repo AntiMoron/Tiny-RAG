@@ -1,0 +1,25 @@
+# Start ./server
+
+version: '3.8'
+services:
+  server:
+    build: ./server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server:/app
+    environment:
+      - NODE_ENV=development
+    command: npm start
+#  Add more services here as needed
+#  For example, a mysql database service
+db:
+  image: mysql:8
+  restart: always
+  environment:
+    MYSQL_ROOT_PASSWORD: example
+    MYSQL_DATABASE: tiny_rag
+  ports:
+    - "3306:3306"
+  volumes:
+    - db_data:/var/lib/mysql

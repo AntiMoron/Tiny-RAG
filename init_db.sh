@@ -1,0 +1,1 @@
+sudo docker run -d --name tiny-rag-mysql -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=tiny_rag_db -p 3306:3306 mysql:8
