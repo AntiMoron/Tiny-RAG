@@ -19,6 +19,6 @@ import { AIProviderEntity } from './aiprovider.entity';
   imports: [TypeOrmModule.forFeature([AIProviderEntity])],
   providers: [AiproviderService],
   controllers: [AiproviderController],
-  exports: [AiproviderService, ],
+  exports: [AiproviderService],
 })
 export class AiproviderModule {}
