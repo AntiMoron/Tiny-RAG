@@ -15,6 +15,13 @@ import { DatasetModule } from './dataset/dataset.module';
 import * as winston from 'winston';
 import { DatasetEntity } from './dataset/dataset.entity';
 import { KnowledgeEntity } from './knowledge/knowledge.entity';
+import fs from 'fs'
+
+fs.readFileSync('../.env').toString().split('\n').forEach(line => {
+  const [key, value = ''] = line.split('=');
+  process.env[key.trim()] = value.trim();
+});
+
 
 @Module({
   imports: [
