@@ -33,7 +33,10 @@ export class KnowledgeEntity {
     type: 'timestamp',
     precision: 3,
     default: () => 'CURRENT_TIMESTAMP(3)',
-    onUpdate: "CURRENT_TIMESTAMP(3)"
+    onUpdate: 'CURRENT_TIMESTAMP(3)',
   })
   updatedAt: Date;
+
+  @Column({ length: 10 })
+  indexStatus: string;
 }

@@ -17,6 +17,9 @@ export class DatasetEntity {
   @Column({ length: 300 })
   description: string;
 
+  @Column({ length: 20 })
+  type: string;
+
   @CreateDateColumn({
     type: 'timestamp',
     precision: 3,

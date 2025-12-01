@@ -10,14 +10,6 @@ export interface Knowledge {
   updatedAt: Date;
 }
 
-export interface Dataset {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface KnowledgeIndex {
   dataset_id: string;
   knowledge_id: string;
