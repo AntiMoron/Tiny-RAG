@@ -1,83 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { MilvusClient } from '@zilliz/milvus2-sdk-node';
-import milvusSchema from './milvusSchema';
 import { Knowledge, KnowledgeIndex } from 'src/types/knowledge';
 import { InjectRepository } from '@nestjs/typeorm';
 import { KnowledgeEntity } from './knowledge.entity';
-import * as _ from 'lodash';
 import { In, Repository } from 'typeorm';
 import { DatasetEntity } from 'src/dataset/dataset.entity';
-import fs from 'fs';
-
-fs.readFileSync('../.env')
-  .toString()
-  .split('\n')
-  .forEach((line) => {
-    const [key, value = ''] = line.split('=');
-    process.env[key.trim()] = value.trim();
-  });
-
-const COLLECTION_NAME = 'knowledges';
-const COLLECTION_ADDR = process.env.MILVUS_ADDR || 'localhost:19530';
-const COLLECTION_USER_NAME = process.env.MILVUS_COLLECTION_USER_NAME || '';
-const COLLECTION_PASSWORD = process.env.MILVUS_COLLECTION_PASSWORD || '';
-
-console.log(COLLECTION_ADDR, COLLECTION_USER_NAME, COLLECTION_PASSWORD);
+import { MilvusService } from 'src/milvus/milvus.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class KnowledgeService {
-  private ready = false;
-  private milvusClient: MilvusClient;
-
   constructor(
+    private readonly configService: ConfigService,
+    private readonly milvusService: MilvusService,
     @InjectRepository(DatasetEntity)
     private readonly datasetRepo: Repository<DatasetEntity>,
 
     @InjectRepository(KnowledgeEntity)
     private readonly knowledgeRepo: Repository<KnowledgeEntity>,
-  ) {
-    // build client
-    this.milvusClient = new MilvusClient({
-      address: COLLECTION_ADDR,
-      username: COLLECTION_USER_NAME,
-      password: COLLECTION_PASSWORD,
-    });
-    const init = async () => {
-      await this.milvusClient.connectPromise;
-      const { value: hasCreated } = await this.milvusClient.hasCollection({
-        collection_name: COLLECTION_NAME,
-      });
-      if (!hasCreated) {
-        // load collection
-        await this.milvusClient
-          .createCollection({
-            collection_name: COLLECTION_NAME,
-            fields: milvusSchema,
-          })
-          .then((create) => {
-            console.log('Create collection is finished.', create);
-          });
-        await this.milvusClient.loadCollectionSync({
-          collection_name: COLLECTION_NAME,
-        });
-      }
-      this.ready = true;
-      console.log('Node client is initialized.');
-    };
-    init();
+  ) {}
+
+  private get collectionName(): string {
+    return this.configService.get<string>('COLLECTION_NAME') || '';
   }
 
   async findSimilarKnowledge(
     datasetId: string,
     vector: number[],
   ): Promise<KnowledgeIndex[]> {
-    if (!this.ready) {
+    const client = this.milvusService.client;
+    if (!client) {
       throw new Error('Milvus client is not ready yet.');
     }
     // Perform a vector search on the collection
-    const res = await this.milvusClient.search({
+    const res = await client.search({
       // required
-      collection_name: COLLECTION_NAME, // required, the collection name
+      collection_name: this.collectionName, // required, the collection name
       data: vector, // required, vector used to compare other vectors in milvus
       // optionals
       filter: `dataset_id = ${datasetId}`, // optional, filter expression
@@ -88,15 +45,16 @@ export class KnowledgeService {
   }
 
   async insertKnowledge(knowledge: Knowledge) {
-    if (!this.ready) {
+    const client = this.milvusService.client;
+    if (!client) {
       throw new Error('Milvus client is not ready yet.');
     }
     const { embedding } = knowledge;
     if (!embedding) {
       throw new Error('Embedding data is required to insert knowledge.');
     }
-    await this.milvusClient.insert({
-      collection_name: COLLECTION_NAME,
+    await client.insert({
+      collection_name: this.collectionName,
       fields_data: [
         {
           knowledge_id: knowledge.id,
@@ -107,7 +65,8 @@ export class KnowledgeService {
   }
 
   async findByIds(ids: string[]): Promise<Knowledge[]> {
-    if (!this.ready) {
+    const client = this.milvusService.client;
+    if (!client) {
       throw new Error('Milvus client is not ready yet.');
     }
     const results = await this.knowledgeRepo.findBy({
