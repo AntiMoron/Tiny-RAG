@@ -22,4 +22,9 @@ export class DatasetController {
   async deleteDataset(@Param('id') id: string) {
     await this.datasetService.deleteDataset(id);
   }
+
+  @Get(':datasetId/feishu/getFolderList')
+  async getFeishuFolder(@Param('datasetId') datasetId: string) {
+    return await this.datasetService.getFeishuFolder(datasetId);
+  }
 }

@@ -8,6 +8,7 @@ import { MilvusService } from 'src/milvus/milvus.service';
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { WinstonLogger } from 'nest-winston';
+import { getDocTaskList } from 'feishu2markdown';
 
 @Injectable()
 export class KnowledgeService {
@@ -119,4 +120,5 @@ export class KnowledgeService {
   async getKnowledgeCount(datasetId: string) {
     return await this.knowledgeRepo.countBy({ dataset_id: datasetId });
   }
+
 }

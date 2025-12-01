@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DatasetEntity } from './dataset.entity';
 import { Dataset } from 'src/types/dataset';
+import { getDocTaskList } from 'feishu2markdown';
+import checkParams from 'src/util/checkParams';
+import { HandleDocFolderParams } from 'feishu2markdown/dist/src/doc/type';
 
 @Injectable()
 export class DatasetService {
@@ -12,7 +15,10 @@ export class DatasetService {
   ) {}
 
   async createDataset(dataset: Dataset): Promise<DatasetEntity> {
-    const newDataset = this.datasetRepo.create(dataset);
+    const newDataset = this.datasetRepo.create({
+      ...dataset,
+      config: dataset.config ? JSON.stringify(dataset.config) : undefined,
+    });
     return this.datasetRepo.save(newDataset);
   }
 
@@ -26,5 +32,39 @@ export class DatasetService {
       throw new Error('Dataset not found');
     }
     await this.datasetRepo.delete(id);
+  }
+
+  async getFeishuFolder(datasetId: string) {
+    const dataset = await this.datasetRepo.findOneBy({ id: datasetId });
+    if (!dataset) {
+      throw new Error('Dataset not found');
+    }
+    let config: Dataset['config'];
+    if (typeof dataset.config === 'string') {
+      try {
+        config = JSON.parse(dataset.config) as unknown as Dataset['config'];
+      } catch {
+        throw new Error(`config incorrect for dataset<${datasetId}>`);
+      }
+    }
+    const docConfig = config?.doc;
+    if (!docConfig) {
+      throw new Error('Dataset incorrect.');
+    }
+    const { appId, appSecret, folderToken } = docConfig;
+    checkParams(docConfig, ['appId', 'appSecret']);
+    const list = await getDocTaskList({
+      appId,
+      appSecret,
+      folderToken,
+      type: 'feishu',
+    } as HandleDocFolderParams);
+    return list as Array<{
+      name: string;
+      url: string;
+      type: string;
+      token: string;
+      id: string;
+    }>;
   }
 }

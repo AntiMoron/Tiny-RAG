@@ -3,11 +3,10 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('dataset')
-export class DatasetEntity {
+@Entity('apikey')
+export class ApiKeyEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -17,11 +16,8 @@ export class DatasetEntity {
   @Column({ length: 300 })
   description: string;
 
-  @Column({ length: 20 })
-  type: string;
-
-  @Column({ type: 'json', nullable: true })
-  config?: string;
+  @Column({ length: 280 })
+  key: string;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -29,12 +25,4 @@ export class DatasetEntity {
     default: () => 'CURRENT_TIMESTAMP(3)',
   })
   createdAt: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
-    onUpdate: 'CURRENT_TIMESTAMP(3)',
-  })
-  updatedAt: Date;
 }
