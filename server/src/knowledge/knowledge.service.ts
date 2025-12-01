@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MilvusClient, InsertReq, DataType } from '@zilliz/milvus2-sdk-node';
-import { EmbeddingService } from '../embedding/embedding.service';
+import { MilvusClient } from '@zilliz/milvus2-sdk-node';
 import milvusSchema from './milvusSchema';
 import { Knowledge, KnowledgeIndex } from 'src/types/knowledge';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,13 +7,22 @@ import { KnowledgeEntity } from './knowledge.entity';
 import * as _ from 'lodash';
 import { In, Repository } from 'typeorm';
 import { DatasetEntity } from 'src/dataset/dataset.entity';
+import fs from 'fs';
+
+fs.readFileSync('../.env')
+  .toString()
+  .split('\n')
+  .forEach((line) => {
+    const [key, value = ''] = line.split('=');
+    process.env[key.trim()] = value.trim();
+  });
 
 const COLLECTION_NAME = 'knowledges';
 const COLLECTION_ADDR = process.env.MILVUS_ADDR || 'localhost:19530';
-const COLLECTION_USER_NAME =
-  process.env.MILVUS_COLLECTION_USER_NAME || 'username';
-const COLLECTION_PASSWORD =
-  process.env.MILVUS_COLLECTION_PASSWORD || 'Aa12345!!';
+const COLLECTION_USER_NAME = process.env.MILVUS_COLLECTION_USER_NAME || '';
+const COLLECTION_PASSWORD = process.env.MILVUS_COLLECTION_PASSWORD || '';
+
+console.log(COLLECTION_ADDR, COLLECTION_USER_NAME, COLLECTION_PASSWORD);
 
 @Injectable()
 export class KnowledgeService {
@@ -34,7 +42,8 @@ export class KnowledgeService {
       username: COLLECTION_USER_NAME,
       password: COLLECTION_PASSWORD,
     });
-    this.milvusClient.connectPromise.then(async () => {
+    const init = async () => {
+      await this.milvusClient.connectPromise;
       const { value: hasCreated } = await this.milvusClient.hasCollection({
         collection_name: COLLECTION_NAME,
       });
@@ -54,7 +63,8 @@ export class KnowledgeService {
       }
       this.ready = true;
       console.log('Node client is initialized.');
-    });
+    };
+    init();
   }
 
   async findSimilarKnowledge(
