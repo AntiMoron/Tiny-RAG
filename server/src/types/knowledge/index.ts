@@ -1,9 +1,6 @@
-import { AIEmbeddingOutput } from '../embedding';
-
 export interface Knowledge {
   id: string;
   embededByProviderId: string;
-  embedding?: AIEmbeddingOutput;
   content: string;
   dataset_id: string;
   createdAt: Date;

@@ -7,9 +7,9 @@ export default function getDefaultConfig(
   key: string,
 ): AIProvider {
   if (type === 'embedding') {
-    return embedding[key];
+    return embedding[key] as AIProvider;
   } else if (type === 'completion') {
-    return completion[key];
+    return completion[key] as AIProvider;
   }
   throw new Error(`Unsupported type: ${type}`);
 }

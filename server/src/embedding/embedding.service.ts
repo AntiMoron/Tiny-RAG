@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import { Knowledge } from 'src/types/knowledge';
 import { KnowledgeService } from 'src/knowledge/knowledge.service';
 import getDefaultConfig from 'src/default_config';
+import { AxiosHeaders } from 'axios';
 
 @Injectable()
 export class EmbeddingService {
@@ -18,20 +19,23 @@ export class EmbeddingService {
     const { config, name, type, id } = provider;
     const { endpoint, headers, method, paramMapping, resultMapping } = config;
 
-    const valueOptions: any = {
+    const valueOptions: Record<string, any> = {
       ...config,
       input: promptInput,
     };
 
-    function replaceValues<T>(origin: any, options: Record<string, string>) {
-      let newParams = {};
+    function replaceValues<T extends object>(
+      origin: T,
+      options: Record<string, string>,
+    ): T {
+      const newParams: Record<string, string> = {};
       Object.keys(origin).forEach((key) => {
-        let mappingValue = origin[key];
+        let mappingValue = `${origin[key]}`;
         // needs var replacement
-        const reg = /\{\{([a-zA-Z0-9\_\(\)]+?)\}\}/g;
-        if (reg.test(mappingValue)) {
-          mappingValue = mappingValue.replace(reg, (_, varName) => {
-            const reg2 = /^const\(([a-zA-Z0-9]+?)\)$/;
+        const reg = /\{\{([a-zA-Z0-9_()]+?)\}\}/g;
+        if (reg.test(`${mappingValue}`)) {
+          mappingValue = mappingValue.replace(reg, (_, varName: string) => {
+            const reg2 = /^const\(([a-zA-Z0-9_]+?)\)$/;
             if (reg2.test(varName)) {
               return varName.match(reg2)![1];
             }
@@ -85,10 +89,10 @@ export class EmbeddingService {
 
   async embedById(
     providerId: string,
-    prompt: string,
+    input: string,
   ): Promise<AIEmbeddingResponse | undefined> {
     // const provider = await this.providerService.findOne(providerId);
-    const provider = getDefaultConfig('embedding', 'defaultProvider') as AIProvider;
+    const provider = getDefaultConfig('embedding', 'defaultProvider');
     if (!provider) {
       throw new Error('No provider found!');
     }
@@ -98,7 +102,7 @@ export class EmbeddingService {
     try {
       const data = await this.handleAIProviderConfiguration(
         { ...(provider as any) },
-        prompt,
+        input,
       );
       return data;
     } catch (err) {

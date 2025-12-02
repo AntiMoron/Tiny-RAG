@@ -1,3 +1,5 @@
+import { AxiosHeaders } from 'axios';
+
 export interface AIProvider {
   id: string;
   name: string;
@@ -14,7 +16,7 @@ export interface AIProviderUsage {
 export interface AIProviderConfig {
   apiKey: string;
   endpoint: string;
-  headers: any;
+  headers: Partial<typeof AxiosHeaders>;
   method: 'GET' | 'POST';
   region?: string;
   paramMapping: Record<string, string>; // e.g. 'prompt' => 'input.text'

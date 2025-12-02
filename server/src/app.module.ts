@@ -16,6 +16,11 @@ import { DatasetEntity } from './dataset/dataset.entity';
 import { KnowledgeEntity } from './knowledge/knowledge.entity';
 import { MilvusModule } from './milvus/milvus.module';
 import { ConfigModule } from '@nestjs/config';
+import { ChunksplitModule } from './chunksplit/chunksplit.module';
+import { ChunkModule } from './chunk/chunk.module';
+import { SyncdocModule } from './syncdoc/syncdoc.module';
+import { SsService } from './ss/ss.service';
+import { TaskModule } from './task/task.module';
 
 const defaultValues: Record<string, string> = {
   MYSQL_HOST: 'localhost',
@@ -73,8 +78,12 @@ function getEnvConfigValue(key: string): string {
     KnowledgeModule,
     DatasetModule,
     MilvusModule,
+    ChunksplitModule,
+    ChunkModule,
+    SyncdocModule,
+    TaskModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SsService],
 })
 export class AppModule {}

@@ -8,13 +8,18 @@ import { MilvusService } from 'src/milvus/milvus.service';
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { WinstonLogger } from 'nest-winston';
-import { getDocTaskList } from 'feishu2markdown';
+import { ChunksplitService } from 'src/chunksplit/chunksplit.service';
+import { ChunkService } from 'src/chunk/chunk.service';
+import { EmbeddingService } from 'src/embedding/embedding.service';
 
 @Injectable()
 export class KnowledgeService {
   constructor(
     private readonly logger: WinstonLogger,
     private readonly configService: ConfigService,
+    private readonly embeddingService: EmbeddingService,
+    private readonly chunkService: ChunkService,
+    private readonly chunkSplitService: ChunksplitService,
     private readonly milvusService: MilvusService,
     @InjectRepository(DatasetEntity)
     private readonly datasetRepo: Repository<DatasetEntity>,
@@ -59,26 +64,61 @@ export class KnowledgeService {
     const newKnowledge = this.knowledgeRepo.create(
       _.omitBy(knowledge, ['id']) as KnowledgeEntity,
     );
+    const { content } = knowledge;
+    const chunks = await this.chunkSplitService.splitChunks(content);
+    let sucCnt = 0;
+    for (let i = 0; i < chunks.length; i++) {
+      const chunkContent = chunks[i];
+      try {
+        const embedResponse = await this.embeddingService.embedById(
+          knowledge.embededByProviderId,
+          chunkContent,
+        );
+        const vector = embedResponse?.data.result;
+        if (!vector || vector.length === 0) {
+          this.logger.error('Failed to get embedding for chunk:', chunkContent);
+          throw new Error('Empty embedding result');
+        }
+        const client = this.milvusService.client;
+
+        if (!client) {
+          throw new Error('Milvus client is not ready yet.');
+        }
+        await client.insert({
+          collection_name: this.collectionName,
+          fields_data: [
+            {
+              knowledge_id: knowledge.id,
+              vector,
+            },
+          ],
+        });
+        await this.chunkService.insertChunk({
+          dataset_id: datasetEntity.id,
+          knowledge_id: newKnowledge.id,
+          embededByProviderId: knowledge.embededByProviderId,
+          content: chunkContent,
+          indexStatus: 'success',
+        });
+        sucCnt += 1;
+      } catch {
+        this.logger.error('Failed to insert chunk:', chunkContent);
+        await this.chunkService.insertChunk({
+          dataset_id: datasetEntity.id,
+          knowledge_id: newKnowledge.id,
+          embededByProviderId: knowledge.embededByProviderId,
+          content: chunkContent,
+          indexStatus: 'failure',
+        });
+      }
+    }
     const result = await this.knowledgeRepo.save(newKnowledge);
     try {
-      const client = this.milvusService.client;
-      if (!client) {
-        throw new Error('Milvus client is not ready yet.');
+      if (sucCnt === chunks.length) {
+        await this.knowledgeRepo.update(result.id, { indexStatus: 'success' });
+      } else {
+        await this.knowledgeRepo.update(result.id, { indexStatus: 'failed' });
       }
-      const { embedding } = knowledge;
-      if (!embedding) {
-        throw new Error('Embedding data is required to insert knowledge.');
-      }
-      await client.insert({
-        collection_name: this.collectionName,
-        fields_data: [
-          {
-            knowledge_id: knowledge.id,
-            vector: embedding?.result,
-          },
-        ],
-      });
-      await this.knowledgeRepo.update(result.id, { indexStatus: 'success' });
     } catch (err) {
       this.logger.error(err);
       await this.knowledgeRepo.update(result.id, { indexStatus: 'failed' });
@@ -120,5 +160,4 @@ export class KnowledgeService {
   async getKnowledgeCount(datasetId: string) {
     return await this.knowledgeRepo.countBy({ dataset_id: datasetId });
   }
-
 }

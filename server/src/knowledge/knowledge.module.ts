@@ -5,10 +5,16 @@ import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { KnowledgeEntity } from './knowledge.entity';
 import { DatasetEntity } from 'src/dataset/dataset.entity';
 import { MilvusModule } from 'src/milvus/milvus.module';
+import { ChunksplitModule } from 'src/chunksplit/chunksplit.module';
+import { ChunkModule } from 'src/chunk/chunk.module';
+import { EmbeddingModule } from 'src/embedding/embedding.module';
 
 @Module({
   imports: [
     MilvusModule,
+    ChunksplitModule,
+    ChunkModule,
+    EmbeddingModule,
     TypeOrmModule.forFeature([KnowledgeEntity, DatasetEntity]),
   ],
   providers: [KnowledgeService],
