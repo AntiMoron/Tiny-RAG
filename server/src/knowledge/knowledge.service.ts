@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Knowledge, KnowledgeIndex } from 'src/types/knowledge';
 import { InjectRepository } from '@nestjs/typeorm';
 import { KnowledgeEntity } from './knowledge.entity';
@@ -7,16 +7,19 @@ import { DatasetEntity } from 'src/dataset/dataset.entity';
 import { MilvusService } from 'src/milvus/milvus.service';
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
-import { WinstonLogger } from 'nest-winston';
+import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { ChunksplitService } from 'src/chunksplit/chunksplit.service';
 import { ChunkService } from 'src/chunk/chunk.service';
 import { EmbeddingService } from 'src/embedding/embedding.service';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @Injectable()
 export class KnowledgeService {
   constructor(
+    @Inject(WINSTON_MODULE_PROVIDER)
     private readonly logger: WinstonLogger,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => EmbeddingService))
     private readonly embeddingService: EmbeddingService,
     private readonly chunkService: ChunkService,
     private readonly chunkSplitService: ChunksplitService,

@@ -19,23 +19,8 @@ import { ConfigModule } from '@nestjs/config';
 import { ChunksplitModule } from './chunksplit/chunksplit.module';
 import { ChunkModule } from './chunk/chunk.module';
 import { SyncdocModule } from './syncdoc/syncdoc.module';
-import { SsService } from './ss/ss.service';
 import { TaskModule } from './task/task.module';
-
-const defaultValues: Record<string, string> = {
-  MYSQL_HOST: 'localhost',
-  MYSQL_PORT: '3306',
-  MYSQL_USER: 'root',
-  MYSQL_PASSWORD: '',
-  MYSQL_DATABASE: 'tiny_rag_db',
-  MILVUS_ADDR: 'localhost:19530',
-  MILVUS_COLLECTION_USER_NAME: '',
-  MILVUS_COLLECTION_PASSWORD: '',
-};
-
-function getEnvConfigValue(key: string): string {
-  return process.env[key] || defaultValues[key] || '';
-}
+import getEnvConfigValue from './util/getEnvConfigValue';
 
 @Module({
   imports: [
@@ -84,6 +69,6 @@ function getEnvConfigValue(key: string): string {
     TaskModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SsService],
+  providers: [AppService],
 })
 export class AppModule {}

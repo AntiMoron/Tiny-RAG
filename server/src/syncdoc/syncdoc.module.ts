@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { SyncdocService } from './syncdoc.service';
-import { TaskService } from 'src/task/task.service';
+import { TaskModule } from 'src/task/task.module';
 
 @Module({
   providers: [SyncdocService],
   exports: [SyncdocService],
-  imports: [TaskService],
+  imports: [TaskModule],
 })
 export class SyncdocModule {}

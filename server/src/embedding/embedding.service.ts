@@ -5,12 +5,13 @@ import { AIEmbeddingResponse } from 'src/types/embedding';
 import * as _ from 'lodash';
 import { Knowledge } from 'src/types/knowledge';
 import { KnowledgeService } from 'src/knowledge/knowledge.service';
+import { Inject, forwardRef } from '@nestjs/common';
 import getDefaultConfig from 'src/default_config';
 import { AxiosHeaders } from 'axios';
 
 @Injectable()
 export class EmbeddingService {
-  constructor(private readonly knowledgeService: KnowledgeService) {}
+  constructor(@Inject(forwardRef(() => KnowledgeService)) private readonly knowledgeService: KnowledgeService) {}
 
   async handleAIProviderConfiguration(
     provider: AIProvider,
@@ -51,7 +52,7 @@ export class EmbeddingService {
     if (method === 'GET') {
       return axios
         .get(endpoint, {
-          headers: replaceValues(headers, valueOptions),
+          headers: replaceValues(headers, valueOptions) as any,
           params: replaceValues(paramMapping, valueOptions),
         })
         .then((a) => a.data)
@@ -69,7 +70,7 @@ export class EmbeddingService {
     } else if (method === 'POST') {
       return axios
         .post(endpoint, replaceValues(paramMapping, valueOptions), {
-          headers: replaceValues(headers, valueOptions),
+          headers: replaceValues(headers, valueOptions) as any,
         })
         .then((a) => a.data)
         .then((result) => {

@@ -12,6 +12,9 @@ export class SyncdocService {
       type: 'sync_doc',
       data: {
         type: 'feishu',
+        appId: '',
+        appSecret: '',
+        docUrl: '',
       },
     });
   }
