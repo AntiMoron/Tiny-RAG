@@ -1,13 +1,18 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import doc2Markdown from 'feishu2markdown';
 import { KnowledgeService } from 'src/knowledge/knowledge.service';
 import { TaskBody } from 'src/types/task';
 import { QueueService } from './queue.service';
+import { ChunksplitService } from 'src/chunksplit/chunksplit.service';
+import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 
 @Injectable()
 export class TaskService implements OnModuleInit {
   constructor(
     private readonly knowledgeService: KnowledgeService,
+    @Inject(WINSTON_MODULE_PROVIDER)
+    private readonly logger: WinstonLogger,
+    private readonly chunksplitService: ChunksplitService,
     private readonly queueService: QueueService,
   ) {}
 
@@ -16,9 +21,13 @@ export class TaskService implements OnModuleInit {
     await this.queueService.registerProcessor(this.handleTask.bind(this));
   }
 
+  async getTaskStatus() {
+    return await this.queueService.getTaskStatus();
+  }
+
   // Public API used by controllers or other services to enqueue work
   async createTask(taskBody: TaskBody) {
-    return this.queueService.addTask(taskBody);
+    return await this.queueService.addTask(taskBody);
   }
 
   /**
@@ -30,22 +39,22 @@ export class TaskService implements OnModuleInit {
     if (taskType === 'sync_doc') {
       const { type, appId, appSecret, docUrl } = data;
       // Convert doc -> markdown
-      const content = await doc2Markdown({
+      let content = '';
+      await doc2Markdown({
         type: type as 'feishu',
         appId,
         appSecret,
         docUrl,
+        onDocFinish: (docId, markdown: string) => {
+          content = markdown;
+        },
       });
 
-      // TODO: persist content into KnowledgeService. Skipping here to avoid
-      // tight coupling — implement according to your dataset and embedding flow.
-
-      // Example of generating follow-up tasks: if parsing found links, enqueue more sync
-      // (Placeholder — adapt to real parsing logic)
-      const foundMoreDocs: string[] = []; // populate from content if needed
-      for (const url of foundMoreDocs) {
+      const chunks = await this.chunksplitService.splitChunks(content);
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
         await this.createTask({
-          type: 'sync_doc',
+          type: 'chunkIndex',
           data: { type, appId, appSecret, docUrl: url },
         });
       }

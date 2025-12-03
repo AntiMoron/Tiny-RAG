@@ -45,15 +45,14 @@ export class QueueService implements OnModuleDestroy {
     this.logger.log(`Connecting to Redis: ${redisUrl}`);
     try {
       this.connection = new IORedis(redisUrl);
-      this.queue = new Queue(this.queueName, { connection: this.connection! });
+      this.queue = new Queue(this.queueName, { connection: this.connection });
       // scheduler helps with stalled jobs / retries
       this.scheduler = new QueueScheduler(this.queueName, {
-        connection: this.connection!,
+        connection: this.connection,
       });
       // waitUntilReady is the correct API on QueueScheduler
       // types guarantee this exists when using the class from bullmq
       // but keep it guarded in case of runtime differences
-      // @ts-ignore
       await this.scheduler.waitUntilReady();
     } catch (err) {
       this.logger.warn(
@@ -71,6 +70,21 @@ export class QueueService implements OnModuleDestroy {
       this.queue = null;
       this.scheduler = null;
     }
+  }
+
+  async getTaskStatus() {
+    const total = await this.queue?.getJobCounts();
+    const waiting = await this.queue?.getWaitingCount();
+    const active = await this.queue?.getActiveCount();
+    const completed = await this.queue?.getCompletedCount();
+    const failed = await this.queue?.getFailedCount();
+    return {
+      total,
+      waiting,
+      active,
+      completed,
+      failed,
+    };
   }
 
   async addTask(
