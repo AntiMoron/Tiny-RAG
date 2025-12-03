@@ -1,3 +1,5 @@
+import * as os from 'os';
+
 const defaultValues: Record<string, string> = {
   TYPEORM_SYNC: '',
   MYSQL_HOST: 'localhost',
@@ -11,7 +13,7 @@ const defaultValues: Record<string, string> = {
   MILVUS_COLLECTION_PASSWORD: '',
   TASK_QUEUE_TYPE: 'redis',
   REDIS_URL: 'redis://127.0.0.1:6379',
-  TASK_WORKER_CONCURRENCY: '1',
+  TASK_WORKER_CONCURRENCY: `${Math.max(1, os.cpus().length - 1) || '1'}`,
   TASK_QUEUE_NAME: 'tasks',
   IN_MEMORY_MAX_QUEUE_SIZE: '1000',
 };

@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Queue, Worker, QueueScheduler, Job } from 'bullmq';
 import IORedis from 'ioredis';
-import * as os from 'os';
 import { TaskBody } from 'src/types/task';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 
@@ -157,17 +156,16 @@ export class QueueService implements OnModuleDestroy {
   ) {
     await this.init();
 
-    const cpuCount = Math.max(1, os.cpus().length - 1);
     const confConcurrency =
       concurrency ??
-      parseInt(process.env.TASK_WORKER_CONCURRENCY || `${cpuCount}`, 10);
+      parseInt(getEnvConfigValue('TASK_WORKER_CONCURRENCY'), 10);
 
     if (this.useInMemory) {
       // start in-memory worker loops
       if (this.inMemoryRunning) return;
       this.inMemoryRunning = true;
       const workerCount = confConcurrency;
-      this.logger.log(`Starting in-memory workers (count=${workerCount})`);
+      this.logger.log(`Starting in-memory workers (worker_count=${workerCount})`);
       for (let i = 0; i < workerCount; i++) {
         const loop = this.startInMemoryWorker(processor, i);
         this.inMemoryWorkers.push(loop);
