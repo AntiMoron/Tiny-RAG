@@ -1,6 +1,5 @@
 export interface Knowledge {
   id: string;
-  embededByProviderId: string;
   content: string;
   dataset_id: string;
   createdAt: Date;

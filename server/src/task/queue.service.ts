@@ -42,8 +42,12 @@ export class QueueService implements OnModuleDestroy {
       return;
     }
 
+    let useQueueType = getEnvConfigValue('TASK_QUEUE_TYPE');
     this.logger.log(`Connecting to Redis: ${redisUrl}`);
     try {
+      if (useQueueType === 'memory') {
+        throw new Error('0');
+      }
       this.connection = new IORedis(redisUrl);
       this.queue = new Queue(this.queueName, { connection: this.connection });
       // scheduler helps with stalled jobs / retries
@@ -55,10 +59,14 @@ export class QueueService implements OnModuleDestroy {
       // but keep it guarded in case of runtime differences
       await this.scheduler.waitUntilReady();
     } catch (err) {
-      this.logger.warn(
-        'Failed to connect to Redis, falling back to in-memory queue',
-        err as any,
-      );
+      if ((err as Error).message === '0') {
+        this.logger.warn('Use memory queue.');
+      } else {
+        this.logger.warn(
+          'Failed to connect to Redis, falling back to in-memory queue',
+          err as any,
+        );
+      }
       this.useInMemory = true;
       // close partial connection if any
       if (this.connection) {
@@ -73,6 +81,21 @@ export class QueueService implements OnModuleDestroy {
   }
 
   async getTaskStatus() {
+    if (this.useInMemory) {
+      const total = this.inMemoryQueue.length;
+      const waiting = this.inMemoryQueue.length;
+      const active = this.inMemoryWorkers.length;
+      const completed = 0; // not tracked in in-memory mode
+      const failed = 0;
+      return {
+        total,
+        waiting,
+        active,
+        completed,
+        failed,
+      };
+    }
+
     const total = await this.queue?.getJobCounts();
     const waiting = await this.queue?.getWaitingCount();
     const active = await this.queue?.getActiveCount();

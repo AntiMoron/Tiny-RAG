@@ -28,7 +28,6 @@ import getEnvConfigValue from './util/getEnvConfigValue';
       isGlobal: true,
     }),
     (async (): Promise<DynamicModule> => {
-      // const defaultConfiguration = await configuration();
       await ConfigModule.envVariablesLoaded;
       return TypeOrmModule.forRoot({
         type: 'mysql',
@@ -40,7 +39,6 @@ import getEnvConfigValue from './util/getEnvConfigValue';
         entities: [AIProviderEntity, KnowledgeEntity, DatasetEntity],
         synchronize:
           getEnvConfigValue('TYPEORM_SYNC') === 'false' ? false : true,
-        // keep logging minimal by default
         logging: false,
       });
     })(),

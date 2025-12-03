@@ -14,6 +14,10 @@ export class DatasetService {
     private readonly datasetRepo: Repository<DatasetEntity>,
   ) {}
 
+  async getDatasetById(id: string): Promise<DatasetEntity | null> {
+    return await this.datasetRepo.findOneBy({ id });
+  }
+
   async createDataset(dataset: Dataset): Promise<DatasetEntity> {
     const newDataset = this.datasetRepo.create({
       ...dataset,

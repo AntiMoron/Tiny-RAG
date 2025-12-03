@@ -23,6 +23,9 @@ export class DatasetEntity {
   @Column({ type: 'json', nullable: true })
   config?: string;
 
+  @Column({ length: 50 })
+  embededByProviderId: string;
+
   @CreateDateColumn({
     type: 'timestamp',
     precision: 3,

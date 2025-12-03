@@ -4,6 +4,7 @@ export interface Dataset {
   description?: string;
   createdAt: Date;
   updatedAt: Date;
+  embededByProviderId: string;
   type: 'text' | 'feishu';
   config?: {
     doc?: {

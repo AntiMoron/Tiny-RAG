@@ -12,6 +12,7 @@ import { ChunksplitService } from 'src/chunksplit/chunksplit.service';
 import { ChunkService } from 'src/chunk/chunk.service';
 import { EmbeddingService } from 'src/embedding/embedding.service';
 import { Inject, forwardRef } from '@nestjs/common';
+import getEnvConfigValue from 'src/util/getEnvConfigValue';
 
 @Injectable()
 export class KnowledgeService {
@@ -32,7 +33,7 @@ export class KnowledgeService {
   ) {}
 
   private get collectionName(): string {
-    return this.configService.get<string>('COLLECTION_NAME') || '';
+    return getEnvConfigValue('COLLECTION_NAME');
   }
 
   async findSimilarKnowledge(
@@ -56,7 +57,9 @@ export class KnowledgeService {
     return res.results as unknown as KnowledgeIndex[];
   }
 
-  async insertKnowledge(knowledge: Knowledge) {
+  async insertKnowledge(
+    knowledge: Omit<Knowledge, 'id' | 'createdAt' | 'updatedAt'>,
+  ) {
     const dataset_id = knowledge.dataset_id;
     const datasetEntity = await this.datasetRepo.findOneBy({
       name: dataset_id,
@@ -65,67 +68,38 @@ export class KnowledgeService {
       throw new Error(`Dataset ${dataset_id} not found.`);
     }
     const newKnowledge = this.knowledgeRepo.create(
-      _.omitBy(knowledge, ['id']) as KnowledgeEntity,
+      _.omitBy(knowledge, ['id']) as Omit<Knowledge, 'id'>,
     );
-    const { content } = knowledge;
-    const chunks = await this.chunkSplitService.splitChunks(content);
-    let sucCnt = 0;
-    for (let i = 0; i < chunks.length; i++) {
-      const chunkContent = chunks[i];
-      try {
-        const embedResponse = await this.embeddingService.embedById(
-          knowledge.embededByProviderId,
-          chunkContent,
-        );
-        const vector = embedResponse?.data.result;
-        if (!vector || vector.length === 0) {
-          this.logger.error('Failed to get embedding for chunk:', chunkContent);
-          throw new Error('Empty embedding result');
-        }
-        const client = this.milvusService.client;
+    return await this.knowledgeRepo.save(newKnowledge);
+    // const { content } = knowledge;
+    // const chunks = await this.chunkSplitService.splitChunks(content);
+    // let sucCnt = 0;
+    // for (let i = 0; i < chunks.length; i++) {
+    //   const chunkContent = chunks[i];
 
-        if (!client) {
-          throw new Error('Milvus client is not ready yet.');
-        }
-        await client.insert({
-          collection_name: this.collectionName,
-          fields_data: [
-            {
-              knowledge_id: knowledge.id,
-              vector,
-            },
-          ],
-        });
-        await this.chunkService.insertChunk({
-          dataset_id: datasetEntity.id,
-          knowledge_id: newKnowledge.id,
-          embededByProviderId: knowledge.embededByProviderId,
-          content: chunkContent,
-          indexStatus: 'success',
-        });
-        sucCnt += 1;
-      } catch {
-        this.logger.error('Failed to insert chunk:', chunkContent);
-        await this.chunkService.insertChunk({
-          dataset_id: datasetEntity.id,
-          knowledge_id: newKnowledge.id,
-          embededByProviderId: knowledge.embededByProviderId,
-          content: chunkContent,
-          indexStatus: 'failure',
-        });
-      }
-    }
-    const result = await this.knowledgeRepo.save(newKnowledge);
-    try {
-      if (sucCnt === chunks.length) {
-        await this.knowledgeRepo.update(result.id, { indexStatus: 'success' });
-      } else {
-        await this.knowledgeRepo.update(result.id, { indexStatus: 'failed' });
-      }
-    } catch (err) {
-      this.logger.error(err);
-      await this.knowledgeRepo.update(result.id, { indexStatus: 'failed' });
-    }
+    //     sucCnt += 1;
+    //   } catch {
+    //     this.logger.error('Failed to insert chunk:', chunkContent);
+    //     await this.chunkService.insertChunk({
+    //       dataset_id: datasetEntity.id,
+    //       knowledge_id: newKnowledge.id,
+    //       embededByProviderId: datasetEntity.embededByProviderId,
+    //       content: chunkContent,
+    //       indexStatus: 'failure',
+    //     });
+    //   }
+    // }
+    // const result = await this.knowledgeRepo.save(newKnowledge);
+    // try {
+    //   if (sucCnt === chunks.length) {
+    //     await this.knowledgeRepo.update(result.id, { indexStatus: 'success' });
+    //   } else {
+    //     await this.knowledgeRepo.update(result.id, { indexStatus: 'failed' });
+    //   }
+    // } catch (err) {
+    //   this.logger.error(err);
+    //   await this.knowledgeRepo.update(result.id, { indexStatus: 'failed' });
+    // }
   }
 
   async findByIds(ids: string[]): Promise<Knowledge[]> {
@@ -162,5 +136,12 @@ export class KnowledgeService {
 
   async getKnowledgeCount(datasetId: string) {
     return await this.knowledgeRepo.countBy({ dataset_id: datasetId });
+  }
+
+  async updateKnowledgeStatus(
+    id: string,
+    indexStatus: 'doing' | 'success' | 'fail',
+  ) {
+    return await this.knowledgeRepo.update({ id }, { indexStatus });
   }
 }

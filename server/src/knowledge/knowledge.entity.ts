@@ -15,9 +15,6 @@ export class KnowledgeEntity {
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ length: 50 })
-  embededByProviderId: string;
-
   // store provider config as JSON
   @Column({ length: 50 })
   dataset_id: string;

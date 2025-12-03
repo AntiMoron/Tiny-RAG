@@ -8,5 +8,6 @@ import { DatasetEntity } from './dataset.entity';
   imports: [TypeOrmModule.forFeature([DatasetEntity])],
   providers: [DatasetService],
   controllers: [DatasetController],
+  exports: [DatasetService],
 })
 export class DatasetModule {}
