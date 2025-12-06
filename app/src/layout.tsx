@@ -1,16 +1,21 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router";
-import Dataset from './page/Dataset/page'
+import { HashRouter, Outlet, Route, Routes } from "react-router";
+import App from "./app/page/app/page";
+import Dataset from "./app/page/app/Dataset/page";
+
+
 
 export default function Layout() {
   return (
     <div>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route index element={<div>123</div>} path="/"></Route>
-          <Route element={<Dataset />} path="/dataset"></Route>
+          <Route element={<App />} path="/app/">
+            <Route index element={<Dataset />} path="dataset"></Route>
+          </Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </div>
   );
 }
