@@ -60,8 +60,6 @@ export default function PageLayout() {
             <Sider style={{ background: colorBgContainer }} width={200}>
               <Menu
                 mode="inline"
-                defaultSelectedKeys={["dataset"]}
-                defaultOpenKeys={["dataset"]}
                 style={{ height: "100%" }}
                 items={menuData}
               />

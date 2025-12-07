@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Form, Input, Layout, Modal } from "antd";
+import { Button, Card, Form, Input, Layout, Modal, Select } from "antd";
 import axios from "axios";
 import { useMount } from "ahooks";
 import { Dataset } from "tinyrag-types/dataset";
 import { PlusOutlined } from "@ant-design/icons";
+import ProviderSelect from "../../../component/ProviderSelect";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -55,6 +56,18 @@ export default function Page() {
           </Form.Item>
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={4} />
+          </Form.Item>
+          <Form.Item
+            label="Embedding Provider"
+            name="embededByProviderId"
+            rules={[
+              {
+                required: true,
+                message: "Please select an embedding provider!",
+              },
+            ]}
+          >
+            <ProviderSelect type="embedding" />
           </Form.Item>
         </Form>
       </Modal>

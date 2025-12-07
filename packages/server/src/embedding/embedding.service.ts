@@ -6,12 +6,13 @@ import * as _ from 'lodash';
 import { Knowledge } from 'tinyrag-types/knowledge';
 import { KnowledgeService } from 'src/knowledge/knowledge.service';
 import { Inject, forwardRef } from '@nestjs/common';
-import getDefaultConfig from 'src/default_config';
-import { AxiosHeaders } from 'axios';
+import { AiproviderService } from 'src/aiprovider/aiprovider.service';
 
 @Injectable()
 export class EmbeddingService {
   constructor(
+    @Inject(forwardRef(() => AiproviderService))
+    private readonly providerService: AiproviderService,
     @Inject(forwardRef(() => KnowledgeService))
     private readonly knowledgeService: KnowledgeService,
   ) {}
@@ -95,8 +96,7 @@ export class EmbeddingService {
     providerId: string,
     input: string,
   ): Promise<AIEmbeddingResponse | undefined> {
-    // const provider = await this.providerService.findOne(providerId);
-    const provider = getDefaultConfig('embedding', 'defaultProvider');
+    const provider = await this.providerService.findOne(providerId);
     if (!provider) {
       throw new Error('No provider found!');
     }

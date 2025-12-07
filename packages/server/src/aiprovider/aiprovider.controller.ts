@@ -76,6 +76,7 @@ export class AiproviderController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    await this.aiProviderService.setTestStatus(id, null);
     return await this.aiProviderService.update(id, dto);
   }
 
@@ -92,5 +93,10 @@ export class AiproviderController {
     }
     await this.aiProviderService.setTestStatus(id, 'ok');
     return 'OK';
+  }
+
+  @Get('list/:type')
+  async listAIProvidersByType(@Param('type') type: string) {
+    return await this.aiProviderService.findProvidersByType(type as any);
   }
 }

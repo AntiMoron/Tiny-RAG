@@ -73,6 +73,7 @@ export class AiproviderService {
     if (!ent) return null;
     if (patch.name !== undefined) ent.name = patch.name;
     if (patch.config !== undefined) ent.config = patch.config as any;
+    if (patch.type !== undefined) ent.type = patch.type;
     return this.repo.save(ent);
   }
 
@@ -119,12 +120,12 @@ export class AiproviderService {
     }
   }
 
-  async setTestStatus(id: string, status:  'ok' | 'error') {
+  async setTestStatus(id: string, status: null | 'ok' | 'error') {
     const provider = await this.repo.findOneBy({ id });
     if (!provider) {
       throw new HttpException('AI Provider not found', HttpStatus.NOT_FOUND);
     }
-    provider.lastTestStatus = status;
+    provider.lastTestStatus = status as string;
     return await this.repo.save(provider);
   }
 }

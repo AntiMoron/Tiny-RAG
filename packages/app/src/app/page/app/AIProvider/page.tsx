@@ -7,6 +7,7 @@ import { CheckCircleFilled, PlusOutlined } from "@ant-design/icons";
 
 import AIProviderActions from "../../../component/AIProviderActions";
 import AIProviderConfigForm from "../../../component/AIProviderConfigForm";
+import UUIDDisplay from "../../../component/UUIDDisplay";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -40,6 +41,9 @@ export default function AIProviderPage() {
               title: "ID",
               dataIndex: "id",
               key: "id",
+              render: (value) => {
+                return <UUIDDisplay text={value} />;
+              },
             },
             {
               title: "Name",
