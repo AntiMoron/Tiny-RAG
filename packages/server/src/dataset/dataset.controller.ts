@@ -2,20 +2,22 @@ import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { DatasetService } from './dataset.service';
 import { Dataset } from 'tinyrag-types/dataset';
 import checkParams from 'src/util/checkParams';
+import * as _ from 'lodash';
 
 @Controller('api/dataset')
 export class DatasetController {
   constructor(private readonly datasetService: DatasetService) {}
 
-  @Post('create')
+  @Post('add')
   async createDataset(@Body() body) {
-    checkParams(body, ['name', 'description']);
+    checkParams(body, ['name', 'type', 'embededByProviderId']);
     await this.datasetService.createDataset(body as Dataset);
   }
 
   @Get('list')
   async listDatasets(): Promise<Dataset[]> {
-    return await this.datasetService.listDatasets();
+    const list = await this.datasetService.listDatasets();
+    return list.map((a) => _.omit(a, ['config']));
   }
 
   @Delete('delete/:id')

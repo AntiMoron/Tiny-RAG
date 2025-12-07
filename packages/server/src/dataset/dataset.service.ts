@@ -19,9 +19,16 @@ export class DatasetService {
   }
 
   async createDataset(dataset: Dataset): Promise<DatasetEntity> {
+    let datasetConfig = dataset.config as any;
+    if (datasetConfig && typeof datasetConfig !== 'string') {
+      datasetConfig = dataset.config
+        ? JSON.stringify(dataset.config)
+        : undefined;
+    }
+
     const newDataset = this.datasetRepo.create({
       ...dataset,
-      config: dataset.config ? JSON.stringify(dataset.config) : undefined,
+      config: datasetConfig,
     });
     return this.datasetRepo.save(newDataset);
   }

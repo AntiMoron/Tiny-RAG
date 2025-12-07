@@ -3,14 +3,14 @@ import { KnowledgeService } from './knowledge.service';
 import { Knowledge } from 'tinyrag-types/knowledge';
 import checkParams from 'src/util/checkParams';
 
-@Controller('knowledge')
+@Controller('api/knowledge')
 export class KnowledgeController {
   constructor(private readonly knowledgeService: KnowledgeService) {}
 
   @Get('list/:dataset')
   async listKnowledge(@Param('dataset') dataset: string) {
     const list = await this.knowledgeService.listKnowledge(dataset);
-    const count = await this.knowledgeService.listKnowledge(dataset);
+    const count = await this.knowledgeService.getKnowledgeCount(dataset);
     return {
       total: count,
       list,

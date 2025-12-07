@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Knowledge, KnowledgeIndex } from 'tinyrag-types/knowledge';
 import { InjectRepository } from '@nestjs/typeorm';
 import { KnowledgeEntity } from './knowledge.entity';
@@ -119,10 +119,10 @@ export class KnowledgeService {
 
   async listKnowledge(dataset: string): Promise<Knowledge[]> {
     const datasetEntity = await this.datasetRepo.findOneBy({
-      name: dataset,
+      id: dataset,
     });
     if (!datasetEntity) {
-      throw new Error(`Dataset ${dataset} not found.`);
+      throw new HttpException(`Dataset ${dataset} not found.`, HttpStatus.NOT_FOUND);
     }
     const knowledgeEntities = await this.knowledgeRepo.findBy({
       dataset_id: datasetEntity.id,

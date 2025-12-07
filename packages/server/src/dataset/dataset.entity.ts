@@ -14,10 +14,10 @@ export class DatasetEntity {
   @Column({ length: 200 })
   name: string;
 
-  @Column({ length: 300 })
+  @Column({ length: 300, nullable: true, default: '' })
   description: string;
 
-  @Column({ length: 20 })
+  @Column({ length: 20, default: 'text' })
   type: string;
 
   @Column({ type: 'json', nullable: true })
