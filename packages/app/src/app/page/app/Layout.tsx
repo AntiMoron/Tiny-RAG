@@ -66,12 +66,12 @@ export default function PageLayout() {
                 items={menuData}
               />
             </Sider>
-            <div style={{ padding: "0 48px" }}>
+            <div style={{ padding: "0 48px", width: "100%" }}>
               <Breadcrumb
                 style={{ margin: "16px 0" }}
                 items={[{ title: "Home" }, { title: "List" }, { title: "App" }]}
               />
-              <Content style={{ padding: "0 24px", minHeight: 280 }}>
+              <Content style={{ minHeight: 280, width: "100%" }}>
                 <Outlet />
               </Content>
             </div>

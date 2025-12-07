@@ -1,14 +1,17 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CompletionService } from './completion.service';
 import { CompletionController } from './completion.controller';
 import { AiproviderModule } from 'src/aiprovider/aiprovider.module';
-import { AiproviderService } from 'src/aiprovider/aiprovider.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AIProviderEntity } from 'src/aiprovider/aiprovider.entity';
 
 @Module({
-  providers: [CompletionService, AiproviderService],
+  providers: [CompletionService],
   controllers: [CompletionController],
-  imports: [AiproviderModule, TypeOrmModule.forFeature([AIProviderEntity])],
+  imports: [
+    TypeOrmModule.forFeature([AIProviderEntity]),
+    forwardRef(() => AiproviderModule),
+  ],
+  exports: [CompletionService],
 })
 export class CompletionModule {}

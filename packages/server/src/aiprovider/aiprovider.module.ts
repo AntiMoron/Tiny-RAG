@@ -1,8 +1,11 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AiproviderService } from './aiprovider.service';
 import { AiproviderController } from './aiprovider.controller';
 import { AIProviderEntity } from './aiprovider.entity';
+import { KnowledgeModule } from 'src/knowledge/knowledge.module';
+import { EmbeddingModule } from 'src/embedding/embedding.module';
+import { CompletionModule } from 'src/completion/completion.module';
 
 /**
  * To start implementing the system, I choose to start from here.
@@ -16,7 +19,11 @@ import { AIProviderEntity } from './aiprovider.entity';
  * 5. Use provider to do embedding / completion / vision tasks. [P0]
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([AIProviderEntity])],
+  imports: [
+    TypeOrmModule.forFeature([AIProviderEntity]),
+    forwardRef(() => CompletionModule),
+    forwardRef(() => EmbeddingModule),
+  ],
   providers: [AiproviderService],
   controllers: [AiproviderController],
   exports: [AiproviderService],

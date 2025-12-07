@@ -1,8 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AIProviderEntity } from './aiprovider.entity';
 import { AIProvider } from 'tinyrag-types/aiprovider';
+import { EmbeddingService } from 'src/embedding/embedding.service';
+import { CompletionService } from 'src/completion/completion.service';
 
 /**
  * 1. Save providers for further usage. [P0]
@@ -16,6 +24,10 @@ export class AiproviderService {
   constructor(
     @InjectRepository(AIProviderEntity)
     private readonly repo: Repository<AIProviderEntity>,
+    @Inject(forwardRef(() => EmbeddingService))
+    private readonly embeddingService: EmbeddingService,
+    @Inject(forwardRef(() => CompletionService))
+    private readonly completionService: CompletionService,
   ) {}
 
   async create(
@@ -30,6 +42,11 @@ export class AiproviderService {
 
   async findAll(): Promise<AIProviderEntity[]> {
     return this.repo.find();
+  }
+
+  async findOneByName(name: string): Promise<AIProvider | null> {
+    const result = await this.repo.findOneBy({ name });
+    return result ? (result as AIProvider) : null;
   }
 
   async findOne(id: string): Promise<AIProvider | null> {
@@ -65,5 +82,49 @@ export class AiproviderService {
       throw new Error('Delete operation failed');
     }
     return (res.affected as number) > 0;
+  }
+
+  async testAIProvider(id: string) {
+    const provider = await this.findOne(id);
+    if (!provider) {
+      throw new HttpException('AI Provider not found', HttpStatus.NOT_FOUND);
+    }
+    const { type } = provider;
+    let isWorking = false;
+    switch (type) {
+      case 'completion':
+        const compRet = await this.completionService.completeById(
+          id,
+          'Hello world!',
+        );
+        isWorking = Boolean(
+          compRet &&
+          compRet.data &&
+          typeof compRet?.data?.result === 'string' &&
+          compRet?.usage?.completion_tokens > 0,
+        );
+        break;
+      case 'embedding':
+        const embRet = await this.embeddingService.embedById(id, 'test');
+        isWorking = Boolean(
+          embRet &&
+          embRet.data &&
+          Array.isArray(embRet?.data?.result) &&
+          embRet.data.result.length > 0 &&
+          embRet?.usage?.completion_tokens > 0,
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+  async setTestStatus(id: string, status:  'ok' | 'error') {
+    const provider = await this.repo.findOneBy({ id });
+    if (!provider) {
+      throw new HttpException('AI Provider not found', HttpStatus.NOT_FOUND);
+    }
+    provider.lastTestStatus = status;
+    return await this.repo.save(provider);
   }
 }

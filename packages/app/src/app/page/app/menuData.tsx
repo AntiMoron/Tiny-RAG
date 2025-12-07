@@ -1,6 +1,7 @@
 import { MenuProps } from "antd";
 import React from "react";
 import {
+  RobotOutlined,
   DatabaseOutlined,
   NotificationOutlined,
   UserOutlined,
@@ -9,10 +10,15 @@ import { ItemType, MenuItemType } from "antd/es/menu/interface";
 
 function useMemuData(props: {
   onClick?: (item: ItemType<MenuItemType>) => void;
-}): MenuItemType[] {
+}): ItemType<MenuItemType>[] {
   const { onClick } = props;
 
   const menuData: MenuProps["items"] = [
+    {
+      key: `aiprovider`,
+      icon: React.createElement(RobotOutlined),
+      label: `AI Provider`,
+    },
     {
       key: `dataset`,
       icon: React.createElement(DatabaseOutlined),
@@ -29,7 +35,7 @@ function useMemuData(props: {
       ...item,
       onClick: onClick?.(item),
     };
-  });
+  }) as ItemType<MenuItemType>[];
 }
 
 export default useMemuData;

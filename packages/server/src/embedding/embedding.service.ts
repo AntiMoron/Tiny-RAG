@@ -11,7 +11,10 @@ import { AxiosHeaders } from 'axios';
 
 @Injectable()
 export class EmbeddingService {
-  constructor(@Inject(forwardRef(() => KnowledgeService)) private readonly knowledgeService: KnowledgeService) {}
+  constructor(
+    @Inject(forwardRef(() => KnowledgeService))
+    private readonly knowledgeService: KnowledgeService,
+  ) {}
 
   async handleAIProviderConfiguration(
     provider: AIProvider,

@@ -15,7 +15,7 @@ export class AIProviderEntity {
   @Column({ length: 200 })
   name: string;
 
-  @Column({ length: 30 })
+  @Column({ length: 30, default: 'completion' })
   type: string;
 
   // store provider config as JSON
@@ -36,4 +36,7 @@ export class AIProviderEntity {
     onUpdate: 'CURRENT_TIMESTAMP(3)',
   })
   updatedAt: Date;
+
+  @Column({ length: 30, nullable: true })
+  lastTestStatus: string;
 }

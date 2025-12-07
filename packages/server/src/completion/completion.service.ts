@@ -1,7 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import {
-  AICompletionResponse,
-} from 'tinyrag-types/completion';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { AICompletionResponse } from 'tinyrag-types/completion';
 import axios from 'axios';
 import * as _ from 'lodash';
 import { AIProvider } from 'tinyrag-types/aiprovider';
@@ -9,7 +7,10 @@ import { AiproviderService } from 'src/aiprovider/aiprovider.service';
 
 @Injectable()
 export class CompletionService {
-  constructor(private readonly providerService: AiproviderService) {}
+  constructor(
+    @Inject(forwardRef(() => AiproviderService))
+    private readonly providerService: AiproviderService,
+  ) {}
 
   async handleAIProviderConfiguration(
     provider: AIProvider,
