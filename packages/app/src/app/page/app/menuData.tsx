@@ -39,7 +39,7 @@ function useMemuData(props: {
   return menuData.map((item) => {
     return {
       ...item,
-      onClick: onClick?.(item),
+      onClick: () => onClick?.(item),
     };
   }) as ItemType<MenuItemType>[];
 }

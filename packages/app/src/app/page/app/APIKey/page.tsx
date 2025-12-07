@@ -84,9 +84,6 @@ export default function APIKeyPage() {
           ]}
         />
       </Content>
-      <Footer style={{ textAlign: "center" }}>
-        TinyRAG ©2025 Created by Antimoron
-      </Footer>
       <Modal
         open={open}
         footer={null}

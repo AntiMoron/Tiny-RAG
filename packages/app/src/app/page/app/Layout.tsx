@@ -1,9 +1,10 @@
 import React from "react";
 import { Outlet, useNavigation } from "react-router";
-import { Breadcrumb, Flex, Layout, Menu, MenuProps, theme } from "antd";
+import { Breadcrumb, Button, Flex, Layout, Menu, MenuProps, theme } from "antd";
 import useMemuData from "./menuData";
 import { useNavigate } from "react-router";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";
+import { GithubFilled } from "@ant-design/icons";
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -11,10 +12,11 @@ const { Header, Footer, Sider, Content } = Layout;
 
 const headerStyle: React.CSSProperties = {
   textAlign: "center",
-  color: "#fff",
+  color: "#2b2b2b",
   height: 64,
   paddingInline: 48,
   lineHeight: "64px",
+  background: "#3498db",
 };
 
 const footerStyle: React.CSSProperties = {
@@ -48,7 +50,19 @@ export default function PageLayout() {
     <div>
       <Flex gap="middle" wrap>
         <Layout style={layoutStyle}>
-          <Header style={headerStyle}>Header</Header>
+          <Header style={headerStyle}>
+            <Flex>
+              <div style={{ flex: 1, textAlign: "left" }}>Tiny RAG</div>
+              <a href="https://github.com/AntiMoron/Tiny-RAG">
+                <Button
+                  style={{ color: "black" }}
+                  icon={<GithubFilled />}
+                  type="link"
+                ></Button>
+                <span style={{ color: "#2b2b2b" }}>Star</span>
+              </a>
+            </Flex>
+          </Header>
           <Layout
             style={{
               padding: "24px 0",
@@ -69,7 +83,17 @@ export default function PageLayout() {
               </Content>
             </div>
           </Layout>
-          <Footer style={footerStyle}>Footer</Footer>
+          <Footer style={footerStyle}>
+            TinyRAG ©2025 Created by Antimoron with ❤
+            <a href="https://github.com/AntiMoron/Tiny-RAG">
+              <Button
+                style={{ color: "black" }}
+                icon={<GithubFilled />}
+                type="link"
+              ></Button>
+              <span style={{ color: "white" }}>Star</span>
+            </a>
+          </Footer>
         </Layout>
       </Flex>
     </div>

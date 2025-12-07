@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 export class DatasetController {
   constructor(private readonly datasetService: DatasetService) {}
 
-  @Get(':id')
+  @Get('/detail/:id')
   async getDetail(@Param('id') id: string) {
     return await this.datasetService.getDatasetById(id);
   }

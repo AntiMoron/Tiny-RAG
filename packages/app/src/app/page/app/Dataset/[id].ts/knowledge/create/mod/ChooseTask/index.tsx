@@ -6,10 +6,11 @@ import React, { useEffect } from "react";
 export interface ChooseTaskProps {
   type: string;
   datasetId: string;
+  open?: boolean;
 }
 
 export default function ChooseTask(props: ChooseTaskProps) {
-  const { type, datasetId } = props;
+  const { type, open, datasetId } = props;
   useEffect(() => {
     if (!datasetId) {
       return;
@@ -18,5 +19,5 @@ export default function ChooseTask(props: ChooseTaskProps) {
       console.log(res.data);
     });
   }, [datasetId]);
-  return <Modal></Modal>;
+  return <Modal open={open}></Modal>;
 }
