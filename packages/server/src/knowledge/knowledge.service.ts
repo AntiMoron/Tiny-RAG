@@ -62,7 +62,10 @@ export class KnowledgeService {
       name: dataset_id,
     });
     if (!datasetEntity) {
-      throw new Error(`Dataset ${dataset_id} not found.`);
+      throw new HttpException(
+        `Dataset ${dataset_id} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
     }
     const newKnowledge = this.knowledgeRepo.create(
       _.omitBy(knowledge, ['id']) as Omit<Knowledge, 'id'>,
@@ -119,7 +122,10 @@ export class KnowledgeService {
       id: dataset,
     });
     if (!datasetEntity) {
-      throw new HttpException(`Dataset ${dataset} not found.`, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        `Dataset ${dataset} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
     }
     const knowledgeEntities = await this.knowledgeRepo.findBy({
       dataset_id: datasetEntity.id,

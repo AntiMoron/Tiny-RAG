@@ -5,6 +5,7 @@ import {
   DatabaseOutlined,
   NotificationOutlined,
   UserOutlined,
+  ApiOutlined,
 } from "@ant-design/icons";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";
 
@@ -23,6 +24,11 @@ function useMemuData(props: {
       key: `dataset`,
       icon: React.createElement(DatabaseOutlined),
       label: `Dataset`,
+    },
+    {
+      key: `apikey`,
+      icon: React.createElement(ApiOutlined),
+      label: `API Keys`,
     },
     {
       key: `user`,

@@ -5,16 +5,22 @@ import { useParams } from "react-router";
 import { Knowledge, KnowledgeIndex } from "tinyrag-types/Knowledge";
 import { Alert, Button, Layout, Table } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import ChooseTask from "./mod/ChooseTask";
+import { Dataset } from "tinyrag-types/dataset";
 
 const { Header, Content, Footer, Sider } = Layout;
 export default function DatasetDetailPage() {
   const params = useParams();
   const { id } = params;
   const [total, setTotal] = useState(0);
+  const [dataset, setDataset] = useState<Dataset | undefined>();
   const [data, setData] = useState<Knowledge[]>([]);
   const [hasError, setHasError] = useState("");
   const [detailError, setDetailError] = useState("");
   useEffect(() => {
+    axios.get(`/api/dataset/${id}`).then((res) => {
+      setDataset(res.data);
+    });
     axios
       .get(`/api/knowledge/list/${id}`)
       .then((res) => {
@@ -43,6 +49,7 @@ export default function DatasetDetailPage() {
       <Content>
         <Table dataSource={data} rowKey="id" pagination={{ total }} />
       </Content>
+      <ChooseTask datasetId={id || ''} type="feishu" />
     </Layout>
   );
 }

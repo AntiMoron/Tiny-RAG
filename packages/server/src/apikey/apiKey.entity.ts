@@ -13,7 +13,7 @@ export class ApiKeyEntity {
   @Column({ length: 200 })
   name: string;
 
-  @Column({ length: 300 })
+  @Column({ length: 300, nullable: true, default: '' })
   description: string;
 
   @Column({ length: 280 })

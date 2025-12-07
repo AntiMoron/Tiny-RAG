@@ -8,6 +8,11 @@ import * as _ from 'lodash';
 export class DatasetController {
   constructor(private readonly datasetService: DatasetService) {}
 
+  @Get(':id')
+  async getDetail(@Param('id') id: string) {
+    return await this.datasetService.getDatasetById(id);
+  }
+
   @Post('add')
   async createDataset(@Body() body) {
     checkParams(body, ['name', 'type', 'embededByProviderId']);

@@ -18,8 +18,10 @@ export class ApikeyService {
     return await this.repo.find();
   }
 
-  async createApiKey(): Promise<ApiKeyEntity> {
+  async createApiKey(name: string, description: string): Promise<ApiKeyEntity> {
     const apiKey = this.repo.create();
+    apiKey.name = name;
+    apiKey.description = description;
     apiKey.key = 'tinyrag_' + crypto.randomUUID().replace(/-/g, '');
     return await this.repo.save(apiKey);
   }

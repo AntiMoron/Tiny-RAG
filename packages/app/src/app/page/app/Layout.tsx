@@ -15,7 +15,6 @@ const headerStyle: React.CSSProperties = {
   height: 64,
   paddingInline: 48,
   lineHeight: "64px",
-  backgroundColor: "#3498db",
 };
 
 const footerStyle: React.CSSProperties = {
@@ -58,11 +57,7 @@ export default function PageLayout() {
             }}
           >
             <Sider style={{ background: colorBgContainer }} width={200}>
-              <Menu
-                mode="inline"
-                style={{ height: "100%" }}
-                items={menuData}
-              />
+              <Menu mode="inline" style={{ height: "100%" }} items={menuData} />
             </Sider>
             <div style={{ padding: "0 48px", width: "100%" }}>
               <Breadcrumb

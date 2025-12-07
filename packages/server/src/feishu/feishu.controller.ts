@@ -1,0 +1,58 @@
+import {
+  Controller,
+  forwardRef,
+  Get,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Param,
+} from '@nestjs/common';
+import { DatasetService } from 'src/dataset/dataset.service';
+import checkParams from 'src/util/checkParams';
+import { Knowledge } from 'tinyrag-types/knowledge';
+import handleDoc, { getDocTaskList } from 'feishu2markdown';
+
+@Controller('api/feishu')
+export class FeishuController {
+  constructor(
+    @Inject(forwardRef(() => DatasetService))
+    private readonly datasetService: DatasetService,
+  ) {}
+
+  @Get('dataset/:datasetId/tasks')
+  async listFeishuKnowledge(
+    @Param('datasetId') datasetId: string,
+  ): Promise<Knowledge[]> {
+    const datasetEntity = await this.datasetService.getDatasetById(datasetId);
+    if (!datasetEntity) {
+      throw new HttpException('Dataset not found', HttpStatus.NOT_FOUND);
+    }
+    const { type, config } = datasetEntity;
+    if (type !== 'feishu') {
+      throw new HttpException(
+        'Dataset type is incorrect',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (!config) {
+      throw new HttpException(
+        'Dataset type is incorrect',
+        HttpStatus.BAD_REQUEST,
+      );
+    } else {
+      checkParams(config, ['appId', 'appSecret', 'folderToken']);
+    }
+    const { appId, appSecret, folderToken } = config as unknown as {
+      appId: string;
+      appSecret: string;
+      folderToken: string;
+    };
+    const tasks = await getDocTaskList({
+      type: 'feishu',
+      appId,
+      appSecret,
+      folderToken,
+    });
+    return tasks;
+  }
+}

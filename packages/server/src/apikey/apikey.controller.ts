@@ -1,7 +1,8 @@
-import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApikeyService } from './apikey.service';
+import checkParams from 'src/util/checkParams';
 
-@Controller('apikey')
+@Controller('api/apikey')
 export class ApikeyController {
   constructor(private readonly apikeyService: ApikeyService) {}
 
@@ -16,8 +17,9 @@ export class ApikeyController {
     return { OK: true };
   }
 
-  @Post('create')
-  async createApiKey() {
-    // Implementation for creating an API key goes here
+  @Post('add')
+  async createApiKey(@Body() body: { name: string; description: string }) {
+    checkParams(body, ['name']);
+    return await this.apikeyService.createApiKey(body.name, body.description);
   }
 }

@@ -1,11 +1,26 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  forwardRef,
+  Get,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { KnowledgeService } from './knowledge.service';
 import { Knowledge } from 'tinyrag-types/knowledge';
 import checkParams from 'src/util/checkParams';
+import { DatasetService } from 'src/dataset/dataset.service';
 
 @Controller('api/knowledge')
 export class KnowledgeController {
-  constructor(private readonly knowledgeService: KnowledgeService) {}
+  constructor(
+    @Inject(forwardRef(() => DatasetService))
+    private readonly datasetService: DatasetService,
+    private readonly knowledgeService: KnowledgeService,
+  ) {}
 
   @Get('list/:dataset')
   async listKnowledge(@Param('dataset') dataset: string) {
@@ -17,12 +32,12 @@ export class KnowledgeController {
     };
   }
 
-  @Post('add/:dataset')
-  async addKnowledge(@Param('dataset') dataset: string, @Body() body) {
-    checkParams(body, ['id', 'embededByProviderId', 'content']);
+  @Post('add')
+  async addKnowledge(@Body() body) {
+    checkParams(body, ['dataset_id', 'embededByProviderId', 'content']);
     await this.knowledgeService.insertKnowledge({
       ...body,
-      dataset_id: dataset,
     } as Knowledge);
   }
+
 }

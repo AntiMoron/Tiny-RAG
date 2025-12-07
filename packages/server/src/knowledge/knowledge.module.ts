@@ -9,6 +9,7 @@ import { ChunksplitModule } from 'src/chunksplit/chunksplit.module';
 import { ChunkModule } from 'src/chunk/chunk.module';
 import { forwardRef } from '@nestjs/common';
 import { EmbeddingModule } from 'src/embedding/embedding.module';
+import { DatasetModule } from 'src/dataset/dataset.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { EmbeddingModule } from 'src/embedding/embedding.module';
     ChunksplitModule,
     ChunkModule,
     forwardRef(() => EmbeddingModule),
+    forwardRef(() => DatasetModule),
     TypeOrmModule.forFeature([KnowledgeEntity, DatasetEntity]),
   ],
   providers: [KnowledgeService],

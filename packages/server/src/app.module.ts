@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AiproviderModule } from './aiprovider/aiprovider.module';
 import { AIProviderEntity } from './aiprovider/aiprovider.entity';
+import { ApiKeyEntity } from './apikey/apiKey.entity';
 import { EmbeddingModule } from './embedding/embedding.module';
 import { CompletionModule } from './completion/completion.module';
 import { ApikeyModule } from './apikey/apikey.module';
@@ -20,6 +21,7 @@ import { ChunksplitModule } from './chunksplit/chunksplit.module';
 import { ChunkModule } from './chunk/chunk.module';
 import { SyncdocModule } from './syncdoc/syncdoc.module';
 import { TaskModule } from './task/task.module';
+import { FeishuModule } from './feishu/feishu.module';
 import getEnvConfigValue from './util/getEnvConfigValue';
 
 @Module({
@@ -36,7 +38,7 @@ import getEnvConfigValue from './util/getEnvConfigValue';
         username: getEnvConfigValue('MYSQL_USER'),
         password: getEnvConfigValue('MYSQL_PASSWORD'),
         database: getEnvConfigValue('MYSQL_DATABASE'),
-        entities: [AIProviderEntity, KnowledgeEntity, DatasetEntity],
+        entities: [AIProviderEntity, KnowledgeEntity, DatasetEntity, ApiKeyEntity],
         synchronize:
           getEnvConfigValue('TYPEORM_SYNC') === 'false' ? false : true,
         logging: false,
@@ -65,6 +67,7 @@ import getEnvConfigValue from './util/getEnvConfigValue';
     ChunkModule,
     SyncdocModule,
     TaskModule,
+    FeishuModule,
   ],
   controllers: [AppController],
   providers: [AppService],
