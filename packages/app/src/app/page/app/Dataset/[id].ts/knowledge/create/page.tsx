@@ -42,12 +42,12 @@ export default function KnowledgeCreatePage() {
       },
       {
         title: "Step 2",
-        content: "This is a content.",
-        status: "error",
+        content: "Create Sync Task",
+        // status: "error",
       },
       {
         title: "Step 3",
-        content: "This is a content.",
+        content: "Create Indexing Task",
       },
     ],
   };
