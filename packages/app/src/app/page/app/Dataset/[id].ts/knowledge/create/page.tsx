@@ -5,6 +5,7 @@ import { useMount } from "ahooks";
 import axios from "axios";
 import { Dataset } from "tinyrag-types/dataset";
 import { Flex, Steps } from "antd";
+import ChooseTask from "./mod/ChooseTask";
 
 const TabPane = Tabs.TabPane;
 
@@ -13,7 +14,7 @@ const { Header, Content } = Layout;
 export default function KnowledgeCreatePage() {
   const params = useParams();
   const { id: datasetId } = params;
-
+  const [currentStep, setCurrentStep] = useState(0);
   const [detail, setDetail] = useState<undefined | Dataset>();
   useMount(() => {
     axios.get(`/api/dataset/detail/${datasetId}`).then((res) => {
@@ -53,18 +54,16 @@ export default function KnowledgeCreatePage() {
   return (
     <Layout>
       <Content>
-        <Steps {...sharedProps} />
-        <Tabs>
-          <TabPane key="123" tab="123" tabKey="123">
-            <div>123</div>
-          </TabPane>
-          <TabPane tabKey="345" tab="1423">
-            <div>123</div>
-          </TabPane>
-          <TabPane tabKey="156723" tab="1263">
-            <div>123</div>
-          </TabPane>
-        </Tabs>
+        <Steps
+          {...sharedProps}
+          current={currentStep}
+          onChange={(current) => setCurrentStep(current)}
+        />
+        <ChooseTask
+          style={{ display: currentStep === 0 ? "block" : "none" }}
+          datasetId={datasetId!}
+          type={type!}
+        />
       </Content>
     </Layout>
   );
