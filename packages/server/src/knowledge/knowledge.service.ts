@@ -21,9 +21,6 @@ export class KnowledgeService {
     private readonly logger: WinstonLogger,
     private readonly configService: ConfigService,
     @Inject(forwardRef(() => EmbeddingService))
-    private readonly embeddingService: EmbeddingService,
-    private readonly chunkService: ChunkService,
-    private readonly chunkSplitService: ChunksplitService,
     private readonly milvusService: MilvusService,
     @InjectRepository(DatasetEntity)
     private readonly datasetRepo: Repository<DatasetEntity>,
