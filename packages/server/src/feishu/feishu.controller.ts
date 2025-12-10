@@ -10,7 +10,7 @@ import {
 import { DatasetService } from 'src/dataset/dataset.service';
 import checkParams from 'src/util/checkParams';
 import { Knowledge } from 'tinyrag-types/knowledge';
-import handleDoc, { getDocTaskList } from 'feishu2markdown';
+import { getDocTaskList } from 'feishu2markdown';
 
 @Controller('api/feishu')
 export class FeishuController {
@@ -40,19 +40,16 @@ export class FeishuController {
         HttpStatus.BAD_REQUEST,
       );
     } else {
-      checkParams(config, ['appId', 'appSecret', 'folderToken']);
+      checkParams(config, ['doc']);
+      checkParams(config?.doc, ['appId', 'appSecret', 'folderToken']);
     }
-    const { appId, appSecret, folderToken } = config as unknown as {
-      appId: string;
-      appSecret: string;
-      folderToken: string;
-    };
+    const { appId, appSecret, folderToken } = config.doc!;
     const tasks = await getDocTaskList({
       type: 'feishu',
       appId,
       appSecret,
       folderToken,
-    });
-    return tasks;
+    } as any);
+    return tasks as any[];
   }
 }

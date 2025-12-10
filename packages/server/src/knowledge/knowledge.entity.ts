@@ -34,6 +34,9 @@ export class KnowledgeEntity {
   })
   updatedAt: Date;
 
+  @Column({ length: 50, nullable: true })
+  externalId: string;
+
   @Column({ length: 10 })
   indexStatus: string;
 }

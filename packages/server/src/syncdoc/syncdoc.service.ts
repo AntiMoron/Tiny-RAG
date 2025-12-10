@@ -8,7 +8,7 @@ export class SyncdocService {
   constructor(private readonly taskService: TaskService) {}
 
   async createSyncDoc() {
-    await this.taskService.createTask({
+    await this.taskService.addTask({
       type: 'sync_doc',
       data: {
         type: 'feishu',

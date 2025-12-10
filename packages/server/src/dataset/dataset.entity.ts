@@ -1,3 +1,4 @@
+import { type DatasetConfig } from 'tinyrag-types/dataset';
 import {
   Column,
   CreateDateColumn,
@@ -21,7 +22,7 @@ export class DatasetEntity {
   type: string;
 
   @Column({ type: 'json', nullable: true })
-  config?: string;
+  config?: DatasetConfig;
 
   @Column({ length: 50 })
   embededByProviderId: string;

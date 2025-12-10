@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from "react";
-import { Layout, StepsProps, Tabs, Tag } from "antd";
+import { Button, Layout, StepsProps, Tabs, Tag } from "antd";
 import { useParams } from "react-router";
 import { useMount } from "ahooks";
 import axios from "axios";
 import { Dataset } from "tinyrag-types/dataset";
 import { Flex, Steps } from "antd";
 import ChooseTask from "./mod/ChooseTask";
+import { KnowledgeTask } from "tinyrag-types/task";
+import { Footer } from "antd/es/layout/layout";
 
 const TabPane = Tabs.TabPane;
 
@@ -16,9 +18,32 @@ export default function KnowledgeCreatePage() {
   const { id: datasetId } = params;
   const [currentStep, setCurrentStep] = useState(0);
   const [detail, setDetail] = useState<undefined | Dataset>();
+  const [config, setConfig] = useState<KnowledgeTask>({
+    datasetId: "",
+    knowledgeId: "",
+    ChooseTask: {
+      type: "",
+      params: {
+        docTokens: [],
+      },
+    },
+    Chunking: {
+      method: "trival",
+    },
+    Indexing: {},
+  });
   useMount(() => {
     axios.get(`/api/dataset/detail/${datasetId}`).then((res) => {
-      setDetail(res.data);
+      const detail = res.data;
+      setDetail(detail);
+      const { id } = detail;
+      setConfig((prev) => {
+        return {
+          ...prev,
+          datasetId: id,
+          knowledgeId: "",
+        };
+      });
     });
   });
 
@@ -63,8 +88,32 @@ export default function KnowledgeCreatePage() {
           style={{ display: currentStep === 0 ? "block" : "none" }}
           datasetId={datasetId!}
           type={type!}
+          onChange={(params) => {
+            setConfig((prev) => {
+              return {
+                ...prev,
+                ChooseTask: {
+                  ...prev.ChooseTask,
+                  ...params,
+                },
+              };
+            });
+          }}
         />
       </Content>
+      <Footer>
+        <Button
+          type="primary"
+          htmlType="submit"
+          onClick={async () => {
+            await axios.post("/api/task/add", {
+              ...config,
+            });
+          }}
+        >
+          OK
+        </Button>
+      </Footer>
     </Layout>
   );
 }

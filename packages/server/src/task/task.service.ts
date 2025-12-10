@@ -6,7 +6,6 @@ import {
   ChunkLastIndexTaskBodyData,
   SyncDocTaskBodyData,
   TaskBody,
-  TaskBodyData,
 } from 'tinyrag-types/task';
 import { QueueService } from './queue.service';
 import { ChunksplitService } from 'src/chunksplit/chunksplit.service';
@@ -44,8 +43,12 @@ export class TaskService implements OnModuleInit {
     return await this.queueService.getTaskStatus();
   }
 
+  async getTaskStatusById(id: string) {
+    return await this.queueService.getTaskStatusById(id);
+  }
+
   // Public API used by controllers or other services to enqueue work
-  async createTask(taskBody: TaskBody) {
+  async addTask(taskBody: TaskBody) {
     return await this.queueService.addTask(taskBody);
   }
 
@@ -165,12 +168,12 @@ export class TaskService implements OnModuleInit {
             ...chunkIndexTask,
           };
           // if it's last, notify the knowledge to check if all chunks are done
-          await this.createTask({
+          await this.addTask({
             type: 'chunk_last_index',
             data: chunkLastIndexBodyData,
           });
         } else {
-          await this.createTask({
+          await this.addTask({
             type: 'chunk_index',
             data: chunkIndexTask,
           });

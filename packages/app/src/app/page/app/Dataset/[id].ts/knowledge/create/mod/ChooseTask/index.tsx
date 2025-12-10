@@ -3,6 +3,7 @@ import { Modal, Table } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import UUIDDisplay from "../../../../../../../../component/UUIDDisplay";
+import { KnowledgeTask } from "tinyrag-types/task";
 
 export interface ChooseTaskProps {
   type: string;
@@ -10,6 +11,7 @@ export interface ChooseTaskProps {
   open?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  onChange?: (config: KnowledgeTask["ChooseTask"]) => void;
 }
 
 interface FeishuTask {
@@ -25,7 +27,7 @@ interface FeishuTask {
 }
 
 export default function ChooseFeishuTask(props: ChooseTaskProps) {
-  const { type, open, datasetId, className, style } = props;
+  const { type, open, datasetId, className, style, onChange } = props;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [data, setData] = useState<FeishuTask[]>([]);
   useEffect(() => {
@@ -45,6 +47,13 @@ export default function ChooseFeishuTask(props: ChooseTaskProps) {
           selectedRowKeys: selectedIds,
           onChange(selectedRowKeys, selectedRows, info) {
             setSelectedIds(selectedRowKeys as string[]);
+            onChange?.({
+              type: "feishu",
+              params: {
+                docTokens: selectedRowKeys as string[],
+                docType: "docx",
+              },
+            });
           },
         }}
         columns={[

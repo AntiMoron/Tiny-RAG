@@ -109,6 +109,45 @@ export class QueueService implements OnModuleDestroy {
     };
   }
 
+  async getTaskStatusById(id: string) {
+    if (this.useInMemory) {
+      const job = this.inMemoryQueue.find((j) => j.id === id);
+      if (!job) return null;
+      return {
+        id: job.id,
+        data: job.data,
+        attempts: job.attempts,
+        tries: job.tries,
+        backoff: job.backoff,
+        status: job.tries >= job.attempts ? 'failed' : 'waiting',
+      };
+    }
+
+    const job = await this.queue?.getJob(id);
+    if (!job) return null;
+    return {
+      id: job.id,
+      data: job.data as TaskBody,
+      status: job.finishedOn
+        ? 'completed'
+        : job.failedReason
+          ? 'failed'
+          : job.processedOn
+            ? 'active'
+            : 'waiting',
+      tries: job.attemptsMade,
+    };
+  }
+
+  /**
+   * Add a new task to the queue. This will return immediately and the task will
+   * be processed by a worker.
+   */
+  // opts can include jobId, attempts, and backoff
+  // jobId is used to deduplicate tasks
+  // attempts is the number of retries allowed
+  // backoff is the delay before retrying a failed task
+
   async addTask(
     data: TaskBody,
     opts?: { jobId?: string; attempts?: number; backoff?: number },
@@ -131,7 +170,7 @@ export class QueueService implements OnModuleDestroy {
         opts?.jobId ||
         `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
       this.inMemoryQueue.push({ id, data, attempts, backoff, tries: 0 });
-      return { id } as any;
+      return { id };
     }
 
     if (!this.queue) throw new Error('Queue not initialized');
@@ -157,15 +196,16 @@ export class QueueService implements OnModuleDestroy {
     await this.init();
 
     const confConcurrency =
-      concurrency ??
-      parseInt(getEnvConfigValue('TASK_WORKER_CONCURRENCY'), 10);
+      concurrency ?? parseInt(getEnvConfigValue('TASK_WORKER_CONCURRENCY'), 10);
 
     if (this.useInMemory) {
       // start in-memory worker loops
       if (this.inMemoryRunning) return;
       this.inMemoryRunning = true;
       const workerCount = confConcurrency;
-      this.logger.log(`Starting in-memory workers (worker_count=${workerCount})`);
+      this.logger.log(
+        `Starting in-memory workers (worker_count=${workerCount})`,
+      );
       for (let i = 0; i < workerCount; i++) {
         const loop = this.startInMemoryWorker(processor, i);
         this.inMemoryWorkers.push(loop);
