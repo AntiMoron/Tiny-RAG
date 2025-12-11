@@ -19,7 +19,7 @@ export class ChunkEntity {
   @Column({ length: 50 })
   embededByProviderId: string;
 
-  @Column({ length: 300 })
+  @Column('text')
   content: string;
 
   @CreateDateColumn({

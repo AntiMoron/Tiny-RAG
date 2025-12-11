@@ -6,7 +6,8 @@ export interface SyncDocTaskBodyData extends TaskBodyData {
   appId: string;
   appSecret: string;
   datasetId: string;
-  docUrl: string;
+  docUrl?: string;
+  docToken?: string;
 }
 
 export interface ChunkIndexTaskBodyData extends TaskBodyData {
@@ -18,8 +19,12 @@ export interface ChunkLastIndexTaskBodyData extends ChunkIndexTaskBodyData {
 }
 
 export interface TaskBody {
-  type: 'sync_doc' | 'chunk_index' | 'chunk_last_index';
-  data: TaskBodyData | SyncDocTaskBodyData | ChunkIndexTaskBodyData | ChunkLastIndexTaskBodyData;
+  type: "sync_doc" | "chunk_index" | "chunk_last_index";
+  data:
+    | TaskBodyData
+    | SyncDocTaskBodyData
+    | ChunkIndexTaskBodyData
+    | ChunkLastIndexTaskBodyData;
 }
 
 /**

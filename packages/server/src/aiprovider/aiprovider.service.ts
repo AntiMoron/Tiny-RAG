@@ -11,6 +11,8 @@ import { AIProviderEntity } from './aiprovider.entity';
 import { AIProvider } from 'tinyrag-types/aiprovider';
 import { EmbeddingService } from 'src/embedding/embedding.service';
 import { CompletionService } from 'src/completion/completion.service';
+import { AICompletionResponse } from 'tinyrag-types/completion';
+import { AIEmbeddingResponse } from 'tinyrag-types/embedding';
 
 /**
  * 1. Save providers for further usage. [P0]
@@ -72,13 +74,13 @@ export class AiproviderService {
     const ent = await this.repo.findOneBy({ id });
     if (!ent) return null;
     if (patch.name !== undefined) ent.name = patch.name;
-    if (patch.config !== undefined) ent.config = patch.config as any;
+    if (patch.config !== undefined) ent.config = patch.config;
     if (patch.type !== undefined) ent.type = patch.type;
     return this.repo.save(ent);
   }
 
   async remove(id: string): Promise<boolean> {
-    const res = await this.repo.delete({ id } as any);
+    const res = await this.repo.delete({ id });
     if (!res) {
       throw new Error('Delete operation failed');
     }
@@ -92,31 +94,35 @@ export class AiproviderService {
     }
     const { type } = provider;
     let isWorking = false;
+    let ret: AICompletionResponse | AIEmbeddingResponse | undefined;
     switch (type) {
       case 'completion':
-        const compRet = await this.completionService.completeById(
-          id,
-          'Hello world!',
-        );
+        ret = await this.completionService.completeById(id, 'Hello world!');
         isWorking = Boolean(
-          compRet &&
-          compRet.data &&
-          typeof compRet?.data?.result === 'string' &&
-          compRet?.usage?.completion_tokens > 0,
+          ret &&
+          ret.data &&
+          typeof ret?.data?.result === 'string' &&
+          ret?.usage?.completion_tokens > 0,
         );
         break;
       case 'embedding':
-        const embRet = await this.embeddingService.embedById(id, 'test');
+        ret = await this.embeddingService.embedById(id, 'test');
         isWorking = Boolean(
-          embRet &&
-          embRet.data &&
-          Array.isArray(embRet?.data?.result) &&
-          embRet.data.result.length > 0 &&
-          embRet?.usage?.completion_tokens > 0,
+          ret &&
+          ret.data &&
+          Array.isArray(ret?.data?.result) &&
+          ret.data.result.length > 0 &&
+          ret?.usage?.total_tokens > 0,
         );
         break;
       default:
         break;
+    }
+    if (!isWorking) {
+      throw new HttpException(
+        'AI Provider test failed',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 

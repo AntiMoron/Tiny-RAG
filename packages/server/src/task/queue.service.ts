@@ -41,7 +41,7 @@ export class QueueService implements OnModuleDestroy {
       return;
     }
 
-    let useQueueType = getEnvConfigValue('TASK_QUEUE_TYPE');
+    const useQueueType = getEnvConfigValue('TASK_QUEUE_TYPE');
     this.logger.log(`Connecting to Redis: ${redisUrl}`);
     try {
       if (useQueueType === 'memory') {

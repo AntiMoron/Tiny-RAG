@@ -16,6 +16,12 @@ export default {
         model: '{{model}}',
         'messages[0].role': '{{const(user)}}',
       },
+      resultMapping: {
+        'data.result': 'choices[0].message.content',
+        'usage.prompt_tokens': 'usage.prompt_tokens',
+        'usage.completion_tokens': 'usage.completion_tokens',
+        'usage.total_tokens': 'usage.total_tokens',
+      },
     },
   },
 };

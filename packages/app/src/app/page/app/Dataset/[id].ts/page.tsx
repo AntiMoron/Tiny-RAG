@@ -2,9 +2,10 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Knowledge, KnowledgeIndex } from "tinyrag-types/Knowledge";
-import { Alert, Button, Layout, Table } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Alert, Button, Flex, Layout, Modal, Table } from "antd";
+import { DeleteOutlined, FundOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dataset } from "tinyrag-types/dataset";
+import UUIDDisplay from "../../../../component/UUIDDisplay";
 
 const { Header, Content, Footer, Sider } = Layout;
 export default function DatasetDetailPage() {
@@ -52,7 +53,51 @@ export default function DatasetDetailPage() {
         </Button>
       </Header>
       <Content>
-        <Table dataSource={data} rowKey="id" pagination={{ total }} />
+        <Table
+          dataSource={data}
+          rowKey="id"
+          pagination={{ total }}
+          columns={[
+            {
+              title: "ID",
+              dataIndex: "id",
+              render: (text) => <UUIDDisplay text={text} />,
+            },
+            { title: "Content", dataIndex: "content", ellipsis: true },
+            { title: "Index Status", dataIndex: "indexStatus" },
+            { title: "Created At", dataIndex: "createdAt" },
+            { title: "Updated At", dataIndex: "updatedAt" },
+            {
+              title: "Actions",
+              render: (_, record) => {
+                return (
+                  <Flex>
+                    <Button type="link" icon={<FundOutlined />}></Button>
+                    <Button
+                      type="link"
+                      icon={<DeleteOutlined />}
+                      danger
+                      onClick={() => {
+                        Modal.confirm({
+                          title: "Confirm Deletion",
+                          content: "Are you sure you want to delete this item?",
+                          onOk: async () => {
+                            await axios.delete(
+                              `/api/knowledge/delete/${record.id}`
+                            );
+                            setData((prev) =>
+                              prev.filter((item) => item.id !== record.id)
+                            );
+                          },
+                        });
+                      }}
+                    ></Button>
+                  </Flex>
+                );
+              },
+            },
+          ]}
+        />
       </Content>
     </Layout>
   );

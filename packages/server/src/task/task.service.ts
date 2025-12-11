@@ -31,7 +31,7 @@ export class TaskService implements OnModuleInit {
   ) {}
 
   private get collectionName(): string {
-    return getEnvConfigValue('COLLECTION_NAME');
+    return getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
   }
 
   async onModuleInit() {
@@ -89,6 +89,7 @@ export class TaskService implements OnModuleInit {
           collection_name: this.collectionName,
           fields_data: [
             {
+              chunk_id: chunkId,
               knowledge_id: knowledge_id,
               dataset_id: dataset_id,
               vector,
@@ -96,7 +97,8 @@ export class TaskService implements OnModuleInit {
           ],
         });
         await this.chunkService.updateChunkStatus(chunkId, 'success');
-      } catch {
+      } catch (err) {
+        this.logger.error(err);
         await this.chunkService.updateChunkStatus(chunkId, 'fail');
       }
       if (taskType === 'chunk_last_index') {
@@ -118,7 +120,7 @@ export class TaskService implements OnModuleInit {
         }
       }
     } else if (taskType === 'sync_doc') {
-      const { type, appId, appSecret, docUrl, datasetId } =
+      const { type, appId, appSecret, docUrl, docToken, datasetId } =
         data as SyncDocTaskBodyData;
       // 1. fetch content
       // 2. create a knowledge as a document.
@@ -130,6 +132,7 @@ export class TaskService implements OnModuleInit {
         appId,
         appSecret,
         docUrl,
+        docToken: docToken as string,
         onDocFinish: (docId, markdown: string, metadata: any) => {
           content = markdown;
         },

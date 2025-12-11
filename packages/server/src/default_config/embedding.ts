@@ -15,6 +15,13 @@ export default {
         encoding_format: '{{const(float)}}',
         input: '{{input}}',
       },
+      resultMapping: {
+        'data.result': 'data.0.embedding',
+        object: 'data.0.object',
+        'usage.total_tokens': 'usage.total_tokens',
+        'usage.prompt_tokens': 'usage.prompt_tokens',
+        'usage.completion_tokens': 'usage.completion_tokens',
+      },
     },
   },
 };

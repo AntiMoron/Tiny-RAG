@@ -43,4 +43,8 @@ export class ChunkService {
       },
     });
   }
+
+  async deleteChunks(ids: string[]) {
+    return await this.chunkRepo.delete({ id: In(ids) });
+  }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   forwardRef,
   Get,
   HttpException,
@@ -40,4 +41,8 @@ export class KnowledgeController {
     } as Knowledge);
   }
 
+  @Delete('delete/:id')
+  async deleteKnowledge(@Param('id') id: string) {
+    return await this.knowledgeService.deleteKnowledge(id);
+  }
 }

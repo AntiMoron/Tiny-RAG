@@ -23,6 +23,7 @@ import { SyncdocModule } from './syncdoc/syncdoc.module';
 import { TaskModule } from './task/task.module';
 import { FeishuModule } from './feishu/feishu.module';
 import getEnvConfigValue from './util/getEnvConfigValue';
+import { ChunkEntity } from './chunk/chunk.entity';
 
 @Module({
   imports: [
@@ -38,7 +39,13 @@ import getEnvConfigValue from './util/getEnvConfigValue';
         username: getEnvConfigValue('MYSQL_USER'),
         password: getEnvConfigValue('MYSQL_PASSWORD'),
         database: getEnvConfigValue('MYSQL_DATABASE'),
-        entities: [AIProviderEntity, KnowledgeEntity, DatasetEntity, ApiKeyEntity],
+        entities: [
+          AIProviderEntity,
+          KnowledgeEntity,
+          DatasetEntity,
+          ChunkEntity,
+          ApiKeyEntity,
+        ],
         synchronize:
           getEnvConfigValue('TYPEORM_SYNC') === 'false' ? false : true,
         logging: false,

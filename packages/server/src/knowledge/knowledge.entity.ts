@@ -37,6 +37,6 @@ export class KnowledgeEntity {
   @Column({ length: 50, nullable: true })
   externalId: string;
 
-  @Column({ length: 10 })
+  @Column({ length: 10, nullable: true })
   indexStatus: string;
 }

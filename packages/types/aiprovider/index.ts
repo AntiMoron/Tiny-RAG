@@ -18,7 +18,7 @@ export interface AIProviderConfig {
   model: string;
   apiKey: string;
   endpoint: string;
-  headers: Partial<typeof AxiosHeaders>;
+  headers: Partial<typeof AxiosHeaders> | Record<string, string>;
   method: "GET" | "POST";
   region?: string;
   paramMapping: Record<string, string>; // e.g. 'prompt' => 'input.text'

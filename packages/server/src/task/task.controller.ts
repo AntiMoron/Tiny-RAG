@@ -61,7 +61,7 @@ export class TaskController {
             appSecret: doc?.appSecret || '',
             datasetId,
             knowledge_id: token,
-            docToken: ChooseTask.params.docType === 'url' ? token : '',
+            docToken: ChooseTask.params.docType === 'docx' ? token : '',
           } as TaskBody['data'],
         };
         const job = await this.taskService.addTask(fetchTask);

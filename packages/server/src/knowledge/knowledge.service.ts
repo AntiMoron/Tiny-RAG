@@ -24,13 +24,14 @@ export class KnowledgeService {
     private readonly milvusService: MilvusService,
     @InjectRepository(DatasetEntity)
     private readonly datasetRepo: Repository<DatasetEntity>,
-
+    @Inject(forwardRef(() => ChunkService))
+    private readonly chunkService: ChunkService,
     @InjectRepository(KnowledgeEntity)
     private readonly knowledgeRepo: Repository<KnowledgeEntity>,
   ) {}
 
   private get collectionName(): string {
-    return getEnvConfigValue('COLLECTION_NAME');
+    return getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
   }
 
   async findSimilarKnowledge(
@@ -59,7 +60,7 @@ export class KnowledgeService {
   ) {
     const dataset_id = knowledge.dataset_id;
     const datasetEntity = await this.datasetRepo.findOneBy({
-      name: dataset_id,
+      id: dataset_id,
     });
     if (!datasetEntity) {
       throw new HttpException(
@@ -146,5 +147,15 @@ export class KnowledgeService {
     indexStatus: 'doing' | 'success' | 'fail',
   ) {
     return await this.knowledgeRepo.update({ id }, { indexStatus });
+  }
+
+  async deleteKnowledge(id: string) {
+    const chunks = await this.chunkService.getChunksByKnowledgeId(id);
+    await this.chunkService.deleteChunks(chunks.map((a) => a.id));
+    await this.milvusService.client?.deleteEntities({
+      collection_name: this.collectionName,
+      expr: `knowledge_id = ${id}`,
+    });
+    return await this.knowledgeRepo.delete({ id });
   }
 }

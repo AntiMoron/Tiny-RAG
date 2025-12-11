@@ -87,7 +87,7 @@ export class AiproviderController {
     } catch (err) {
       await this.aiProviderService.setTestStatus(id, 'error');
       throw new HttpException(
-        'Test failed: ' + err.message,
+        'Test failed: ' + (err as Error).message,
         HttpStatus.BAD_REQUEST,
       );
     }
