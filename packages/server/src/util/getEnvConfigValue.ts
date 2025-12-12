@@ -7,10 +7,16 @@ const defaultValues: Record<string, string> = {
   MYSQL_USER: 'root',
   MYSQL_PASSWORD: '',
   MYSQL_DATABASE: 'tiny_rag_db',
+
+  VECTOR_DB_TYPE: 'milvus',
+
+  //----MILVUS_START-----//
   MILVUS_ADDR: 'localhost:19530',
   MILVUS_CHUNK_COLLECTION_NAME: 'chunks',
   MILVUS_COLLECTION_USER_NAME: '',
   MILVUS_COLLECTION_PASSWORD: '',
+  //----MILVUS_END-----//
+
   TASK_QUEUE_TYPE: 'redis',
   REDIS_URL: 'redis://127.0.0.1:6379',
   TASK_WORKER_CONCURRENCY: `${Math.max(1, os.cpus().length - 1) || '1'}`,

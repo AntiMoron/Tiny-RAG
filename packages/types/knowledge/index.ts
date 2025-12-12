@@ -5,10 +5,3 @@ export interface Knowledge {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export interface KnowledgeIndex {
-  dataset_id: string;
-  knowledge_id: string;
-  vector: number[];
-  score: number;
-}

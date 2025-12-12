@@ -37,37 +37,4 @@ export class EmbeddingService {
       throw new Error(`AI Embedding failed: ${(err as Error).message}`);
     }
   }
-
-  async retriveKnowledgeById(
-    providerId: string,
-    datasetId: string,
-    prompt: string,
-  ): Promise<(Knowledge & { score: number })[]> {
-    const questionEmbed = await this.embedById(providerId, prompt);
-    const similarityThreshold = 0.75;
-    if (!questionEmbed?.data.result) {
-      throw new Error('Failed to get embedding for the prompt.');
-    }
-    const results = await this.knowledgeService.findSimilarKnowledge(
-      datasetId,
-      questionEmbed.data.result,
-    );
-
-    const newResult = results
-      .map((item) => ({
-        ...item,
-        score: item.score,
-      }))
-      .filter((item) => item.score >= similarityThreshold);
-    const knowledge_ids = newResult.map((item) => item.knowledge_id);
-    const knowledges = await this.knowledgeService.findByIds(knowledge_ids);
-    return knowledges.map((k) => {
-      const score =
-        newResult.find((item) => item.knowledge_id === k.id)?.score || 0;
-      return {
-        ...k,
-        score,
-      };
-    });
-  }
 }

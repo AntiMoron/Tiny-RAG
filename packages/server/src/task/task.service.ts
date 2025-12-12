@@ -13,8 +13,8 @@ import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { ChunkService } from 'src/chunk/chunk.service';
 import { DatasetService } from 'src/dataset/dataset.service';
 import { EmbeddingService } from 'src/embedding/embedding.service';
-import { MilvusService } from 'src/milvus/milvus.service';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
+import { VectorDbService } from 'src/vector-db/vector-db.service';
 
 @Injectable()
 export class TaskService implements OnModuleInit {
@@ -27,7 +27,7 @@ export class TaskService implements OnModuleInit {
     private readonly chunkService: ChunkService,
     private readonly chunksplitService: ChunksplitService,
     private readonly queueService: QueueService,
-    private readonly milvusService: MilvusService,
+    private readonly vectorDbService: VectorDbService,
   ) {}
 
   private get collectionName(): string {
@@ -80,22 +80,19 @@ export class TaskService implements OnModuleInit {
           this.logger.error('Failed to get embedding for chunk:', chunkContent);
           throw new Error('Empty embedding result');
         }
-        const client = this.milvusService.client;
+        const client = this.vectorDbService;
 
-        if (!client) {
-          throw new Error('Milvus client is not ready yet.');
+        if (!client.ready) {
+          throw new Error(`Vector DB client<${client.type}> is not ready yet.`);
         }
-        await client.insert({
-          collection_name: this.collectionName,
-          fields_data: [
-            {
-              chunk_id: chunkId,
-              knowledge_id: knowledge_id,
-              dataset_id: dataset_id,
-              vector,
-            },
-          ],
-        });
+        await client.insert([
+          {
+            chunk_id: chunkId,
+            knowledge_id: knowledge_id,
+            dataset_id: dataset_id,
+            vector,
+          },
+        ]);
         await this.chunkService.updateChunkStatus(chunkId, 'success');
       } catch (err) {
         this.logger.error(err);

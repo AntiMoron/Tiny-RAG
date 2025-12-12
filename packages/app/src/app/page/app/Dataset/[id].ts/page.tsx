@@ -1,13 +1,14 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Knowledge, KnowledgeIndex } from "tinyrag-types/Knowledge";
+import { Knowledge } from "tinyrag-types/Knowledge";
 import { Alert, Button, Flex, Layout, Modal, Table } from "antd";
 import { DeleteOutlined, FundOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dataset } from "tinyrag-types/dataset";
 import UUIDDisplay from "../../../../component/UUIDDisplay";
 
 const { Header, Content, Footer, Sider } = Layout;
+
 export default function DatasetDetailPage() {
   const params = useParams();
   const { id } = params;

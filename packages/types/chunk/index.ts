@@ -1,4 +1,4 @@
-import { AIEmbeddingOutput } from '../embedding';
+import { AIEmbeddingOutput } from "../embedding";
 
 export interface Chunk {
   id: string;
@@ -7,6 +7,18 @@ export interface Chunk {
   content: string;
   knowledge_id: string;
   dataset_id: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface ChunkRetrieveResult extends Chunk {
+  score: number;
+}
+
+
+export interface ChunkIndex {
+  chunk_id: string;
+  dataset_id: string;
+  knowledge_id: string;
+  vector: number[];
 }

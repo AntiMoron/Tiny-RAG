@@ -4,16 +4,16 @@ import { KnowledgeController } from './knowledge.controller';
 import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { KnowledgeEntity } from './knowledge.entity';
 import { DatasetEntity } from 'src/dataset/dataset.entity';
-import { MilvusModule } from 'src/milvus/milvus.module';
 import { ChunksplitModule } from 'src/chunksplit/chunksplit.module';
 import { ChunkModule } from 'src/chunk/chunk.module';
 import { forwardRef } from '@nestjs/common';
 import { EmbeddingModule } from 'src/embedding/embedding.module';
 import { DatasetModule } from 'src/dataset/dataset.module';
+import { VectorDbModule } from 'src/vector-db/vector-db.module';
 
 @Module({
   imports: [
-    MilvusModule,
+    VectorDbModule,
     ChunksplitModule,
     ChunkModule,
     forwardRef(() => EmbeddingModule),

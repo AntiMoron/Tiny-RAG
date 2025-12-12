@@ -15,7 +15,6 @@ import { DatasetModule } from './dataset/dataset.module';
 import * as winston from 'winston';
 import { DatasetEntity } from './dataset/dataset.entity';
 import { KnowledgeEntity } from './knowledge/knowledge.entity';
-import { MilvusModule } from './milvus/milvus.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChunksplitModule } from './chunksplit/chunksplit.module';
 import { ChunkModule } from './chunk/chunk.module';
@@ -24,6 +23,8 @@ import { TaskModule } from './task/task.module';
 import { FeishuModule } from './feishu/feishu.module';
 import getEnvConfigValue from './util/getEnvConfigValue';
 import { ChunkEntity } from './chunk/chunk.entity';
+import { VectorDbModule } from './vector-db/vector-db.module';
+import { RetrieveModule } from './retrieve/retrieve.module';
 
 @Module({
   imports: [
@@ -69,12 +70,13 @@ import { ChunkEntity } from './chunk/chunk.entity';
     }),
     KnowledgeModule,
     DatasetModule,
-    MilvusModule,
     ChunksplitModule,
     ChunkModule,
     SyncdocModule,
     TaskModule,
     FeishuModule,
+    VectorDbModule,
+    RetrieveModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,10 +1,9 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Knowledge, KnowledgeIndex } from 'tinyrag-types/knowledge';
+import { Knowledge } from 'tinyrag-types/knowledge';
 import { InjectRepository } from '@nestjs/typeorm';
 import { KnowledgeEntity } from './knowledge.entity';
 import { In, Repository } from 'typeorm';
 import { DatasetEntity } from 'src/dataset/dataset.entity';
-import { MilvusService } from 'src/milvus/milvus.service';
 import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
@@ -13,15 +12,20 @@ import { ChunkService } from 'src/chunk/chunk.service';
 import { EmbeddingService } from 'src/embedding/embedding.service';
 import { Inject, forwardRef } from '@nestjs/common';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
+import { Dataset } from 'tinyrag-types/dataset';
+import { ChunkIndex, ChunkRetrieveResult } from 'tinyrag-types/chunk';
+import { ChunkEntity } from 'src/chunk/chunk.entity';
+import { VectorDbService } from 'src/vector-db/vector-db.service';
 
 @Injectable()
 export class KnowledgeService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER)
     private readonly logger: WinstonLogger,
-    private readonly configService: ConfigService,
     @Inject(forwardRef(() => EmbeddingService))
-    private readonly milvusService: MilvusService,
+    private readonly embeddingService: EmbeddingService,
+    @Inject(forwardRef(() => VectorDbService))
+    private readonly vectorDbService: VectorDbService,
     @InjectRepository(DatasetEntity)
     private readonly datasetRepo: Repository<DatasetEntity>,
     @Inject(forwardRef(() => ChunkService))
@@ -32,27 +36,6 @@ export class KnowledgeService {
 
   private get collectionName(): string {
     return getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
-  }
-
-  async findSimilarKnowledge(
-    datasetId: string,
-    vector: number[],
-  ): Promise<KnowledgeIndex[]> {
-    const client = this.milvusService.client;
-    if (!client) {
-      throw new Error('Milvus client is not ready yet.');
-    }
-    // Perform a vector search on the collection
-    const res = await client.search({
-      // required
-      collection_name: this.collectionName, // required, the collection name
-      data: vector, // required, vector used to compare other vectors in milvus
-      // optionals
-      filter: `dataset_id = ${datasetId}`, // optional, filter expression
-      params: { nprobe: 64 }, // optional, specify the search parameters
-      limit: 10, // optional, specify the number of nearest neighbors to return
-    });
-    return res.results as unknown as KnowledgeIndex[];
   }
 
   async insertKnowledge(
@@ -72,41 +55,12 @@ export class KnowledgeService {
       _.omitBy(knowledge, ['id']) as Omit<Knowledge, 'id'>,
     );
     return await this.knowledgeRepo.save(newKnowledge);
-    // const { content } = knowledge;
-    // const chunks = await this.chunkSplitService.splitChunks(content);
-    // let sucCnt = 0;
-    // for (let i = 0; i < chunks.length; i++) {
-    //   const chunkContent = chunks[i];
-
-    //     sucCnt += 1;
-    //   } catch {
-    //     this.logger.error('Failed to insert chunk:', chunkContent);
-    //     await this.chunkService.insertChunk({
-    //       dataset_id: datasetEntity.id,
-    //       knowledge_id: newKnowledge.id,
-    //       embededByProviderId: datasetEntity.embededByProviderId,
-    //       content: chunkContent,
-    //       indexStatus: 'failure',
-    //     });
-    //   }
-    // }
-    // const result = await this.knowledgeRepo.save(newKnowledge);
-    // try {
-    //   if (sucCnt === chunks.length) {
-    //     await this.knowledgeRepo.update(result.id, { indexStatus: 'success' });
-    //   } else {
-    //     await this.knowledgeRepo.update(result.id, { indexStatus: 'failed' });
-    //   }
-    // } catch (err) {
-    //   this.logger.error(err);
-    //   await this.knowledgeRepo.update(result.id, { indexStatus: 'failed' });
-    // }
   }
 
   async findByIds(ids: string[]): Promise<Knowledge[]> {
-    const client = this.milvusService.client;
-    if (!client) {
-      throw new Error('Milvus client is not ready yet.');
+    const client = this.vectorDbService;
+    if (!client.ready) {
+      throw new Error(`VectorDb client<${client.type}> is not ready yet.`);
     }
     const results = await this.knowledgeRepo.findBy({
       id: In(ids),
@@ -152,9 +106,8 @@ export class KnowledgeService {
   async deleteKnowledge(id: string) {
     const chunks = await this.chunkService.getChunksByKnowledgeId(id);
     await this.chunkService.deleteChunks(chunks.map((a) => a.id));
-    await this.milvusService.client?.deleteEntities({
-      collection_name: this.collectionName,
-      expr: `knowledge_id = ${id}`,
+    await this.vectorDbService.deleteEntities({
+      knowledgeId: id,
     });
     return await this.knowledgeRepo.delete({ id });
   }
