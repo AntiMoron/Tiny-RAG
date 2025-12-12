@@ -19,3 +19,20 @@ export default function checkParams(
     }
   }
 }
+
+export function checkNotHaveParams(
+  params: any,
+  notAllowedParams: string[],
+): void {
+  if (!params) {
+    return;
+  }
+  for (const param of notAllowedParams) {
+    if (param in params) {
+      throw new HttpException(
+        `Parameter not allowed: ${param}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+}

@@ -6,6 +6,7 @@ import { Dataset } from 'tinyrag-types/dataset';
 import { getDocTaskList } from 'feishu2markdown';
 import checkParams from 'src/util/checkParams';
 import { HandleDocFolderParams } from 'feishu2markdown/dist/src/doc/type';
+import * as _ from 'lodash';
 
 @Injectable()
 export class DatasetService {
@@ -16,6 +17,13 @@ export class DatasetService {
 
   async getDatasetById(id: string): Promise<DatasetEntity | null> {
     return await this.datasetRepo.findOneBy({ id });
+  }
+
+  async getDatasetByName(name: string): Promise<DatasetEntity | null> {
+    if(!name) {
+      return null;
+    }
+    return await this.datasetRepo.findOneBy({ name });
   }
 
   async createDataset(dataset: Dataset): Promise<DatasetEntity> {
@@ -77,5 +85,17 @@ export class DatasetService {
       token: string;
       id: string;
     }>;
+  }
+
+  async updateDataset(
+    datasetId: string,
+    data: Partial<Omit<DatasetEntity, 'id'>>,
+  ): Promise<DatasetEntity> {
+    const dataset = await this.datasetRepo.findOneBy({ id: datasetId });
+    if (!dataset) {
+      throw new Error('Dataset not found');
+    }
+    Object.assign(dataset, _.omit(data, ['id']));
+    return this.datasetRepo.save(dataset);
   }
 }

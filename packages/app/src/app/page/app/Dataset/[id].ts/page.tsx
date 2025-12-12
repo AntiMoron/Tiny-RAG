@@ -6,6 +6,7 @@ import { Alert, Button, Flex, Layout, Modal, Table } from "antd";
 import { DeleteOutlined, FundOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dataset } from "tinyrag-types/dataset";
 import UUIDDisplay from "../../../../component/UUIDDisplay";
+import DatasetKnowledgeRowAction from "../../../../component/DatasetKnowledgeRowAction";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -72,28 +73,12 @@ export default function DatasetDetailPage() {
               title: "Actions",
               render: (_, record) => {
                 return (
-                  <Flex>
-                    <Button type="link" icon={<FundOutlined />}></Button>
-                    <Button
-                      type="link"
-                      icon={<DeleteOutlined />}
-                      danger
-                      onClick={() => {
-                        Modal.confirm({
-                          title: "Confirm Deletion",
-                          content: "Are you sure you want to delete this item?",
-                          onOk: async () => {
-                            await axios.delete(
-                              `/api/knowledge/delete/${record.id}`
-                            );
-                            setData((prev) =>
-                              prev.filter((item) => item.id !== record.id)
-                            );
-                          },
-                        });
-                      }}
-                    ></Button>
-                  </Flex>
+                  <DatasetKnowledgeRowAction
+                    record={record}
+                    onDelete={(id) => {
+                      setData((prev) => prev.filter((item) => item.id !== id));
+                    }}
+                  />
                 );
               },
             },

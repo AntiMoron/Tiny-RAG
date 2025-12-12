@@ -12,6 +12,7 @@ import Meta from "antd/es/card/Meta";
 
 export interface DatasetProps {
   onClick?: () => void;
+  onEdit?: () => void;
   onDelete?: (id: string) => void;
   item: Dataset;
 }
@@ -45,11 +46,18 @@ const stylesCard: CardProps["styles"] = {
 };
 
 export default function DatasetBlock(props: DatasetProps) {
-  const { item, onDelete } = props;
+  const { item, onDelete, onEdit } = props;
   const { styles: classNames } = useStyles();
   const actions = [
-    <EditOutlined key="edit" style={{ color: "#45b7d1" }} />,
-    <HeartOutlined key="heart" style={{ color: "#ff6b6b" }} />,
+    <EditOutlined
+      key="edit"
+      style={{ color: "#45b7d1" }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onEdit?.();
+      }}
+    />,
     <DeleteOutlined
       key="delete"
       style={{ color: "#ff6b6b" }}

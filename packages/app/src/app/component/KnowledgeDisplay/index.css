@@ -1,0 +1,23 @@
+.knowledge-container {
+}
+
+.knowledge-container table {
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+.knowledge-container table,
+.knowledge-container thead,
+.knowledge-container th,
+.knowledge-container tr,
+.knowledge-container td {
+  border: 1px solid #3d3d3d;
+}
+
+.knowledge-container blockquote {
+  background: #ecf0f1;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin: 12px 0;
+}

@@ -28,11 +28,13 @@ export default function Page() {
   const navigate = useNavigate();
   const [data, setData] = useState<Dataset[]>([]);
   const [visible, setVisible] = useState(false);
+  const [formType, setFormType] = useState("create");
   useMount(() => {
     axios.get("/api/dataset/list").then((res) => {
       setData(res.data);
     });
   });
+  const [form] = Form.useForm();
   return (
     <Layout>
       <Header>
@@ -41,6 +43,8 @@ export default function Page() {
           icon={<PlusOutlined />}
           onClick={() => {
             setVisible(true);
+            setFormType("create");
+            form.resetFields();
           }}
         >
           Add Dataset
@@ -55,6 +59,16 @@ export default function Page() {
                   <Col>
                     <DatasetBlock
                       item={item}
+                      onEdit={() => {
+                        form.setFieldsValue({
+                          ...item,
+                          config: item.config
+                            ? JSON.stringify(item.config, null, 2)
+                            : "",
+                        });
+                        setFormType("edit");
+                        setVisible(true);
+                      }}
                       onDelete={(id) => {
                         Modal.confirm({
                           type: "warning",
@@ -95,17 +109,33 @@ export default function Page() {
         footer={null}
       >
         <Form
+          form={form}
           layout="vertical"
           initialValues={{
             type: "text",
           }}
           onFinish={(values) => {
             axios
-              .post("api/dataset/add", { ...values })
+              .post(
+                formType === "edit"
+                  ? `api/dataset/update/${values.id}`
+                  : "api/dataset/add",
+                { ...values }
+              )
               .then((res) => {
                 message.success("OK");
                 setVisible(false);
-                setData((prev) => [...prev, res.data] as Dataset[]);
+                if (formType === "edit") {
+                  setData((prev) => {
+                    const index = prev.findIndex((d) => d.id === res.data.id);
+                    if (index !== -1) {
+                      prev[index] = res.data;
+                    }
+                    return [...prev];
+                  });
+                } else {
+                  setData((prev) => [...prev, res.data] as Dataset[]);
+                }
               })
               .catch((err) => {
                 message.error(
@@ -114,6 +144,10 @@ export default function Page() {
               });
           }}
         >
+          <Form.Item name="id" hidden>
+            <Input />
+          </Form.Item>
+
           <Form.Item label="Type" name="type" rules={[{ required: true }]}>
             <Radio.Group>
               <Radio value="text">Text</Radio>
@@ -143,6 +177,18 @@ export default function Page() {
             ]}
           >
             <ProviderSelect type="embedding" />
+          </Form.Item>
+          <Form.Item
+            label="Completion Provider"
+            name="completeByProviderId"
+            rules={[
+              {
+                required: true,
+                message: "Please select an completion provider!",
+              },
+            ]}
+          >
+            <ProviderSelect type="completion" />
           </Form.Item>
 
           <Form.Item label="Config" name="config">

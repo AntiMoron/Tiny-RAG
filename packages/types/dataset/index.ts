@@ -15,6 +15,7 @@ export interface Dataset {
   createdAt: Date;
   updatedAt: Date;
   embededByProviderId: string;
+  completeByProviderId: string;
   type: "text" | "feishu";
   config?: DatasetConfig;
 }
