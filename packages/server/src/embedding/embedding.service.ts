@@ -6,15 +6,65 @@ import { KnowledgeService } from 'src/knowledge/knowledge.service';
 import { Inject, forwardRef } from '@nestjs/common';
 import { AiproviderService } from 'src/aiprovider/aiprovider.service';
 import handleAIProviderConfiguration from 'src/util/executeAI';
+import * as stopword from 'stopword';
+import * as s from 'segment';
+
+const segment = new s.Segment();
+segment.useDefault();
 
 @Injectable()
 export class EmbeddingService {
   constructor(
     @Inject(forwardRef(() => AiproviderService))
     private readonly providerService: AiproviderService,
-    @Inject(forwardRef(() => KnowledgeService))
-    private readonly knowledgeService: KnowledgeService,
   ) {}
+
+  async removeStopWords(input: string) {
+    if (!input) return '';
+    // Replace punctuation (keep letters, numbers, Han characters and spaces)
+    const cleaned = input
+      // allow ASCII range and common CJK unified ideographs; convert other chars to space
+      .replace(
+        /[^\u0000-\u007F\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF\s]/g,
+        ' ',
+      )
+      // replace common ASCII and CJK punctuation/symbol characters with a space
+      .replace(
+        /[!\"#\$%&'\(\)\*\+,\-\.\/:;<=>\?@\[\\\]\^_`\{\|\}~，。！？；：、《》「」『』（）【】]/g,
+        ' ',
+      )
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // Tokenize (jieba-js handles Chinese segmentation; English words remain intact)
+    let tokens = segment.doSegment(cleaned || '');
+
+    // Lowercase Latin tokens for consistent stopword matching
+    tokens = tokens.map((t: { w: string }) =>
+      /[A-Za-z0-9]/.test(t.w) ? t.w.toLowerCase() : t.w,
+    );
+
+    // Remove stopwords for multiple languages
+    const langs = [stopword.eng, stopword.zho, stopword.jpn];
+    for (const lang of langs) {
+      tokens = stopword.removeStopwords(tokens, lang);
+    }
+
+    // Filter out empty tokens and deduplicate while preserving order
+    const seen = new Set<string>();
+    const finalTokens: string[] = [];
+    for (const t of tokens) {
+      const s = (t || '').trim();
+      if (!s) continue;
+      if (!seen.has(s)) {
+        seen.add(s);
+        finalTokens.push(s);
+      }
+    }
+
+    // Return a cleaned string suitable for embedding input
+    return finalTokens.join(' ');
+  }
 
   async embedById(
     providerId: string,
@@ -28,9 +78,10 @@ export class EmbeddingService {
       throw new Error('Provider is not for AI embedding.');
     }
     try {
+      const removedInput = await this.removeStopWords(input);
       const data = await handleAIProviderConfiguration<AIEmbeddingResponse>(
         { ...(provider as any) },
-        input,
+        removedInput,
       );
       return data;
     } catch (err) {

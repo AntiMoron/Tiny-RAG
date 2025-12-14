@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Knowledge } from "tinyrag-types/Knowledge";
 import { Alert, Button, Flex, Layout, Modal, Table } from "antd";
-import { DeleteOutlined, FundOutlined, PlusOutlined } from "@ant-design/icons";
+import { CodeOutlined, DeleteOutlined, FundOutlined, PlusOutlined } from "@ant-design/icons";
 import { Dataset } from "tinyrag-types/dataset";
 import UUIDDisplay from "../../../../component/UUIDDisplay";
 import DatasetKnowledgeRowAction from "../../../../component/DatasetKnowledgeRowAction";
@@ -44,15 +44,25 @@ export default function DatasetDetailPage() {
   return (
     <Layout>
       <Header>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => {
-            nav(`/app/dataset/${id}/knowledge/create`);
-          }}
-        >
-          Add Knowledge
-        </Button>
+        <Flex gap={12}>
+          <Button
+            icon={<CodeOutlined />}
+            onClick={() => {
+              nav(`/app/dataset/${id}/knowledge/test`);
+            }}
+          >
+            Test
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              nav(`/app/dataset/${id}/knowledge/create`);
+            }}
+          >
+            Add Knowledge
+          </Button>
+        </Flex>
       </Header>
       <Content>
         <Table

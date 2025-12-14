@@ -37,16 +37,17 @@ export class RetrieveController {
       question as string,
       3,
     );
-    const replyPrompt = RETRIEVE_TEST_PROMPT.replace('{{context}}', '').replace(
-      '{{question}}',
-      question as string,
-    );
+    const replyPrompt = RETRIEVE_TEST_PROMPT.replace(
+      '{{context}}',
+      JSON.stringify(datas, null, 2),
+    ).replace('{{question}}', question as string);
     const completion = await this.completionService.completeById(
       dataset.completeByProviderId,
       replyPrompt,
     );
     return {
       datas,
+      replyPrompt,
       completion: completion?.data?.result,
     };
   }

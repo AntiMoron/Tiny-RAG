@@ -1,13 +1,14 @@
 import { FieldType, DataType } from '@zilliz/milvus2-sdk-node';
 
 const dim = 128;
-const schema: FieldType[] = [
+const schema: (FieldType & { isIndex?: boolean })[] = [
   {
     name: 'chunk_id',
-    description: 'int64 field',
+    description: 'chunk id field',
     data_type: DataType.VarChar,
     is_primary_key: true,
-    type_params: { max_length: 50 },
+    type_params: { max_length: '50' },
+    isIndex: true,
   },
   {
     name: 'vector',
@@ -17,15 +18,18 @@ const schema: FieldType[] = [
   },
   {
     name: 'knowledge_id',
-    description: 'int64 field',
+    description: 'knowledge id field',
     data_type: DataType.VarChar,
-    type_params: { max_length: 50 },
+    is_partition_key: true,
+    type_params: { max_length: '50' },
+    isIndex: true,
   },
   {
     name: 'dataset_id',
-    description: 'int64 field',
+    description: 'dataset id field',
     data_type: DataType.VarChar,
-    type_params: { max_length: 50 },
+    type_params: { max_length: '50' },
+    isIndex: true,
   },
 ];
 

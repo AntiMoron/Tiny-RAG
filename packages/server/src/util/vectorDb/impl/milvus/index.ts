@@ -4,6 +4,7 @@ import VectorDBBase, { VectorDBType } from '../../interface';
 import { MilvusClient, RowData } from '@zilliz/milvus2-sdk-node';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import collectionSchema from './schema';
+import * as _ from 'lodash';
 
 export default class MilvusVectorDB implements VectorDBBase {
   async deleteEntities(filter: { knowledgeId: string }): Promise<void> {
@@ -22,7 +23,6 @@ export default class MilvusVectorDB implements VectorDBBase {
   private get collectionName(): string {
     return getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
   }
-
   async init() {
     const COLLECTION_NAME = getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
     const COLLECTION_ADDR = getEnvConfigValue('MILVUS_ADDR');
@@ -40,9 +40,13 @@ export default class MilvusVectorDB implements VectorDBBase {
 
     const initImpl = async () => {
       await this.milvusClient.connectPromise;
+      await this.milvusClient.dropCollection({
+        collection_name: COLLECTION_NAME,
+      });
       const { value: hasCreated } = await this.milvusClient.hasCollection({
         collection_name: COLLECTION_NAME,
       });
+
       if (!hasCreated) {
         // load collection
         await this.milvusClient
@@ -53,6 +57,21 @@ export default class MilvusVectorDB implements VectorDBBase {
           .then((create) => {
             console.log('Create collection is finished.', create);
           });
+
+        await Promise.allSettled(
+          collectionSchema
+            .filter((a) => a.isIndex)
+            .map(async (field) => {
+              await this.milvusClient.createIndex({
+                collection_name: COLLECTION_NAME,
+                field_name: field.name,
+                index_name: `${field.name}_index`,
+                index_type: 'IVF_FLAT',
+                params: { nlist: 128 },
+              });
+            }),
+        );
+
         await this.milvusClient.loadCollectionSync({
           collection_name: COLLECTION_NAME,
         });
@@ -85,10 +104,11 @@ export default class MilvusVectorDB implements VectorDBBase {
     const targetVector = params.data;
     const retriveResult = await this.milvusClient.search({
       collection_name: this.collectionName,
-      data: targetVector,
-      filter: `dataset_id = ${datasetId}`,
+      data: [targetVector],
+      filter: `dataset_id = '${datasetId}'`,
       params: { nprobe: 64 },
       limit: count,
+      anns_field: 'vector',
     });
 
     const results = retriveResult?.results?.map((item) => {

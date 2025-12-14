@@ -6,6 +6,7 @@ import AIProviderPage from "./app/page/app/AIProvider/page";
 import DatasetDetailPage from "./app/page/app/Dataset/[id].ts/page";
 import APIKeyPage from "./app/page/app/APIKey/page";
 import KnowledgeCreatePage from "./app/page/app/Dataset/[id].ts/knowledge/create/page";
+import KnowledgeTestPage from "./app/page/app/Dataset/[id].ts/knowledge/test/page";
 
 export default function Layout() {
   return (
@@ -18,6 +19,7 @@ export default function Layout() {
             <Route element={<DatasetDetailPage />} path="dataset/:id"></Route>
             <Route element={<AIProviderPage />} path="aiprovider"></Route>
             <Route element={<KnowledgeCreatePage />} path="dataset/:id/knowledge/create"></Route>
+            <Route element={<KnowledgeTestPage />} path="dataset/:id/knowledge/test"></Route>
             <Route element={<APIKeyPage />} path="apikey"></Route>
             <Route element={<AIProviderPage />} path="user"></Route>
           </Route>

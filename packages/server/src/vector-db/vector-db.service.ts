@@ -17,11 +17,11 @@ export class VectorDbService {
     this.client = createVectorDbClient(vectorDbType)!;
   }
 
-  async onMount() {
+  async onModuleInit() {
     await this.client.init();
   }
 
-  async onUnmount() {
+  async onModuleDestroy() {
     await this.client.destroy();
   }
 
