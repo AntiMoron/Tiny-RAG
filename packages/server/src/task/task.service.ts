@@ -15,6 +15,7 @@ import { DatasetService } from 'src/dataset/dataset.service';
 import { EmbeddingService } from 'src/embedding/embedding.service';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import { VectorDbService } from 'src/vector-db/vector-db.service';
+import { Dataset } from 'tinyrag-types/dataset';
 
 @Injectable()
 export class TaskService implements OnModuleInit {
@@ -29,10 +30,6 @@ export class TaskService implements OnModuleInit {
     private readonly queueService: QueueService,
     private readonly vectorDbService: VectorDbService,
   ) {}
-
-  private get collectionName(): string {
-    return getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
-  }
 
   async onModuleInit() {
     // Register the processor so workers will execute tasks.
@@ -85,7 +82,7 @@ export class TaskService implements OnModuleInit {
         if (!client.ready) {
           throw new Error(`Vector DB client<${client.type}> is not ready yet.`);
         }
-        await client.insert([
+        await client.insert(dataset as Dataset, vector.length, [
           {
             chunk_id: chunkId,
             knowledge_id: knowledge_id,
@@ -108,7 +105,7 @@ export class TaskService implements OnModuleInit {
           await this.knowledgeService.updateKnowledgeStatus(
             knowledge_id,
             'fail',
-          );
+        );
         } else {
           await this.knowledgeService.updateKnowledgeStatus(
             knowledge_id,

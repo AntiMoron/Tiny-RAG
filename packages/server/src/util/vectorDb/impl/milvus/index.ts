@@ -1,30 +1,37 @@
 import { ChunkRetrieveResult, ChunkIndex } from 'tinyrag-types/chunk';
 import { Dataset } from 'tinyrag-types/dataset';
 import VectorDBBase, { VectorDBType } from '../../interface';
-import { MilvusClient, RowData } from '@zilliz/milvus2-sdk-node';
+import {
+  CreateIndexParam,
+  MilvusClient,
+  RowData,
+} from '@zilliz/milvus2-sdk-node';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
-import collectionSchema from './schema';
 import * as _ from 'lodash';
+import getMilvusCollectionSchema from './schema';
 
 export default class MilvusVectorDB implements VectorDBBase {
-  async deleteEntities(filter: { knowledgeId: string }): Promise<void> {
-    const { knowledgeId } = filter;
-    if (knowledgeId) {
-      await this.milvusClient.deleteEntities({
-        collection_name: this.collectionName,
-        expr: `knowledge_id = ${knowledgeId}`,
-      });
-    }
-  }
   private _ready = false;
   private milvusClient: MilvusClient;
   static type = VectorDBType.MILVUS;
 
-  private get collectionName(): string {
-    return getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
+  async deleteEntities(filter: {
+    dataset: Dataset;
+    knowledgeId: string;
+  }): Promise<void> {
+    const { knowledgeId, dataset } = filter;
+    const collectionName = this.getCollectionNameForEmbeddingAIProvider(
+      dataset.embededByProviderId,
+    );
+    if (knowledgeId) {
+      await this.milvusClient.deleteEntities({
+        collection_name: collectionName,
+        expr: `knowledge_id = ${knowledgeId}`,
+      });
+    }
   }
+
   async init() {
-    const COLLECTION_NAME = getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
     const COLLECTION_ADDR = getEnvConfigValue('MILVUS_ADDR');
     const COLLECTION_USER_NAME = getEnvConfigValue(
       'MILVUS_COLLECTION_USER_NAME',
@@ -40,42 +47,6 @@ export default class MilvusVectorDB implements VectorDBBase {
 
     const initImpl = async () => {
       await this.milvusClient.connectPromise;
-      await this.milvusClient.dropCollection({
-        collection_name: COLLECTION_NAME,
-      });
-      const { value: hasCreated } = await this.milvusClient.hasCollection({
-        collection_name: COLLECTION_NAME,
-      });
-
-      if (!hasCreated) {
-        // load collection
-        await this.milvusClient
-          .createCollection({
-            collection_name: COLLECTION_NAME,
-            fields: collectionSchema,
-          })
-          .then((create) => {
-            console.log('Create collection is finished.', create);
-          });
-
-        await Promise.allSettled(
-          collectionSchema
-            .filter((a) => a.isIndex)
-            .map(async (field) => {
-              await this.milvusClient.createIndex({
-                collection_name: COLLECTION_NAME,
-                field_name: field.name,
-                index_name: `${field.name}_index`,
-                index_type: 'IVF_FLAT',
-                params: { nlist: 128 },
-              });
-            }),
-        );
-
-        await this.milvusClient.loadCollectionSync({
-          collection_name: COLLECTION_NAME,
-        });
-      }
       this._ready = true;
       console.log('Node client is initialized.');
     };
@@ -85,6 +56,48 @@ export default class MilvusVectorDB implements VectorDBBase {
   async destroy(): Promise<void> {
     this._ready = false;
     await this.milvusClient.closeConnection();
+  }
+
+  getCollectionNameForEmbeddingAIProvider(aiProviderId: string): string {
+    const COLLECTION_NAME = getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
+    return `${COLLECTION_NAME}_${aiProviderId.replace(/-/g, '_')}`;
+  }
+
+  async checkAndCreateCollectionForEmbeddingAIProvider(
+    aiProviderId: string,
+    embeddingDim: number,
+  ) {
+    const COLLECTION_NAME =
+      this.getCollectionNameForEmbeddingAIProvider(aiProviderId);
+    const { value: hasCreated } = await this.milvusClient.hasCollection({
+      collection_name: COLLECTION_NAME,
+    });
+    const collectionSchema = getMilvusCollectionSchema(embeddingDim);
+    if (!hasCreated) {
+      // load collection
+      await this.milvusClient
+        .createCollection({
+          collection_name: COLLECTION_NAME,
+          fields: collectionSchema,
+          index_params: collectionSchema
+            .filter((a) => a.isIndex)
+            .map((field) => {
+              return {
+                field_name: field.name,
+                index_name: `${field.name}_index`,
+                index_type: 'AUTOINDEX',
+                metric_type: 'COSINE',
+              } as CreateIndexParam;
+            }) as any,
+        })
+        .then((create) => {
+          console.log('Create collection is finished.', create);
+        });
+
+      await this.milvusClient.loadCollectionSync({
+        collection_name: COLLECTION_NAME,
+      });
+    }
   }
 
   get ready(): boolean {
@@ -102,12 +115,26 @@ export default class MilvusVectorDB implements VectorDBBase {
     const count = params.limit;
     const datasetId = params.dataset.id;
     const targetVector = params.data;
+    const embededByProviderId = params.dataset.embededByProviderId;
+    const collectionName =
+      this.getCollectionNameForEmbeddingAIProvider(embededByProviderId);
+    await this.checkAndCreateCollectionForEmbeddingAIProvider(
+      embededByProviderId,
+      targetVector.length,
+    );
     const retriveResult = await this.milvusClient.search({
-      collection_name: this.collectionName,
+      collection_name: collectionName,
       data: [targetVector],
       filter: `dataset_id = '${datasetId}'`,
       params: { nprobe: 64 },
       limit: count,
+      metric_type: 'COSINE',
+      search_params: {
+        params: {
+          radius: 0.4,
+          range_filter: 1,
+        },
+      },
       anns_field: 'vector',
     });
 
@@ -124,10 +151,21 @@ export default class MilvusVectorDB implements VectorDBBase {
     return results || [];
   }
 
-  async insert(params: { fieldsData: ChunkIndex[] }): Promise<void> {
-    const { fieldsData } = params;
+  async insert(params: {
+    dataset: Dataset;
+    embeddingDim: number;
+    fieldsData: ChunkIndex[];
+  }): Promise<void> {
+    const { fieldsData, dataset } = params;
+    const collectionName = this.getCollectionNameForEmbeddingAIProvider(
+      params.dataset.embededByProviderId,
+    );
+    await this.checkAndCreateCollectionForEmbeddingAIProvider(
+      dataset.embededByProviderId,
+      params.embeddingDim,
+    );
     await this.milvusClient.insert({
-      collection_name: this.collectionName,
+      collection_name: collectionName,
       fields_data: fieldsData as unknown as RowData[],
     });
   }

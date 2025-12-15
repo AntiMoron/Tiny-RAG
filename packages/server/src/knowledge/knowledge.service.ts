@@ -104,9 +104,25 @@ export class KnowledgeService {
   }
 
   async deleteKnowledge(id: string) {
+    const knowledge = await this.knowledgeRepo.findOneBy({ id });
+    if (!knowledge) {
+      throw new HttpException(
+        `Knowledge ${id} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const datasetId = knowledge.dataset_id;
+    const dataset = await this.datasetRepo.findOneBy({ id: datasetId });
+    if (!dataset) {
+      throw new HttpException(
+        `Dataset ${datasetId} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const chunks = await this.chunkService.getChunksByKnowledgeId(id);
     await this.chunkService.deleteChunks(chunks.map((a) => a.id));
     await this.vectorDbService.deleteEntities({
+      dataset: dataset as Dataset,
       knowledgeId: id,
     });
     return await this.knowledgeRepo.delete({ id });

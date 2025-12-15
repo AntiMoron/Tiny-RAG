@@ -39,4 +39,7 @@ export class AIProviderEntity {
 
   @Column({ length: 30, nullable: true })
   lastTestStatus: string;
+
+  @Column({ type: 'int', nullable: true })
+  dim?: number;
 }

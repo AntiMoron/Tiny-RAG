@@ -29,10 +29,12 @@ export class VectorDbService {
     return this.client.ready;
   }
 
-  async insert(fieldsData: ChunkIndex[]) {
-    await this.client.insert({
-      fieldsData,
-    });
+  async insert(
+    dataset: Dataset,
+    embeddingDim: number,
+    fieldsData: ChunkIndex[],
+  ) {
+    await this.client.insert({ dataset, embeddingDim, fieldsData });
   }
 
   async search(params: {
@@ -43,7 +45,7 @@ export class VectorDbService {
     return await this.client.search(params);
   }
 
-  async deleteEntities(params: { knowledgeId: string }) {
+  async deleteEntities(params: { dataset: Dataset; knowledgeId: string }) {
     await this.client.deleteEntities(params);
   }
 }

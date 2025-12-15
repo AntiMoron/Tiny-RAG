@@ -30,14 +30,20 @@ export default abstract class VectorDBInterface {
     limit: number; // max result.
   }): Promise<(ChunkIndex & { score: number })[]>;
 
-  abstract insert(params: { fieldsData: ChunkIndex[] }): Promise<void>;
+  abstract insert(params: {
+    dataset: Dataset;
+    embeddingDim: number;
+    fieldsData: ChunkIndex[];
+  }): Promise<void>;
 
   abstract deleteEntities(
     filter:
       | {
+          dataset: Dataset;
           knowledgeId: string;
         }
       | {
+          dataset: Dataset;
           chunkId: string;
         },
   ): Promise<void>;
