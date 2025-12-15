@@ -26,7 +26,7 @@ export default class MilvusVectorDB implements VectorDBBase {
     if (knowledgeId) {
       await this.milvusClient.deleteEntities({
         collection_name: collectionName,
-        expr: `knowledge_id = ${knowledgeId}`,
+        expr: `knowledge_id == '${knowledgeId}'`,
       });
     }
   }
@@ -124,19 +124,30 @@ export default class MilvusVectorDB implements VectorDBBase {
     );
     const retriveResult = await this.milvusClient.search({
       collection_name: collectionName,
-      data: [targetVector],
-      filter: `dataset_id = '${datasetId}'`,
-      params: { nprobe: 64 },
-      limit: count,
-      metric_type: 'COSINE',
-      search_params: {
-        params: {
-          radius: 0.4,
-          range_filter: 1,
-        },
-      },
+      // Milvus expects an array of vectors (batch), so wrap targetVector
+      data: targetVector,
+      // do not restrict partition here unless you are sure data was inserted into it
+      // partition_names: [datasetId],
+      filter: `dataset_id == '${datasetId}'`,
       anns_field: 'vector',
+      metric_type: 'COSINE',
+      // topk / limit: ensure we request the right number of neighbors
+      limit: count,
+      // use ANN search params (nprobe) as JSON string per SDK expectations
+      search_params: {
+        topk: count,
+        params: JSON.stringify({ nprobe: 64 }),
+      },
     });
+
+    // debug: log raw milvus response when nothing matched
+    if (
+      !retriveResult ||
+      !retriveResult.results ||
+      retriveResult.results.length === 0
+    ) {
+      console.log('Milvus search raw response:', JSON.stringify(retriveResult));
+    }
 
     const results = retriveResult?.results?.map((item) => {
       return {
@@ -164,9 +175,18 @@ export default class MilvusVectorDB implements VectorDBBase {
       dataset.embededByProviderId,
       params.embeddingDim,
     );
-    await this.milvusClient.insert({
+    const insertRes = await this.milvusClient.insert({
       collection_name: collectionName,
       fields_data: fieldsData as unknown as RowData[],
     });
+    console.log('Milvus insert result:', insertRes);
+
+    // ensure data is flushed so it becomes searchable immediately
+    try {
+      await this.milvusClient.flush({ collection_names: [collectionName] });
+    } catch (err) {
+      // some SDK versions provide flushSync; if flush fails just log it
+      console.warn('Milvus flush failed (continuing):', err?.message || err);
+    }
   }
 }

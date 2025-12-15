@@ -1,12 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { chunk } from 'llm-chunk';
+import { MarkdownTextSplitter } from '@langchain/textsplitters';
 
 @Injectable()
 export class ChunksplitService {
   constructor() {}
 
+  private markdownSplitter = new MarkdownTextSplitter();
+
   // eslint-disable-next-line @typescript-eslint/require-await
-  async splitChunks(text: string): Promise<string[]> {
-    return this.basicChunkSplit(text, 512, 10);
+  async splitChunks(text: string, type?: string): Promise<string[]> {
+    if (type === 'simple') {
+      return this.basicChunkSplit(text, 512, 10);
+    }
+    if (type === 'llm-chunk') {
+      return chunk(text);
+    }
+    return this.markdownSplitter.splitText(text);
   }
 
   private basicChunkSplit(

@@ -12,6 +12,7 @@ import checkParams from 'src/util/checkParams';
 import { Dataset } from 'tinyrag-types/dataset';
 import { CompletionService } from 'src/completion/completion.service';
 import { RETRIEVE_TEST_PROMPT } from 'src/util/prompts';
+import * as _ from 'lodash';
 
 @Controller('api/retrieve')
 export class RetrieveController {
@@ -32,21 +33,22 @@ export class RetrieveController {
       throw new HttpException(`Dataset not found`, HttpStatus.NOT_FOUND);
     }
     const { question } = body;
-    const datas = await this.retrieveService.retieveEmbeddingData(
+    const data = await this.retrieveService.retieveEmbeddingData(
       dataset as Dataset,
       question as string,
       3,
     );
+    const validData = data.map((item) => _.pick(item, ['score', 'content']));
     const replyPrompt = RETRIEVE_TEST_PROMPT.replace(
       '{{context}}',
-      JSON.stringify(datas, null, 2),
+      JSON.stringify(validData, null, 2),
     ).replace('{{question}}', question as string);
     const completion = await this.completionService.completeById(
       dataset.completeByProviderId,
       replyPrompt,
     );
     return {
-      datas,
+      validData,
       replyPrompt,
       completion: completion?.data?.result,
     };
