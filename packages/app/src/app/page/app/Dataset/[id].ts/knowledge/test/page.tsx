@@ -17,7 +17,7 @@ export default function KnowledgeTestPage() {
       </Header>
       <Content>
         <Flex>
-          <Col>
+          <Col flex={1}>
             <Form
               layout="vertical"
               onFinish={(values) => {
@@ -43,7 +43,7 @@ export default function KnowledgeTestPage() {
               </Item>
             </Form>
           </Col>
-          <Col>
+          <Col flex={1}>
             <div>{data}</div>
           </Col>
         </Flex>
