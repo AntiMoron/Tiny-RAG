@@ -25,4 +25,8 @@ export class ApikeyService {
     apiKey.key = 'tinyrag_' + crypto.randomUUID().replace(/-/g, '');
     return await this.repo.save(apiKey);
   }
+
+  async validateKey(key: string): Promise<ApiKeyEntity | null> {
+    return await this.repo.findOneBy({ key });
+  }
 }

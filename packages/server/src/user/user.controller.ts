@@ -5,6 +5,7 @@ import express from 'express';
 import * as _ from 'lodash';
 import { COOKIE_NAME } from 'src/util/constant';
 import { Redis } from 'ioredis';
+import { Public } from 'src/util/public.decorator';
 
 @Controller('api/user')
 export class UserController {
@@ -14,6 +15,7 @@ export class UserController {
     private readonly userService: UserService,
   ) {}
 
+  @Public()
   @Post('login')
   async login(@Body() body, @Res() res: express.Response) {
     checkParams(body, ['encrypedPwd', 'username']);

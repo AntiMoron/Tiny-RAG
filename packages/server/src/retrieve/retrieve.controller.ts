@@ -13,6 +13,8 @@ import { Dataset } from 'tinyrag-types/dataset';
 import { CompletionService } from 'src/completion/completion.service';
 import { RETRIEVE_TEST_PROMPT } from 'src/util/prompts';
 import * as _ from 'lodash';
+import { Public } from 'src/util/public.decorator';
+import { TinyRAGAPI } from 'src/util/api.decorator';
 
 @Controller('api/retrieve')
 export class RetrieveController {
@@ -21,6 +23,30 @@ export class RetrieveController {
     private readonly datasetService: DatasetService,
     private readonly completionService: CompletionService,
   ) {}
+
+  @Public()
+  @TinyRAGAPI()
+  @Post('dataset/:datasetId/retrieve/test')
+  async datasetRetrieveExport(
+    @Param('datasetId') datasetId: string,
+    @Body() body,
+  ) {
+    checkParams(body, ['question']);
+    const dataset = await this.datasetService.getDatasetById(datasetId);
+    if (!dataset) {
+      throw new HttpException(`Dataset not found`, HttpStatus.NOT_FOUND);
+    }
+    const { question } = body;
+    const data = await this.retrieveService.retieveEmbeddingData(
+      dataset as Dataset,
+      question as string,
+      3,
+    );
+    const validData = data.map((item) => _.pick(item, ['score', 'content']));
+    return {
+      validData,
+    };
+  }
 
   @Post('dataset/:datasetId/retrieve/test')
   async datasetRetrieveTest(

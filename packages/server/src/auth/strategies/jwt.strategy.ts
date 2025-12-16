@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { UserService } from 'src/user/user.service';
@@ -10,12 +9,13 @@ import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import { Request } from 'express';
 import { COOKIE_NAME } from 'src/util/constant';
 import { parse } from 'cookie-es';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly userService: UserService,
-    private configService: ConfigService,
+    private reflector: Reflector,
     @Inject('LRU_CACHE') private lruCache: LRU.LRUCache<string, string>,
     @Inject('REDIS_CLIENT') private redisClient: Redis,
   ) {
@@ -62,7 +62,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // 3. 验证用户是否存在
     const user = await this.userService.getUserByName(username);
 
-    if (!user) {
+    if (!user || user.id !== userId) {
       throw new UnauthorizedException('User not exist');
     }
 

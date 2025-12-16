@@ -7,15 +7,11 @@ import {
   HttpStatus,
   Param,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { DatasetService } from './dataset.service';
 import { Dataset } from 'tinyrag-types/dataset';
 import checkParams, { checkNotHaveParams } from 'src/util/checkParams';
-import * as _ from 'lodash';
-import { AuthGuard } from '@nestjs/passport';
 
-@UseGuards(AuthGuard('jwt'))
 @Controller('api/dataset')
 export class DatasetController {
   constructor(private readonly datasetService: DatasetService) {}

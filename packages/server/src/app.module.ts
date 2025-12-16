@@ -30,6 +30,9 @@ import { UserEntity } from './user/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import { LruCacheModule } from './cache/lru-cache.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtStrategy } from './auth/strategies/jwt.strategy';
+import { JwtAuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -98,6 +101,13 @@ import { LruCacheModule } from './cache/lru-cache.module';
     RedisModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

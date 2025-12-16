@@ -7,6 +7,7 @@ import DatasetDetailPage from "./app/page/app/Dataset/[id].ts/page";
 import APIKeyPage from "./app/page/app/APIKey/page";
 import KnowledgeCreatePage from "./app/page/app/Dataset/[id].ts/knowledge/create/page";
 import KnowledgeTestPage from "./app/page/app/Dataset/[id].ts/knowledge/test/page";
+import LoginPage from "./app/page/login/page";
 
 export default function Layout() {
   return (
@@ -14,6 +15,7 @@ export default function Layout() {
       <HashRouter>
         <Routes>
           <Route index element={<div>123</div>} path="/"></Route>
+          <Route element={<LoginPage />} path="/login"></Route>
           <Route element={<App />} path="/app/">
             <Route index element={<DatasetPage />} path="dataset"></Route>
             <Route element={<DatasetDetailPage />} path="dataset/:id"></Route>
