@@ -26,7 +26,7 @@ export class RetrieveController {
 
   @Public()
   @TinyRAGAPI()
-  @Post('dataset/:datasetId/retrieve/test')
+  @Post('dataset/:datasetId/retrieve/export')
   async datasetRetrieveExport(
     @Param('datasetId') datasetId: string,
     @Body() body,

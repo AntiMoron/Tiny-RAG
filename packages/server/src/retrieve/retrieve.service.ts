@@ -72,7 +72,7 @@ export class RetrieveService {
         };
       })
       .filter((item) => !_.isEmpty(item?.content)) as ChunkRetrieveResult[];
-      
+
     return withContent;
   }
 }
