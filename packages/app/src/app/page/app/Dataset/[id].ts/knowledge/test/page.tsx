@@ -1,13 +1,24 @@
 import React, { useState } from "react";
-import { Button, Col, Flex, Form, Input, Layout } from "antd";
+import {
+  Button,
+  Col,
+  Flex,
+  Form,
+  Input,
+  Layout,
+  Table,
+  Typography,
+} from "antd";
 import axios from "axios";
 import { useParams } from "react-router";
+import ResponseDisplay from "../../../../../../component/ResponseDisplay";
 
 const { Header, Content, Footer } = Layout;
 const Item = Form.Item;
 
 export default function KnowledgeTestPage() {
   const [data, setData] = useState("");
+  const [loading, setLoading] = useState(false);
   const params = useParams();
   const { id: datasetId } = params;
   return (
@@ -16,17 +27,21 @@ export default function KnowledgeTestPage() {
         <div>KnowledgeTestPage</div>
       </Header>
       <Content>
-        <Flex>
+        <Flex gap={12} vertical>
           <Col flex={1}>
             <Form
               layout="vertical"
               onFinish={(values) => {
+                setLoading(true);
                 axios
                   .post(`/api/retrieve/dataset/${datasetId}/retrieve/test`, {
                     question: values.question,
                   })
                   .then((res) => {
-                    setData(JSON.stringify(res.data, null, 2));
+                    setData(res.data);
+                  })
+                  .finally(() => {
+                    setLoading(false);
                   });
               }}
             >
@@ -37,14 +52,27 @@ export default function KnowledgeTestPage() {
                 />
               </Item>
               <Item>
-                <Button type="primary" htmlType="submit">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  disabled={loading}
+                >
                   OK
                 </Button>
               </Item>
             </Form>
           </Col>
           <Col flex={1}>
-            <div>{data}</div>
+            <Typography.Text title={data?.replyPrompt}></Typography.Text>
+            <ResponseDisplay>{data?.completion}</ResponseDisplay>
+            <Table
+              dataSource={data?.validData}
+              columns={[
+                { dataIndex: "score", title: "Score" },
+                { dataIndex: "content", title: "Content" },
+              ]}
+            ></Table>
           </Col>
         </Flex>
       </Content>

@@ -16,6 +16,7 @@ export interface ChunkIndexTaskBodyData extends TaskBodyData {
 
 export interface ChunkLastIndexTaskBodyData extends ChunkIndexTaskBodyData {
   knowledge_id: string;
+  to_delete_chunk_ids?: string[]; // once knowledge is re-indexed, some chunks may be deleted
 }
 
 export interface TaskBody {

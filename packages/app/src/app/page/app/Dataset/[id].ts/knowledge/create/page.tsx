@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Button, Layout, StepsProps, Tabs, Tag } from "antd";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useMount } from "ahooks";
 import axios from "axios";
 import { Dataset } from "tinyrag-types/dataset";
@@ -16,6 +16,7 @@ const { Header, Content } = Layout;
 export default function KnowledgeCreatePage() {
   const params = useParams();
   const { id: datasetId } = params;
+  const nav = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [detail, setDetail] = useState<undefined | Dataset>();
   const [config, setConfig] = useState<KnowledgeTask>({
@@ -106,9 +107,13 @@ export default function KnowledgeCreatePage() {
           type="primary"
           htmlType="submit"
           onClick={async () => {
-            await axios.post("/api/task/add", {
-              ...config,
-            });
+            await axios
+              .post("/api/task/add", {
+                ...config,
+              })
+              .then(() => {
+                nav(`/app/dataset/${datasetId}`);
+              });
           }}
         >
           OK

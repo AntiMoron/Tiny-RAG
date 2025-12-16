@@ -20,7 +20,7 @@ export class RetrieveService {
     question: string,
     count: number,
   ): Promise<ChunkRetrieveResult[]> {
-    const { embededByProviderId, id } = dataset;
+    const { embededByProviderId } = dataset;
     const questionEmbedding = await this.embeddingService.embedById(
       embededByProviderId,
       question,
@@ -71,7 +71,7 @@ export class RetrieveService {
           ...originChunk,
         };
       })
-      .filter((item) => !_.isEmpty(item?.content)) as ChunkRetrieveResult[];
+      .filter((item) => !_.isEmpty(item?.content));
 
     return withContent;
   }

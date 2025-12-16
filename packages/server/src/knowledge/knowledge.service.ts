@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Knowledge } from 'tinyrag-types/knowledge';
 import { InjectRepository } from '@nestjs/typeorm';
 import { KnowledgeEntity } from './knowledge.entity';
@@ -9,7 +9,6 @@ import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import { ChunkService } from 'src/chunk/chunk.service';
 import { EmbeddingService } from 'src/embedding/embedding.service';
 import { Inject, forwardRef } from '@nestjs/common';
-import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import { Dataset } from 'tinyrag-types/dataset';
 import { VectorDbService } from 'src/vector-db/vector-db.service';
 
@@ -30,10 +29,6 @@ export class KnowledgeService {
     private readonly knowledgeRepo: Repository<KnowledgeEntity>,
   ) {}
 
-  private get collectionName(): string {
-    return getEnvConfigValue('MILVUS_CHUNK_COLLECTION_NAME');
-  }
-
   async insertKnowledge(
     knowledge: Omit<Knowledge, 'id' | 'createdAt' | 'updatedAt'>,
   ) {
@@ -51,6 +46,39 @@ export class KnowledgeService {
       _.omitBy(knowledge, ['id']) as Omit<Knowledge, 'id'>,
     );
     return await this.knowledgeRepo.save(newKnowledge);
+  }
+
+  async insertOrUpadteExternalKnowledge(
+    knowledge: Omit<Knowledge, 'id' | 'createdAt' | 'updatedAt'>,
+  ) {
+    const oldEntity = knowledge.externalId
+      ? await this.knowledgeRepo.findOneBy({
+          externalId: knowledge.externalId,
+        })
+      : null;
+    const mergeKnowledge = {
+      ...oldEntity,
+      ...knowledge,
+    };
+    const dataset_id = mergeKnowledge.dataset_id;
+    const datasetEntity = await this.datasetRepo.findOneBy({
+      id: dataset_id,
+    });
+    if (!datasetEntity) {
+      throw new HttpException(
+        `Dataset ${dataset_id} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    if (oldEntity) {
+      await this.knowledgeRepo.update({ id: oldEntity.id }, knowledge);
+      return mergeKnowledge as KnowledgeEntity;
+    } else {
+      const newKnowledge = this.knowledgeRepo.create(
+        _.omitBy(knowledge, ['id']) as Omit<Knowledge, 'id'>,
+      );
+      return await this.knowledgeRepo.save(newKnowledge);
+    }
   }
 
   async findByIds(ids: string[]): Promise<Knowledge[]> {
@@ -115,12 +143,16 @@ export class KnowledgeService {
         HttpStatus.NOT_FOUND,
       );
     }
-    const chunks = await this.chunkService.getChunksByKnowledgeId(id);
+    await this.deleteRelatedChunks(dataset as Dataset, id);
+    return await this.knowledgeRepo.delete({ id });
+  }
+
+  private async deleteRelatedChunks(dataset: Dataset, knowledgeId: string) {
+    const chunks = await this.chunkService.getChunksByKnowledgeId(knowledgeId);
     await this.chunkService.deleteChunks(chunks.map((a) => a.id));
     await this.vectorDbService.deleteEntities({
-      dataset: dataset as Dataset,
-      knowledgeId: id,
+      dataset,
+      knowledgeId: knowledgeId,
     });
-    return await this.knowledgeRepo.delete({ id });
   }
 }

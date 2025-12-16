@@ -47,7 +47,7 @@ export class QueueService implements OnModuleDestroy {
       if (useQueueType === 'memory') {
         throw new Error('0');
       }
-      this.connection = new IORedis(redisUrl);
+      this.connection = new IORedis(redisUrl, { maxRetriesPerRequest: null });
       this.queue = new Queue(this.queueName, { connection: this.connection });
       // scheduler helps with stalled jobs / retries
       this.scheduler = new QueueScheduler(this.queueName, {

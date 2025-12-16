@@ -16,6 +16,8 @@ import { EmbeddingService } from 'src/embedding/embedding.service';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import { VectorDbService } from 'src/vector-db/vector-db.service';
 import { Dataset } from 'tinyrag-types/dataset';
+import * as fs from 'fs-extra';
+import { join, relative } from 'path';
 
 @Injectable()
 export class TaskService implements OnModuleInit {
@@ -97,7 +99,20 @@ export class TaskService implements OnModuleInit {
       }
       if (taskType === 'chunk_last_index') {
         // final check
-        const { knowledge_id } = data as ChunkLastIndexTaskBodyData;
+        const { knowledge_id, to_delete_chunk_ids: deleteChunkIds } =
+          data as ChunkLastIndexTaskBodyData;
+        const knowledge = (
+          await this.knowledgeService.findByIds([knowledge_id])
+        )?.[0];
+        const datasetId = knowledge?.dataset_id;
+        if (!knowledge || !datasetId) {
+          throw new Error('Knowledge not found: ' + knowledge_id);
+        }
+
+        const dataset = await this.datasetService.getDatasetById(datasetId);
+        if (!dataset) {
+          throw new Error('Dataset not found: ' + datasetId);
+        }
         const allChunks =
           await this.chunkService.getChunkStatusByKnowledgeId(knowledge_id);
         const anyFail = allChunks.some((c) => c.indexStatus === 'fail');
@@ -105,8 +120,19 @@ export class TaskService implements OnModuleInit {
           await this.knowledgeService.updateKnowledgeStatus(
             knowledge_id,
             'fail',
-        );
+          );
         } else {
+          if (deleteChunkIds && deleteChunkIds.length > 0) {
+            try {
+              await this.chunkService.deleteChunks(deleteChunkIds);
+              await this.vectorDbService.deleteEntities({
+                dataset: dataset as Dataset,
+                chunkIds: deleteChunkIds,
+              });
+            } catch (err) {
+              this.logger.error('Failed to delete old chunks:', err);
+            }
+          }
           await this.knowledgeService.updateKnowledgeStatus(
             knowledge_id,
             'success',
@@ -130,8 +156,18 @@ export class TaskService implements OnModuleInit {
         onDocFinish: (docId, markdown: string, metadata: any) => {
           content = markdown;
         },
-        handleImage: (fileDir: string) => {
-          return fileDir;
+        handleImage: async (fileDir: string) => {
+          // default we'll use nestjs public host
+          const publicHost = getEnvConfigValue('PUBLIC_HOST');
+          const baseDir = join(__dirname, '..', '..');
+          const relativePath = relative(baseDir, fileDir);
+          const targetDir = join(baseDir, './public/', relativePath);
+          await fs.move(fileDir, targetDir, {
+            overwrite: true, // 目标文件已存在时覆盖（可选，默认 false）
+            errorOnExist: false, // 配合 overwrite: true 使用，避免报错
+          });
+          const fileUrl = `${publicHost}/public/${relativePath}`;
+          return fileUrl;
         },
       });
 
@@ -140,11 +176,15 @@ export class TaskService implements OnModuleInit {
         throw new Error('Dataset not found: ' + datasetId);
       }
       const embededByProviderId = dataset.embededByProviderId;
-      const knowledgeEntity = await this.knowledgeService.insertKnowledge({
-        content,
-        dataset_id: datasetId,
-      });
-
+      const knowledgeEntity =
+        await this.knowledgeService.insertOrUpadteExternalKnowledge({
+          content,
+          dataset_id: datasetId,
+          externalId: docToken || '',
+        });
+      const originalChunks = await this.chunkService.getChunksByKnowledgeId(
+        knowledgeEntity.id,
+      );
       const chunks = await this.chunksplitService.splitChunks(content);
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
@@ -162,6 +202,8 @@ export class TaskService implements OnModuleInit {
         if (i === chunks.length - 1) {
           const chunkLastIndexBodyData: ChunkLastIndexTaskBodyData = {
             knowledge_id: knowledgeEntity.id,
+            // since we need to upgrade that, we need to clean up old knowledge first.
+            to_delete_chunk_ids: originalChunks?.map((a) => a.id) || [],
             ...chunkIndexTask,
           };
           // if it's last, notify the knowledge to check if all chunks are done

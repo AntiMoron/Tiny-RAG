@@ -1,4 +1,5 @@
-import { ChunkIndex, ChunkRetrieveResult } from 'tinyrag-types/chunk';
+import { WinstonLogger } from 'nest-winston';
+import { ChunkIndex } from 'tinyrag-types/chunk';
 import { Dataset } from 'tinyrag-types/dataset';
 
 export enum VectorDBType {
@@ -24,27 +25,30 @@ export default abstract class VectorDBInterface {
    * Search data in dataset.
    * @param params
    */
-  abstract search(params: {
-    data: number[]; // target vector
-    dataset: Dataset;
-    limit: number; // max result.
-  }): Promise<(ChunkIndex & { score: number })[]>;
+  abstract search(
+    logger: WinstonLogger,
+    params: {
+      data: number[]; // target vector
+      dataset: Dataset;
+      limit: number; // max result.
+    },
+  ): Promise<(ChunkIndex & { score: number })[]>;
 
-  abstract insert(params: {
-    dataset: Dataset;
-    embeddingDim: number;
-    fieldsData: ChunkIndex[];
-  }): Promise<void>;
+  abstract insert(
+    logger: WinstonLogger,
+    params: {
+      dataset: Dataset;
+      embeddingDim: number;
+      fieldsData: ChunkIndex[];
+    },
+  ): Promise<void>;
 
   abstract deleteEntities(
-    filter:
-      | {
-          dataset: Dataset;
-          knowledgeId: string;
-        }
-      | {
-          dataset: Dataset;
-          chunkId: string;
-        },
+    logger: WinstonLogger,
+    filter: {
+      dataset: Dataset;
+      knowledgeId?: string;
+      chunkIds?: string[];
+    },
   ): Promise<void>;
 }

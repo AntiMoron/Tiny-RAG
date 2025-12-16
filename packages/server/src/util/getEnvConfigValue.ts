@@ -4,6 +4,7 @@ const defaultValues: Record<string, string> = {
   ADMIN_NAME: 'admin',
   ADMIN_PASSWORD: 'ilovetinyrag',
   JWT_SECRET: 'tinyrag',
+  PUBLIC_HOST: 'http://localhost:3000',
 
   TYPEORM_SYNC: '',
   MYSQL_HOST: 'localhost',

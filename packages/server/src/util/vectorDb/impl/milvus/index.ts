@@ -8,25 +8,63 @@ import {
 } from '@zilliz/milvus2-sdk-node';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import getMilvusCollectionSchema from './schema';
+import { WinstonLogger } from 'nest-winston';
 
 export default class MilvusVectorDB implements VectorDBBase {
   private _ready = false;
   private milvusClient: MilvusClient;
   static type = VectorDBType.MILVUS;
 
-  async deleteEntities(filter: {
-    dataset: Dataset;
-    knowledgeId: string;
-  }): Promise<void> {
-    const { knowledgeId, dataset } = filter;
-    const collectionName = this.getCollectionNameForEmbeddingAIProvider(
-      dataset.embededByProviderId,
-    );
-    if (knowledgeId) {
-      await this.milvusClient.deleteEntities({
+  async deleteEntities(
+    logger: WinstonLogger,
+    filter: {
+      dataset: Dataset;
+      knowledgeId?: string;
+      chunkIds?: string[];
+    },
+  ): Promise<void> {
+    const { knowledgeId, chunkIds, dataset } = filter;
+
+    if (!filter?.dataset) {
+      throw new Error('删除实体失败：dataset 参数不能为空');
+    }
+
+    if (!filter.knowledgeId && !filter.chunkIds) {
+      throw new Error(
+        '删除实体失败：必须提供 knowledgeId 或 chunkIds 作为删除条件',
+      );
+    }
+
+    let expr = '';
+
+    try {
+      const collectionName = this.getCollectionNameForEmbeddingAIProvider(
+        dataset.embededByProviderId,
+      );
+
+      if (knowledgeId && chunkIds) {
+        // 同时提供 knowledgeId 和 chunkIds：删除指定知识下的指定分片
+        const chunkIdsStr = chunkIds.map((id) => `'${id}'`).join(',');
+        expr = `knowledge_id == '${knowledgeId}' && chunk_id in [${chunkIdsStr}]`;
+      } else if (knowledgeId) {
+        // 仅提供 knowledgeId：删除该知识下的所有实体
+        expr = `knowledge_id == '${knowledgeId}'`;
+      } else if (chunkIds) {
+        // 仅提供 chunkIds：删除指定分片的实体
+        const chunkIdsStr = chunkIds.map((id) => `'${id}'`).join(',');
+        expr = `chunk_id in [${chunkIdsStr}]`;
+      }
+      const deleteResult = await this.milvusClient.deleteEntities({
         collection_name: collectionName,
-        expr: `knowledge_id == '${knowledgeId}'`,
+        expr,
+        // 可选：添加超时配置（根据实际需求调整）
+        timeout: 30000,
       });
+      logger.debug?.(
+        `删除 Milvus 实体成功，集合：${collectionName}，影响行数：${deleteResult?.delete_cnt || 0}`,
+      );
+    } catch (error) {
+      throw new Error(`删除实体失败：${(error as Error).message}`);
     }
   }
 
@@ -103,11 +141,14 @@ export default class MilvusVectorDB implements VectorDBBase {
     return this._ready;
   }
 
-  async search(params: {
-    data: number[];
-    dataset: Dataset;
-    limit: number;
-  }): Promise<(ChunkIndex & { score: number })[]> {
+  async search(
+    logger: WinstonLogger,
+    params: {
+      data: number[];
+      dataset: Dataset;
+      limit: number;
+    },
+  ): Promise<(ChunkIndex & { score: number })[]> {
     if (!this.ready) {
       throw new Error('Not ready yet.');
     }
@@ -161,11 +202,14 @@ export default class MilvusVectorDB implements VectorDBBase {
     return results || [];
   }
 
-  async insert(params: {
-    dataset: Dataset;
-    embeddingDim: number;
-    fieldsData: ChunkIndex[];
-  }): Promise<void> {
+  async insert(
+    logger: WinstonLogger,
+    params: {
+      dataset: Dataset;
+      embeddingDim: number;
+      fieldsData: ChunkIndex[];
+    },
+  ): Promise<void> {
     const { fieldsData, dataset } = params;
     const collectionName = this.getCollectionNameForEmbeddingAIProvider(
       params.dataset.embededByProviderId,

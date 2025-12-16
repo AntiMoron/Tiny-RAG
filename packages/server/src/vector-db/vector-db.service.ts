@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import createVectorDbClient from 'src/util/vectorDb';
 import VectorDBInterface from 'src/util/vectorDb/interface';
@@ -11,7 +11,9 @@ export class VectorDbService {
   type = '';
   private client: VectorDBInterface;
 
-  constructor() {
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
+  ) {
     const vectorDbType = getEnvConfigValue('VECTOR_DB_TYPE');
     this.type = vectorDbType;
     this.client = createVectorDbClient(vectorDbType)!;
@@ -34,7 +36,11 @@ export class VectorDbService {
     embeddingDim: number,
     fieldsData: ChunkIndex[],
   ) {
-    await this.client.insert({ dataset, embeddingDim, fieldsData });
+    await this.client.insert(this.logger, {
+      dataset,
+      embeddingDim,
+      fieldsData,
+    });
   }
 
   async search(params: {
@@ -42,10 +48,14 @@ export class VectorDbService {
     dataset: Dataset;
     limit: number; // max result.
   }) {
-    return await this.client.search(params);
+    return await this.client.search(this.logger, params);
   }
 
-  async deleteEntities(params: { dataset: Dataset; knowledgeId: string }) {
-    await this.client.deleteEntities(params);
+  async deleteEntities(params: {
+    dataset: Dataset;
+    knowledgeId?: string;
+    chunkIds?: string[];
+  }) {
+    await this.client.deleteEntities(this.logger, params);
   }
 }

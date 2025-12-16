@@ -33,6 +33,8 @@ import { LruCacheModule } from './cache/lru-cache.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { JwtAuthGuard } from './auth/auth.guard';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -99,6 +101,10 @@ import { JwtAuthGuard } from './auth/auth.guard';
     VectorDbModule,
     RetrieveModule,
     RedisModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/public/',
+    }),
   ],
   controllers: [AppController],
   providers: [

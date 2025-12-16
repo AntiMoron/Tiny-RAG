@@ -4,4 +4,5 @@ export interface Knowledge {
   dataset_id: string;
   createdAt: Date;
   updatedAt: Date;
+  externalId?: string;
 }
