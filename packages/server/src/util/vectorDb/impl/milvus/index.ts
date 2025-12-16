@@ -1,4 +1,4 @@
-import { ChunkRetrieveResult, ChunkIndex } from 'tinyrag-types/chunk';
+import { ChunkIndex } from 'tinyrag-types/chunk';
 import { Dataset } from 'tinyrag-types/dataset';
 import VectorDBBase, { VectorDBType } from '../../interface';
 import {
@@ -7,7 +7,6 @@ import {
   RowData,
 } from '@zilliz/milvus2-sdk-node';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
-import * as _ from 'lodash';
 import getMilvusCollectionSchema from './schema';
 
 export default class MilvusVectorDB implements VectorDBBase {
@@ -186,7 +185,10 @@ export default class MilvusVectorDB implements VectorDBBase {
       await this.milvusClient.flush({ collection_names: [collectionName] });
     } catch (err) {
       // some SDK versions provide flushSync; if flush fails just log it
-      console.warn('Milvus flush failed (continuing):', err?.message || err);
+      console.warn(
+        'Milvus flush failed (continuing):',
+        (err as Error)?.message || err,
+      );
     }
   }
 }

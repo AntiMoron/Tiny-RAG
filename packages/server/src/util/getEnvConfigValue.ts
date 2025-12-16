@@ -1,6 +1,10 @@
 import * as os from 'os';
 
 const defaultValues: Record<string, string> = {
+  ADMIN_NAME: 'admin',
+  ADMIN_PASSWORD: 'ilovetinyrag',
+  PASSWORD_SALT: 'tinyrag',
+
   TYPEORM_SYNC: '',
   MYSQL_HOST: 'localhost',
   MYSQL_PORT: '3306',
@@ -17,8 +21,19 @@ const defaultValues: Record<string, string> = {
   MILVUS_COLLECTION_PASSWORD: '',
   //----MILVUS_END-----//
 
-  TASK_QUEUE_TYPE: 'redis',
+  //--- REDIS_START-----//
   REDIS_URL: 'redis://127.0.0.1:6379',
+  REDIS_PASSWORD: '',
+  REDIS_DB: '0',
+  //--- REDIS_END-----//
+
+  //---LRU_CACHE_START---//
+  LRU_CACHE_MAX: '5000',
+  LRU_CACHE_TTL_MS: '60000',
+
+  //---LRU_CACHE_END---//
+
+  TASK_QUEUE_TYPE: 'redis',
   TASK_WORKER_CONCURRENCY: `${Math.max(1, os.cpus().length - 1) || '1'}`,
   TASK_QUEUE_NAME: 'tasks',
   IN_MEMORY_MAX_QUEUE_SIZE: '1000',

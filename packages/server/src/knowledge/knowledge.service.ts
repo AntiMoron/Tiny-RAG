@@ -4,17 +4,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { KnowledgeEntity } from './knowledge.entity';
 import { In, Repository } from 'typeorm';
 import { DatasetEntity } from 'src/dataset/dataset.entity';
-import { ConfigService } from '@nestjs/config';
 import * as _ from 'lodash';
 import { WINSTON_MODULE_PROVIDER, WinstonLogger } from 'nest-winston';
-import { ChunksplitService } from 'src/chunksplit/chunksplit.service';
 import { ChunkService } from 'src/chunk/chunk.service';
 import { EmbeddingService } from 'src/embedding/embedding.service';
 import { Inject, forwardRef } from '@nestjs/common';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import { Dataset } from 'tinyrag-types/dataset';
-import { ChunkIndex, ChunkRetrieveResult } from 'tinyrag-types/chunk';
-import { ChunkEntity } from 'src/chunk/chunk.entity';
 import { VectorDbService } from 'src/vector-db/vector-db.service';
 
 @Injectable()

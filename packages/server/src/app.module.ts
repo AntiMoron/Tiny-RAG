@@ -25,6 +25,7 @@ import getEnvConfigValue from './util/getEnvConfigValue';
 import { ChunkEntity } from './chunk/chunk.entity';
 import { VectorDbModule } from './vector-db/vector-db.module';
 import { RetrieveModule } from './retrieve/retrieve.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { RetrieveModule } from './retrieve/retrieve.module';
     FeishuModule,
     VectorDbModule,
     RetrieveModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
