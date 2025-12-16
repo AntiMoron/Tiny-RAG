@@ -26,6 +26,10 @@ import { ChunkEntity } from './chunk/chunk.entity';
 import { VectorDbModule } from './vector-db/vector-db.module';
 import { RetrieveModule } from './retrieve/retrieve.module';
 import { RedisModule } from './redis/redis.module';
+import { UserEntity } from './user/user.entity';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from './auth/auth.module';
+import { LruCacheModule } from './cache/lru-cache.module';
 
 @Module({
   imports: [
@@ -47,12 +51,25 @@ import { RedisModule } from './redis/redis.module';
           DatasetEntity,
           ChunkEntity,
           ApiKeyEntity,
+          UserEntity,
         ],
         synchronize:
           getEnvConfigValue('TYPEORM_SYNC') === 'false' ? false : true,
         logging: false,
       });
     })(),
+    LruCacheModule,
+    JwtModule.registerAsync({
+      global: true, // 全局生效，无需在其他模块重复导入
+      useFactory: () => ({
+        secret: getEnvConfigValue('JWT_SECRET'),
+        signOptions: {
+          // 默认签名配置（可在生成 Token 时覆盖）
+          algorithm: 'HS256', // 加密算法（推荐 HS256/RS256）
+        },
+      }),
+    }),
+    AuthModule,
     AiproviderModule,
     EmbeddingModule,
     CompletionModule,

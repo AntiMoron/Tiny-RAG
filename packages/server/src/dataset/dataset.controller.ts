@@ -7,12 +7,15 @@ import {
   HttpStatus,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { DatasetService } from './dataset.service';
 import { Dataset } from 'tinyrag-types/dataset';
 import checkParams, { checkNotHaveParams } from 'src/util/checkParams';
 import * as _ from 'lodash';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('api/dataset')
 export class DatasetController {
   constructor(private readonly datasetService: DatasetService) {}
@@ -23,12 +26,13 @@ export class DatasetController {
   }
 
   @Post('add')
-  async createDataset(@Body() body) {
+  async createDataset(@Body() body: any) {
     checkParams(body, ['name', 'type', 'embededByProviderId']);
-    const d = await this.datasetService.getDatasetByName(body.name);
+    const datasetName = body.name as string;
+    const d = await this.datasetService.getDatasetByName(datasetName);
     if (d) {
       throw new HttpException(
-        `Dataset with name ${body.name} already exists`,
+        `Dataset with name ${datasetName} already exists`,
         HttpStatus.BAD_REQUEST,
       );
     }

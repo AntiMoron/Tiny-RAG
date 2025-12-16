@@ -3,7 +3,7 @@ import * as os from 'os';
 const defaultValues: Record<string, string> = {
   ADMIN_NAME: 'admin',
   ADMIN_PASSWORD: 'ilovetinyrag',
-  PASSWORD_SALT: 'tinyrag',
+  JWT_SECRET: 'tinyrag',
 
   TYPEORM_SYNC: '',
   MYSQL_HOST: 'localhost',

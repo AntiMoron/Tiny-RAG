@@ -33,6 +33,7 @@
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "bullmq": "^1.79.0",
+    "cookie-es": "^2.0.0",
     "feishu2markdown": "^1.2.0",
     "ioredis": "^5.8.2",
     "jieba-js": "^1.0.2",

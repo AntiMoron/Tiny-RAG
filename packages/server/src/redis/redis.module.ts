@@ -11,9 +11,9 @@ import getEnvConfigValue from 'src/util/getEnvConfigValue';
         const redisUrl = getEnvConfigValue('REDIS_URL');
         const redisPassword = getEnvConfigValue('REDIS_PASSWORD');
         const redisDb = getEnvConfigValue('REDIS_DB');
-        const [host, port] = redisUrl.split(':');
+        const [protocol, host, port] = redisUrl.split(':');
         return new Redis({
-          host,
+          host: `${host.replace('//', '')}`,
           port: Number(port),
           password: redisPassword,
           db: Number(redisDb) || 0,

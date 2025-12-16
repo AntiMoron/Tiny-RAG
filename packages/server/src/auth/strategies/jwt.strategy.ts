@@ -1,11 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Inject } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { UserService } from 'src/user/user.service';
 import * as LRU from 'lru-cache';
+import getEnvConfigValue from 'src/util/getEnvConfigValue';
+import { Request } from 'express';
+import { COOKIE_NAME } from 'src/util/constant';
+import { parse } from 'cookie-es';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -16,9 +20,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     @Inject('REDIS_CLIENT') private redisClient: Redis,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: (req: Request): string | null => {
+        if (!req?.headers?.cookie) {
+          return null; // 无 Cookie 时返回 null，后续会触发 Unauthorized
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        const cookiePairs = parse(req.headers.cookie || '');
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const sessionCookie = cookiePairs[COOKIE_NAME as string] as string;
+
+        if (sessionCookie) {
+          return sessionCookie;
+        }
+
+        return null;
+      },
       ignoreExpiration: false,
-      secretOrKey: configService.get('app.jwt.secret')!,
+      secretOrKey: getEnvConfigValue('JWT_SECRET'),
     });
   }
 
@@ -33,7 +53,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       const redisTokenKey = `token:${userId}:${username}`;
       const redisTokenStatus = await this.redisClient.get(redisTokenKey);
       if (!redisTokenStatus) {
-        throw new UnauthorizedException('Token 已过期或无效');
+        throw new UnauthorizedException('Token expired');
       }
       // 同步到 LRU 缓存
       this.lruCache.set(lruTokenKey, redisTokenStatus);
