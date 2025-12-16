@@ -17,7 +17,14 @@ const { Header, Content, Footer } = Layout;
 const Item = Form.Item;
 
 export default function KnowledgeTestPage() {
-  const [data, setData] = useState("");
+  const [data, setData] = useState<
+    | {
+        replyPrompt: string;
+        completion: string;
+        validData: { score: number; content: string }[];
+      }
+    | undefined
+  >();
   const [loading, setLoading] = useState(false);
   const params = useParams();
   const { id: datasetId } = params;
@@ -64,15 +71,29 @@ export default function KnowledgeTestPage() {
             </Form>
           </Col>
           <Col flex={1}>
-            <Typography.Text title={data?.replyPrompt}></Typography.Text>
-            <ResponseDisplay>{data?.completion}</ResponseDisplay>
-            <Table
-              dataSource={data?.validData}
-              columns={[
-                { dataIndex: "score", title: "Score" },
-                { dataIndex: "content", title: "Content" },
-              ]}
-            ></Table>
+            <Typography.Paragraph title={data?.replyPrompt}>
+              {data?.replyPrompt}
+            </Typography.Paragraph>
+            <Flex gap={12}>
+              <Col flex={1}>
+                <ResponseDisplay>{data?.completion}</ResponseDisplay>
+              </Col>
+              <Col>
+                <Table
+                  dataSource={data?.validData}
+                  columns={[
+                    { dataIndex: "score", title: "Score" },
+                    {
+                      dataIndex: "content",
+                      title: "Content",
+                      render: (text) => (
+                        <div style={{ maxWidth: 300 }}>{text}</div>
+                      ),
+                    },
+                  ]}
+                ></Table>
+              </Col>
+            </Flex>
           </Col>
         </Flex>
       </Content>
