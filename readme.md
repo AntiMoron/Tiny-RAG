@@ -55,8 +55,17 @@ What we'll be using `MySQL` for:
 - Knowledge contents.
 - API keys.
 
-### Milvus
+### VectorDB
+
+There're two options.
+
+|Name| Best for|
+|---|---|
+|Milvus||
+|Milvus||
 
 What we'll be using `Milvus` for:
 
 - Knowledge retrieving.
+
+

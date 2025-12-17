@@ -4,6 +4,7 @@ import { Dataset } from 'tinyrag-types/dataset';
 
 export enum VectorDBType {
   MILVUS = 'milvus',
+  LOCAL_VECTOR = 'local-vector',
 }
 
 export default abstract class VectorDBInterface {

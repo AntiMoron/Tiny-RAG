@@ -1,4 +1,5 @@
 import MilvusVectorDB from './impl/milvus';
+import LocalVectorDB from './impl/local-vector';
 import VectorDBInterface from './interface';
 
 type VectorDBConstructor = {
@@ -6,7 +7,7 @@ type VectorDBConstructor = {
   type: string;
 };
 
-const types: VectorDBConstructor[] = [MilvusVectorDB];
+const types: VectorDBConstructor[] = [MilvusVectorDB, LocalVectorDB];
 
 export default function createVectorDbClient(type: string): VectorDBInterface {
   const VectorDBClass = types.find((cls) => cls.type === type);
