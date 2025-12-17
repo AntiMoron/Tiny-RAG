@@ -5,9 +5,10 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy server package files
 COPY packages/server/package*.json ./packages/server/
-RUN npm install -g pnpm && pnpm install
+RUN npm install -g pnpm
 # Copy all source files
 COPY . .
+RUN pnpm i
 # Set working directory to server package and build
 WORKDIR /app/packages/server
 RUN pnpm run build
