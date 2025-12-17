@@ -1,26 +1,25 @@
 # Start ./server
 
-version: '3.8'
+version: "3.8"
 services:
   server:
-    build: ./server
+    build:
+      context: .
+      dockerfile: ./packages/server/Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      - ./server:/app
+      - ./packages/server:/app
+      - /app/node_modules
+      - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
     environment:
-      - NODE_ENV=development
-    command: npm start
-  db:
-    image: mysql:8
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: tiny_rag
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
+      - NODE_ENV=production
+      - PORT=3000
+    command: pnpm start
+    depends_on:
+      standalone:
+        condition: service_healthy
   etcd:
     container_name: milvus-etcd
     image: quay.io/coreos/etcd:v3.5.5
@@ -61,7 +60,7 @@ services:
     image: milvusdb/milvus:v2.4.17
     command: ["milvus", "run", "standalone"]
     security_opt:
-    - seccomp:unconfined
+      - seccomp:unconfined
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
@@ -79,6 +78,25 @@ services:
     depends_on:
       - "etcd"
       - "minio"
+
+  app:
+    build:
+      context: .
+      dockerfile: ./packages/app/Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./packages/app:/app
+      - /app/node_modules
+      - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
+      - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REACT_APP_API_URL=http://server:3000
+    command: sh -c "pnpm run build && pnpm start"
+    depends_on:
+      - server
 
 networks:
   default:
