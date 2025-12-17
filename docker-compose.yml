@@ -17,9 +17,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
     command: pnpm start
-    depends_on:
-      standalone:
-        condition: service_healthy
+
   app:
     build:
       context: .
