@@ -5,8 +5,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install -g pnpm && pnpm install
 COPY . .
-RUN ls
-RUN cd ../packages/app && pnpm run build
+RUN cat package.json
+RUN pnpm run build
 
 # Production stage
 FROM node:22-alpine
