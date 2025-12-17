@@ -85,8 +85,9 @@ async function procedure(force) {
       {
         type: "list",
         name: "VECTOR_DB_TYPE",
-        message: "vector database(milvus/lancedb): ",
-        choices: ["milvus", "lancedb"],
+        message: "vector database(milvus/local-vector): ",
+        choices: ["milvus", "local-vector"],
+        default: 'local-vector',
       },
     ]);
     let otherConfigs;

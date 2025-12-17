@@ -1,4 +1,5 @@
 # Tiny-RAG
+
 What's `Tiny-RAG`?
 
 `Tiny-RAG` is a lite system built with `NestJS` and `React` which aims to provide you fast enough deployment and knowledge management convenience for your side projects.
@@ -10,6 +11,7 @@ Sometimes you just don't need that "heavy, complex" system to build a RAG projec
 Sometimes you don't need any AI Agent building system. Q&A is well enough for most scenarios.
 
 Sometimes you just don't need the infrastructure heavy:
+
 - Too much resources included: pg, redis, mysql, milvus, tons of apis needed.
   - This project only uses limited dependencies mysql, nothing else.
 - To integrate with new AI provider, either do some pull requests, or you create an issue for the contributor to do that for you, it can usually take up to days waiting.
@@ -38,10 +40,10 @@ Sometimes you just don't need the infrastructure heavy:
 3. AI integrations: To integrate with any AI provider you want.
    1. Popular AI providers: OpenAI's ChatGPT, Google's Gemini, OpenRouter, etc.
    2. Customized AI providers: there're always excellent AI providers we haven't known yet. So follow our `IDD` pattern you'll feel it integrated easily.
-      1. DSL: 
+      1. DSL:
          1. URL: path, host configuration
          2. Way it should be called:
-         3. Result mapping: You can map fields in the results to our pre-defined data interface. P.S. No matter what results it returned eventually, make sure it has everything we asked for in the predefined data interface, otherwise to integrate is impossible. 
+         3. Result mapping: You can map fields in the results to our pre-defined data interface. P.S. No matter what results it returned eventually, make sure it has everything we asked for in the predefined data interface, otherwise to integrate is impossible.
 
 ## Dependencies
 
@@ -59,13 +61,11 @@ What we'll be using `MySQL` for:
 
 There're two options.
 
-|Name| Best for|
-|---|---|
-|Milvus||
-|Milvus||
+| Value          | Best for                   |
+| -------------- | -------------------------- |
+| 'milvus'       | For Business               |
+| 'local-vector' | Small dataset (<10k words) |
 
 What we'll be using `Milvus` for:
 
 - Knowledge retrieving.
-
-
