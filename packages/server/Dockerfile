@@ -15,9 +15,11 @@ RUN pnpm run build
 FROM node:22-alpine
 
 WORKDIR /app
-COPY --from=builder /app/packages/server/dist ./dist
+RUN mkdir -p ./packages/server
+COPY --from=builder /app/packages/server/dist ./packages/server/dist
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages/server/package*.json ./
+COPY --from=builder /app/packages/server/node_modules ./packages/server/node_modules
+COPY --from=builder /app/packages/server/package*.json ./packages/server/
+RUN cd ./packages/server/
 
-EXPOSE 3000
-CMD ["node", "dist/main"]
+CMD ["pnpm", "run", "start:prod"]
