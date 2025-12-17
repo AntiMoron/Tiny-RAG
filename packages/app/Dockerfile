@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install -g pnpm
 COPY . .
+RUN pnpm i
 RUN cd packages/app && pnpm i
 RUN pnpm run build
 
