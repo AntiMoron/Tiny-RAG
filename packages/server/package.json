@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "packageManager": "pnpm@10.24.0",
+  "module": "commonjs",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -33,6 +34,7 @@
     "@zilliz/milvus2-sdk-node": "^2.6.5",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
     "bullmq": "^1.79.0",
     "cookie-es": "^2.0.0",
     "feishu2markdown": "^1.2.0",
@@ -51,11 +53,23 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "segment": "^0.1.3",
-    "sqlite-vss": "^0.1.2",
+    "sqlite3": "^5.1.7",
     "stopword": "^3.1.4",
     "tinyrag-types": "workspace:*",
     "typeorm": "^0.3.27",
     "winston": "^3.18.3"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "@nestjs/core",
+      "better-sqlite3",
+      "core-js",
+      "esbuild",
+      "msgpackr-extract",
+      "protobufjs",
+      "sqlite3",
+      "unrs-resolver"
+    ]
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

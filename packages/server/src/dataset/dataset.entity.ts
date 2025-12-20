@@ -31,17 +31,17 @@ export class DatasetEntity {
   completeByProviderId: string;
 
   @CreateDateColumn({
-    type: 'timestamp',
+    type: 'datetime',
     precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp',
+    type: 'datetime',
     precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
-    onUpdate: 'CURRENT_TIMESTAMP(3)',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
 }

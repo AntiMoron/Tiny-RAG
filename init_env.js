@@ -6,8 +6,8 @@ import { randomUUID } from "crypto";
 const envFile = path.join(process.cwd(), "./packages/server/.env");
 
 async function procedure(force) {
-  if (!fs.existsSync(envFile) || force) {
-    const answers = await inquirer.prompt([
+  if (force || !fs.existsSync(envFile)) {
+    const basics = await inquirer.prompt([
       {
         type: "input",
         name: "ADMIN_NAME",
@@ -34,36 +34,64 @@ async function procedure(force) {
           "Public host(**Important** decides the domain of images,resources, better use your domain): ",
         default: "http://localhost:3000",
       },
+    ]);
+    const sqlType = await inquirer.prompt([
       {
-        type: "input",
-        name: "MYSQL_HOST",
-        message: "MySQL host: ",
-        default: "localhost",
+        type: "list",
+        name: "DATABASE_TYPE",
+        message: "database(mysql/sqlite): ",
+        choices: ["mysql", "sqlite"],
+        default: "sqlite",
       },
-      {
-        type: "input",
-        name: "MYSQL_PORT",
-        message: "MySQL port: ",
-        default: "3306",
-      },
-      {
-        type: "input",
-        name: "MYSQL_USER",
-        message: "MySQL user: ",
-        default: "root",
-      },
-      {
-        type: "input",
-        name: "MYSQL_PASSWORD",
-        message: "MySQL password: ",
-        default: "",
-      },
-      {
-        type: "input",
-        name: "MYSQL_DATABASE",
-        message: "MySQL database: ",
-        default: "tiny_rag_db",
-      },
+    ]);
+    let sqlConfig;
+    switch (sqlType.DATABASE_TYPE) {
+      case "mysql":
+        const mysql = await inquirer.prompt([
+          {
+            type: "input",
+            name: "MYSQL_HOST",
+            message: "MySQL host: ",
+            default: "localhost",
+          },
+          {
+            type: "input",
+            name: "MYSQL_PORT",
+            message: "MySQL port: ",
+            default: "3306",
+          },
+          {
+            type: "input",
+            name: "MYSQL_USER",
+            message: "MySQL user: ",
+            default: "root",
+          },
+          {
+            type: "input",
+            name: "MYSQL_PASSWORD",
+            message: "MySQL password: ",
+            default: "",
+          },
+          {
+            type: "input",
+            name: "MYSQL_DATABASE",
+            message: "MySQL database: ",
+            default: "tiny_rag_db",
+          },
+        ]);
+        sqlConfig = mysql;
+        break;
+      case "sqlite":
+        sqlConfig = {
+          SQLITE_FILE_PATH: path.join(
+            process.cwd(),
+            "./data/sqlite/tiny_rag_db.sqlite"
+          ),
+        };
+        break;
+    }
+
+    const redis = await inquirer.prompt([
       {
         type: "input",
         name: "REDIS_URL",
@@ -82,16 +110,18 @@ async function procedure(force) {
         message: "Redis database: ",
         default: "0",
       },
+    ]);
+    const vectorDbType = await inquirer.prompt([
       {
         type: "list",
         name: "VECTOR_DB_TYPE",
         message: "vector database(milvus/local-vector): ",
         choices: ["milvus", "local-vector"],
-        default: 'local-vector',
+        default: "local-vector",
       },
     ]);
     let otherConfigs;
-    const { VECTOR_DB_TYPE } = answers;
+    const { VECTOR_DB_TYPE } = vectorDbType;
     switch (VECTOR_DB_TYPE) {
       case "milvus":
         otherConfigs = await inquirer.prompt([
@@ -121,11 +151,27 @@ async function procedure(force) {
           },
         ]);
         break;
+      case "local-vector":
+        otherConfigs = {
+          LOCAL_VECTOR_DB_PATH: path.join(
+            process.cwd(),
+            "./data/local-vector/vectors"
+          ),
+        };
+        break;
     }
-    Object.assign(answers, otherConfigs);
+    Object.assign(
+      basics,
+      sqlType || {},
+      sqlConfig || {},
+      redis || {},
+      vectorDbType || {},
+      otherConfigs || {}
+    );
 
+    console.log(basics, sqlConfig);
     let envContent = "";
-    for (const [key, value] of Object.entries(answers)) {
+    for (const [key, value] of Object.entries(basics)) {
       envContent += `${key}=${value}\n`;
     }
     fs.writeFileSync(envFile, envContent);

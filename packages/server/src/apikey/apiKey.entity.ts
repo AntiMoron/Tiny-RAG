@@ -20,9 +20,9 @@ export class ApiKeyEntity {
   key: string;
 
   @CreateDateColumn({
-    type: 'timestamp',
+    type: 'datetime',
     precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 }

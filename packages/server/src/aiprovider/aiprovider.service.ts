@@ -48,12 +48,28 @@ export class AiproviderService {
 
   async findOneByName(name: string): Promise<AIProvider | null> {
     const result = await this.repo.findOneBy({ name });
-    return result ? (result as AIProvider) : null;
+    const config = result?.config ? JSON.parse(result.config) : null;
+    if (result && config) {
+      (result as any).config = config;
+    }
+    return result
+      ? (result as Omit<AIProviderEntity, 'config'> & {
+          config: any;
+        } as AIProvider)
+      : null;
   }
 
   async findOne(id: string): Promise<AIProvider | null> {
     const result = await this.repo.findOneBy({ id });
-    return result ? (result as AIProvider) : null;
+    const config = result?.config ? JSON.parse(result.config) : null;
+    if (result && config) {
+      (result as any).config = config;
+    }
+    return result
+      ? (result as Omit<AIProviderEntity, 'config'> & {
+          config: any;
+        } as AIProvider)
+      : null;
   }
 
   async findProvidersByType(
@@ -74,7 +90,9 @@ export class AiproviderService {
     const ent = await this.repo.findOneBy({ id });
     if (!ent) return null;
     if (patch.name !== undefined) ent.name = patch.name;
-    if (patch.config !== undefined) ent.config = patch.config;
+    if (patch.config !== undefined) {
+      ent.config = patch.config ? JSON.stringify(patch.config) : '';
+    }
     if (patch.type !== undefined) ent.type = patch.type;
     return this.repo.save(ent);
   }

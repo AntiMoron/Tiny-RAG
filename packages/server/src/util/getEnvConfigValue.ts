@@ -6,6 +6,8 @@ const defaultValues: Record<string, string> = {
   JWT_SECRET: 'tinyrag',
   PUBLIC_HOST: 'http://localhost:3000',
 
+  DATABASE_TYPE: 'mysql',
+
   TYPEORM_SYNC: '',
   MYSQL_HOST: 'localhost',
   MYSQL_PORT: '3306',

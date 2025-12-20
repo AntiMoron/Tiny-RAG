@@ -19,21 +19,21 @@ export class AIProviderEntity {
   type: string;
 
   // store provider config as JSON
-  @Column({ type: 'json' })
-  config: any;
+  @Column({ type: 'text' })
+  config: string;
 
   @CreateDateColumn({
-    type: 'timestamp',
+    type: 'datetime',
     precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp',
+    type: 'datetime',
     precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
-    onUpdate: 'CURRENT_TIMESTAMP(3)',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
 

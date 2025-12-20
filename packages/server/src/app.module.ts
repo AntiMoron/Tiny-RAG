@@ -35,6 +35,7 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { JwtAuthGuard } from './auth/auth.guard';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+// import * as sqlite3 from 'better-sqlite3';
 
 @Module({
   imports: [
@@ -43,25 +44,43 @@ import { join } from 'path';
     }),
     (async (): Promise<DynamicModule> => {
       await ConfigModule.envVariablesLoaded;
-      return TypeOrmModule.forRoot({
-        type: 'mysql',
-        host: getEnvConfigValue('MYSQL_HOST'),
-        port: parseInt(getEnvConfigValue('MYSQL_PORT'), 10),
-        username: getEnvConfigValue('MYSQL_USER'),
-        password: getEnvConfigValue('MYSQL_PASSWORD'),
-        database: getEnvConfigValue('MYSQL_DATABASE'),
-        entities: [
-          AIProviderEntity,
-          KnowledgeEntity,
-          DatasetEntity,
-          ChunkEntity,
-          ApiKeyEntity,
-          UserEntity,
-        ],
-        synchronize:
-          getEnvConfigValue('TYPEORM_SYNC') === 'false' ? false : true,
-        logging: false,
-      });
+      const entities = [
+        AIProviderEntity,
+        KnowledgeEntity,
+        DatasetEntity,
+        ChunkEntity,
+        ApiKeyEntity,
+        UserEntity,
+      ];
+      const databaseType = getEnvConfigValue('DATABASE_TYPE');
+      const sqliteFilePath = getEnvConfigValue('SQLITE_FILE_PATH');
+      const synchronize =
+        getEnvConfigValue('TYPEORM_SYNC') === 'false' ? false : true;
+      switch (databaseType) {
+        case 'sqlite':
+          return TypeOrmModule.forRoot({
+            type: 'better-sqlite3',
+            database: sqliteFilePath,
+            entities,
+            // driver: sqlite3,
+            synchronize,
+            logging: false,
+          });
+        case 'mysql':
+          return TypeOrmModule.forRoot({
+            type: 'mysql',
+            host: getEnvConfigValue('MYSQL_HOST'),
+            port: parseInt(getEnvConfigValue('MYSQL_PORT'), 10),
+            username: getEnvConfigValue('MYSQL_USER'),
+            password: getEnvConfigValue('MYSQL_PASSWORD'),
+            database: getEnvConfigValue('MYSQL_DATABASE'),
+            entities,
+            synchronize,
+            logging: false,
+          });
+        default:
+          throw new Error(`Unsupported DATABASE_TYPE: ${databaseType}`);
+      }
     })(),
     LruCacheModule,
     JwtModule.registerAsync({

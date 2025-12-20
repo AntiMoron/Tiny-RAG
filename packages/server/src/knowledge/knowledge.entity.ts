@@ -20,17 +20,15 @@ export class KnowledgeEntity {
   dataset_id: string;
 
   @CreateDateColumn({
-    type: 'timestamp',
-    precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamp',
-    precision: 3,
-    default: () => 'CURRENT_TIMESTAMP(3)',
-    onUpdate: 'CURRENT_TIMESTAMP(3)',
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
 
