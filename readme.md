@@ -69,3 +69,21 @@ There're two options.
 What we'll be using `Milvus` for:
 
 - Knowledge retrieving.
+
+
+## Development
+
+1. Initiate
+
+```bash
+bash ./init.sh
+```
+
+2. You'll need two terminals to start nodejs and browserjs.
+```bash
+cd packages/server && pnpm run start:dev
+```
+
+```bash
+cd packages/app && pnpm run start:dev
+```
