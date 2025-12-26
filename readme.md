@@ -49,13 +49,22 @@ Sometimes you just don't need the infrastructure heavy:
 
 We wish `Tiny-RAG` has the ability to be deployed on actual production environment, so we will choose those infrastructures who have the ability to scale on server resources.
 
-### MySQL
+### SQL DB
 
-What we'll be using `MySQL` for:
+There're two options.
+
+| Value    | Best for                   |
+| -------- | -------------------------- |
+| 'mysql'  | For Business               |
+| 'sqlite' | Small dataset (<10k words) |
+
+What we'll be using `SQL Database` for:
 
 - AI integration configurations.
 - Knowledge contents.
 - API keys.
+
+> P.S. If you decided to use `sqlite` please make sure your `python` version is `3.9`, so that `pnpm rebuild` can run successfully.
 
 ### VectorDB
 
@@ -70,7 +79,6 @@ What we'll be using `Milvus` for:
 
 - Knowledge retrieving.
 
-
 ## Development
 
 1. Initiate
@@ -80,6 +88,7 @@ bash ./init.sh
 ```
 
 2. You'll need two terminals to start nodejs and browserjs.
+
 ```bash
 cd packages/server && pnpm run start:dev
 ```
