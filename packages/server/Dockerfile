@@ -11,6 +11,7 @@ COPY . .
 RUN pnpm i
 # Set working directory to server package and build
 WORKDIR /app/packages/server
+RUN pnpm rebuild
 RUN pnpm run build
 
 FROM node:22-alpine
