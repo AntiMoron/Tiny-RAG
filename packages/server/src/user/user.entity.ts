@@ -1,3 +1,4 @@
+import getCurrentTime from 'src/util/sqlDb/currentTime';
 import {
   Column,
   CreateDateColumn,
@@ -18,8 +19,7 @@ export class UserEntity {
 
   @CreateDateColumn({
     type: 'datetime',
-    precision: 3,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => getCurrentTime(),
   })
   createdAt: Date;
 }

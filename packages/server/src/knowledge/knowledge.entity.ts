@@ -1,3 +1,4 @@
+import getCurrentTime from 'src/util/sqlDb/currentTime';
 import {
   Column,
   CreateDateColumn,
@@ -21,14 +22,14 @@ export class KnowledgeEntity {
 
   @CreateDateColumn({
     type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => getCurrentTime(),
   })
   createdAt: Date;
 
   @UpdateDateColumn({
     type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
+    default: () => getCurrentTime(),
+    onUpdate: getCurrentTime(),
   })
   updatedAt: Date;
 
