@@ -13,6 +13,8 @@ import { EmbeddingService } from 'src/embedding/embedding.service';
 import { CompletionService } from 'src/completion/completion.service';
 import { AICompletionResponse } from 'tinyrag-types/completion';
 import { AIEmbeddingResponse } from 'tinyrag-types/embedding';
+import completionDefaults from 'src/default_config/completion';
+import embeddingDefaults from 'src/default_config/embedding';
 
 /**
  * 1. Save providers for further usage. [P0]
@@ -151,5 +153,33 @@ export class AiproviderService {
     }
     provider.lastTestStatus = status as string;
     return await this.repo.save(provider);
+  }
+
+  listDefaultProviderConfigs(
+    type: AIProvider['type'],
+    providerBrand: string,
+  ): Omit<AIProvider, 'id' | 'name'> {
+    let defaults: Record<string, Omit<AIProvider, 'id' | 'name'>> | undefined;
+    switch (type) {
+      case 'completion':
+        defaults = completionDefaults;
+        break;
+      case 'embedding':
+        defaults = embeddingDefaults;
+        break;
+      default:
+        throw new HttpException(
+          'Unsupported AI provider type',
+          HttpStatus.BAD_REQUEST,
+        );
+    }
+    const config = defaults[providerBrand];
+    if (!config) {
+      throw new HttpException(
+        'No default config found for the specified provider brand',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return config;
   }
 }

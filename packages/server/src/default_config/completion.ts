@@ -1,4 +1,6 @@
-export default {
+import { AIProvider } from 'tinyrag-types/aiprovider';
+
+const completionDefaults: Record<string, Omit<AIProvider, 'id' | 'name'>> = {
   doubao: {
     type: 'completion',
     config: {
@@ -25,3 +27,5 @@ export default {
     },
   },
 };
+
+export default completionDefaults;
