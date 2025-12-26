@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Button, Layout, StepsProps, Tabs, Tag } from "antd";
 import { useNavigate, useParams } from "react-router";
 import { useMount } from "ahooks";
-import axios from "axios";
+import axios from "../../../../../../../util/service";
 import { Dataset } from "tinyrag-types/dataset";
 import { Flex, Steps } from "antd";
 import ChooseTask from "./mod/ChooseTask";

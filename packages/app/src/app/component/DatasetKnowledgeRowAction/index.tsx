@@ -1,6 +1,6 @@
 import { DeleteOutlined, FundOutlined } from "@ant-design/icons";
 import { Button, Flex, Modal } from "antd";
-import axios from "axios";
+import axios from "../../../util/service";
 import React, { Fragment, useState } from "react";
 import { Knowledge } from "tinyrag-types/knowledge";
 import KnowledgeDisplay from "../KnowledgeDisplay";

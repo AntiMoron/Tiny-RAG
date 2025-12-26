@@ -5,7 +5,7 @@ import {
   EditOutlined,
   ExperimentOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
+import axios from "../../../util/service";
 import { AIProvider } from "tinyrag-types/aiprovider";
 import AIProviderConfigForm from "../AIProviderConfigForm";
 

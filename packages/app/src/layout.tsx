@@ -14,14 +14,20 @@ export default function Layout() {
     <div>
       <HashRouter>
         <Routes>
-          <Route index element={<div>123</div>} path="/"></Route>
+          <Route index element={<App />} path="/"></Route>
           <Route element={<LoginPage />} path="/login"></Route>
           <Route element={<App />} path="/app/">
             <Route index element={<DatasetPage />} path="dataset"></Route>
             <Route element={<DatasetDetailPage />} path="dataset/:id"></Route>
             <Route element={<AIProviderPage />} path="aiprovider"></Route>
-            <Route element={<KnowledgeCreatePage />} path="dataset/:id/knowledge/create"></Route>
-            <Route element={<KnowledgeTestPage />} path="dataset/:id/knowledge/test"></Route>
+            <Route
+              element={<KnowledgeCreatePage />}
+              path="dataset/:id/knowledge/create"
+            ></Route>
+            <Route
+              element={<KnowledgeTestPage />}
+              path="dataset/:id/knowledge/test"
+            ></Route>
             <Route element={<APIKeyPage />} path="apikey"></Route>
             <Route element={<AIProviderPage />} path="user"></Route>
           </Route>

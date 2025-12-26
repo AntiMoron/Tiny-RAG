@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Button, Form, Input, message } from "antd";
-import axios from "axios";
+import axios from "../../../util/service";
 import sha256 from "sha256";
+import { useNavigate } from "react-router";
 
 const FormItem = Form.Item;
 
 export default function LoginPage() {
+  const nav = useNavigate();
   const [loading, setLoading] = useState(false);
   return (
     <div
@@ -25,7 +27,9 @@ export default function LoginPage() {
               username: values.username,
               encrypedPwd: sha256(values.encrypedPwd),
             })
-            .then((res) => {})
+            .then((res) => {
+              nav("/app/aiprovider");
+            })
             .catch((err) => {
               message.error(err.response?.data?.message || "Login failed");
             })

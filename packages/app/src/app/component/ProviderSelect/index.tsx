@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Select } from "antd";
 import cx from "classnames";
 import { useMount } from "ahooks";
-import axios from "axios";
+import axios from "../../../util/service";
 import { AIProvider } from "tinyrag-types/aiprovider";
 
 export interface ProviderSelectProps {

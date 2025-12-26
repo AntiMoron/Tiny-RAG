@@ -43,7 +43,7 @@ export default function PageLayout() {
       if (!item) {
         return;
       }
-      navigate(`${item.key}`);
+      navigate(`/app/${item.key}`);
     },
   });
   return (

@@ -13,7 +13,7 @@ import {
   Grid,
 } from "antd";
 import * as _ from "lodash";
-import axios from "axios";
+import axios from "../../../../util/service";
 import { useMount } from "ahooks";
 import { Dataset } from "tinyrag-types/dataset";
 import { PlusOutlined } from "@ant-design/icons";

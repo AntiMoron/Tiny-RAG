@@ -9,7 +9,7 @@ import {
   Table,
   Typography,
 } from "antd";
-import axios from "axios";
+import axios from "../../../../util/service";
 import React, { useCallback, useState } from "react";
 import { ExportServiceApiKey } from "tinyrag-types/apikey";
 import { PlusOutlined } from "@ant-design/icons";

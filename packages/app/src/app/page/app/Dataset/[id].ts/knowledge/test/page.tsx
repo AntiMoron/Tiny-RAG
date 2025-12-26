@@ -9,7 +9,7 @@ import {
   Table,
   Typography,
 } from "antd";
-import axios from "axios";
+import axios from "../../../../../../../util/service";
 import { useParams } from "react-router";
 import ResponseDisplay from "../../../../../../component/ResponseDisplay";
 

@@ -1,6 +1,6 @@
 import { useMount } from "ahooks";
 import { Modal, Table } from "antd";
-import axios from "axios";
+import axios from "../../../../../../../../../util/service";
 import React, { useEffect, useState } from "react";
 import UUIDDisplay from "../../../../../../../../component/UUIDDisplay";
 import { KnowledgeTask } from "tinyrag-types/task";
