@@ -92,6 +92,27 @@ export default function AIProviderConfigForm(props: AIProviderConfigFormProps) {
       <Form
         form={form}
         layout="vertical"
+        onFieldsChange={(changeFields) => {
+          const typeField = changeFields.find(
+            (a) => a.name.indexOf("type") >= 0
+          );
+          if (!typeField) {
+            return;
+          }
+          const type = typeField.value;
+          setType(type);
+          if (templates[type]) {
+            return;
+          }
+          service.get(`/api/aiprovider/templates/${type}/list`).then((res) => {
+            setTemplates((prev) => {
+              return {
+                ...prev,
+                [type]: res.data,
+              };
+            });
+          });
+        }}
         onFinish={(values) => {
           const { config } = values;
           if (config) {
@@ -105,26 +126,7 @@ export default function AIProviderConfigForm(props: AIProviderConfigFormProps) {
       >
         <Form.Item hidden name="id"></Form.Item>
         <Form.Item label="Type" name="type" rules={[{ required: true }]}>
-          <Radio.Group
-            defaultValue={"completion"}
-            onChange={(values) => {
-              const type = values.target.value;
-              setType(type);
-              if (templates[type]) {
-                return;
-              }
-              service
-                .get(`/api/aiprovider/templates/${type}/list`)
-                .then((res) => {
-                  setTemplates((prev) => {
-                    return {
-                      ...prev,
-                      [type]: res.data,
-                    };
-                  });
-                });
-            }}
-          >
+          <Radio.Group defaultValue={"completion"}>
             <Radio value="completion">completion</Radio>
             <Radio value="embedding">embedding</Radio>
             <Radio value="vision">vision</Radio>

@@ -8,6 +8,7 @@ import { CheckCircleFilled, PlusOutlined } from "@ant-design/icons";
 import AIProviderActions from "../../../component/AIProviderActions";
 import AIProviderConfigForm from "../../../component/AIProviderConfigForm";
 import UUIDDisplay from "../../../component/UUIDDisplay";
+import service from "../../../../util/service";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -16,7 +17,7 @@ export default function AIProviderPage() {
   const [data, setData] = useState<AIProvider[]>([]);
   const [show, setShow] = useState(false);
   useMount(() => {
-    axios.get("/api/aiprovider/list").then((res) => {
+    service.get("/api/aiprovider/list").then((res) => {
       console.log(res.data);
       setData(res.data);
     });

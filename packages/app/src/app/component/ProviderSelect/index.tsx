@@ -4,6 +4,7 @@ import cx from "classnames";
 import { useMount } from "ahooks";
 import axios from "../../../util/service";
 import { AIProvider } from "tinyrag-types/aiprovider";
+import service from "../../../util/service";
 
 export interface ProviderSelectProps {
   className?: string;
@@ -18,11 +19,11 @@ export default function ProviderSelect(props: ProviderSelectProps) {
   const [data, setData] = useState<AIProvider[]>([]);
   useMount(() => {
     if (type) {
-      axios.get(`/api/aiprovider/list/${type}`).then((res) => {
+      service.get(`/api/aiprovider/list/${type}`).then((res) => {
         setData(res.data);
       });
     } else {
-      axios.get("/api/aiprovider/list").then((res) => {
+      service.get("/api/aiprovider/list").then((res) => {
         setData(res.data);
       });
     }

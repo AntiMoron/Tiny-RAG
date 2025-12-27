@@ -34,18 +34,31 @@ export class AiproviderService {
     private readonly completionService: CompletionService,
   ) {}
 
-  async create(
-    payload: Partial<Omit<AIProvider, 'id'>>,
-  ): Promise<AIProviderEntity[]> {
+  async create(payload: Partial<Omit<AIProvider, 'id'>>): Promise<AIProvider> {
+    if (payload.config && typeof payload.config === 'string') {
+      throw new HttpException(
+        'Config must be an object',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const ent = this.repo.create({
-      name: payload.name,
-      config: payload.config,
-    } as any);
-    return this.repo.save(ent);
+      ...payload,
+      config: JSON.stringify(payload.config),
+    } as AIProviderEntity);
+    const ret = await this.repo.save(ent);
+    ret.config = (ret as any)?.config ? JSON.parse((ret as any).config) : null;
+    return ret as unknown as AIProvider;
   }
 
-  async findAll(): Promise<AIProviderEntity[]> {
-    return this.repo.find();
+  async findAll(): Promise<AIProvider[]> {
+    const listResult = await this.repo.find();
+    return listResult.map((item) => {
+      const config = item?.config ? JSON.parse(item.config) : null;
+      if (config) {
+        (item as any).config = config as AIProvider['config'];
+      }
+      return item as unknown as AIProvider;
+    });
   }
 
   async findOneByName(name: string): Promise<AIProvider | null> {
@@ -54,11 +67,7 @@ export class AiproviderService {
     if (result && config) {
       (result as any).config = config;
     }
-    return result
-      ? (result as Omit<AIProviderEntity, 'config'> & {
-          config: any;
-        } as AIProvider)
-      : null;
+    return result ? (result as unknown as AIProvider) : null;
   }
 
   async findOne(id: string): Promise<AIProvider | null> {
@@ -67,11 +76,7 @@ export class AiproviderService {
     if (result && config) {
       (result as any).config = config;
     }
-    return result
-      ? (result as Omit<AIProviderEntity, 'config'> & {
-          config: any;
-        } as AIProvider)
-      : null;
+    return result ? (result as unknown as AIProvider) : null;
   }
 
   async findProvidersByType(
