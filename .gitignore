@@ -62,3 +62,5 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 packages/server/data/local-vector/**/*
+data/sqlite/
+data/sqlite/tiny_rag_db.sqlite

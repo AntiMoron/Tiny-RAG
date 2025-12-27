@@ -41,9 +41,15 @@ export default function KnowledgeTestPage() {
               onFinish={(values) => {
                 setLoading(true);
                 axios
-                  .post(`/api/retrieve/dataset/${datasetId}/retrieve/test`, {
-                    question: values.question,
-                  })
+                  .post(
+                    `/api/retrieve/dataset/${datasetId}/retrieve/test`,
+                    {
+                      question: values.question,
+                    },
+                    {
+                      timeout: 120000,
+                    }
+                  )
                   .then((res) => {
                     setData(res.data);
                   })
