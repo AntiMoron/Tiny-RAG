@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { AICompletionResponse } from 'tinyrag-types/completion';
 import { AiproviderService } from 'src/aiprovider/aiprovider.service';
 import handleAIProviderConfiguration from 'src/util/executeAI';
@@ -16,10 +22,13 @@ export class CompletionService {
   ): Promise<AICompletionResponse | undefined> {
     const provider = await this.providerService.findOne(providerId);
     if (!provider) {
-      throw new Error('No provider found!');
+      throw new HttpException('Provider not found', HttpStatus.NOT_FOUND);
     }
     if (provider.type !== 'completion') {
-      throw new Error('Provider is not for AI completion.');
+      throw new HttpException(
+        'Provider is not for AI completion.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     try {
       const data = await handleAIProviderConfiguration<AICompletionResponse>(
