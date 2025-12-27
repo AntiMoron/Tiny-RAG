@@ -35,6 +35,8 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { JwtAuthGuard } from './auth/auth.guard';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AnalysisModule } from './analysis/analysis.module';
+import { LogEntity } from './analysis/analysis.entity';
 // import * as sqlite3 from 'better-sqlite3';
 
 @Module({
@@ -51,6 +53,7 @@ import { join } from 'path';
         ChunkEntity,
         ApiKeyEntity,
         UserEntity,
+        LogEntity,
       ];
       const databaseType = getEnvConfigValue('DATABASE_TYPE');
       const sqliteFilePath = getEnvConfigValue('SQLITE_FILE_PATH');
@@ -124,6 +127,7 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/public/',
     }),
+    AnalysisModule,
   ],
   controllers: [AppController],
   providers: [
