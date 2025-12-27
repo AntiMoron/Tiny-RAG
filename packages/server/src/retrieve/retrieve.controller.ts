@@ -9,7 +9,6 @@ import {
 import { RetrieveService } from './retrieve.service';
 import { DatasetService } from 'src/dataset/dataset.service';
 import checkParams from 'src/util/checkParams';
-import { Dataset } from 'tinyrag-types/dataset';
 import { CompletionService } from 'src/completion/completion.service';
 import { RETRIEVE_TEST_PROMPT } from 'src/util/prompts';
 import * as _ from 'lodash';
@@ -38,7 +37,7 @@ export class RetrieveController {
     }
     const { question } = body;
     const data = await this.retrieveService.retieveEmbeddingData(
-      dataset as Dataset,
+      dataset,
       question as string,
       3,
     );
@@ -60,7 +59,7 @@ export class RetrieveController {
     }
     const { question } = body;
     const data = await this.retrieveService.retieveEmbeddingData(
-      dataset as Dataset,
+      dataset,
       question as string,
       3,
     );

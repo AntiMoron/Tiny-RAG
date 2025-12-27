@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   Button,
-  Card,
   Form,
   Input,
   Layout,
@@ -10,21 +9,21 @@ import {
   Col,
   Row,
   Radio,
-  Grid,
   Flex,
 } from "antd";
 import * as _ from "lodash";
-import axios from "../../../../util/service";
 import { useMount } from "ahooks";
 import { Dataset } from "tinyrag-types/dataset";
 import { PlusOutlined } from "@ant-design/icons";
 import ProviderSelect from "../../../component/ProviderSelect";
 import DatasetBlock from "../../../component/Dataset";
 import { useNavigate } from "react-router";
-import JSONInput from "../../../component/JSONInput";
 import service from "../../../../util/service";
+import SchemaFields from "src/app/component/SchemaFields";
+import { docConfigSchema } from "src/util/constants";
+import TextArea from "antd/es/input/TextArea";
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content } = Layout;
 
 export default function Page() {
   const navigate = useNavigate();
@@ -64,9 +63,6 @@ export default function Page() {
                       onEdit={() => {
                         form.setFieldsValue({
                           ...item,
-                          config: item.config
-                            ? JSON.stringify(item.config, null, 2)
-                            : "",
                         });
                         setFormType("edit");
                         setVisible(true);
@@ -120,9 +116,8 @@ export default function Page() {
           onFinish={(values) => {
             const newValue = {
               ...values,
-              config: JSON.parse(values.config),
             };
-            axios
+            service
               .post(
                 formType === "edit"
                   ? `api/dataset/update/${values.id}`
@@ -201,7 +196,8 @@ export default function Page() {
             </Col>
             <Col flex="1">
               <Form.Item label="Config" name="config">
-                <JSONInput />
+                <SchemaFields schemas={docConfigSchema} />
+                {/* <TextArea /> */}
               </Form.Item>
             </Col>
           </Flex>

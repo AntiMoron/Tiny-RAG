@@ -30,24 +30,22 @@ export class FeishuController {
       throw new HttpException('Dataset not found', HttpStatus.NOT_FOUND);
     }
     const { type, config } = datasetEntity;
-    const parsedConfig =
-      typeof config === 'string' ? parseJSON<DatasetConfig>(config) : {};
     if (type !== 'feishu') {
       throw new HttpException(
         'Dataset type is incorrect',
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (!parsedConfig) {
+    if (!config) {
       throw new HttpException(
         'Dataset type is incorrect',
         HttpStatus.BAD_REQUEST,
       );
     } else {
-      checkParams(parsedConfig, ['doc']);
-      checkParams(parsedConfig?.doc, ['appId', 'appSecret', 'folderToken']);
+      checkParams(config, ['doc']);
+      checkParams(config?.doc, ['appId', 'appSecret', 'folderToken']);
     }
-    const { appId, appSecret, folderToken } = parsedConfig.doc!;
+    const { appId, appSecret, folderToken } = config.doc!;
     const tasks = await getDocTaskList({
       type: 'feishu',
       appId,

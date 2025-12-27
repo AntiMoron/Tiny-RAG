@@ -3,14 +3,15 @@ import {
   Controller,
   forwardRef,
   Get,
+  HttpException,
+  HttpStatus,
   Inject,
   Post,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { KnowledgeTask, TaskBody } from 'tinyrag-types/task';
 import { DatasetService } from 'src/dataset/dataset.service';
-import parseJSON from 'src/util/parseJSON';
-import { DatasetConfig } from 'tinyrag-types/dataset';
+
 
 @Controller('api/task')
 export class TaskController {
@@ -40,11 +41,10 @@ export class TaskController {
       throw new Error('Dataset not found');
     }
     const config = dataset.config;
-    const parsedConfig = parseJSON<DatasetConfig>(config);
-    if (!parsedConfig) {
-      throw new Error('Error');
+    if (!config) {
+      throw new HttpException('Dataset config not found', HttpStatus.NOT_FOUND);
     }
-    const { doc } = parsedConfig;
+    const { doc } = config;
     if (ChooseTask.type === 'feishu') {
       const { docTokens = [] } = ChooseTask.params;
       if (!doc?.appId && !doc?.appSecret) {

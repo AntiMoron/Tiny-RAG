@@ -16,8 +16,15 @@ export class DatasetService {
     private readonly datasetRepo: Repository<DatasetEntity>,
   ) {}
 
-  async getDatasetById(id: string): Promise<DatasetEntity | null> {
-    return await this.datasetRepo.findOneBy({ id });
+  async getDatasetById(id: string): Promise<Dataset | null> {
+    const entity = (await this.datasetRepo.findOneBy({ id })) as DatasetEntity;
+    return {
+      ...entity,
+      config:
+        typeof entity.config === 'string'
+          ? parseJSON<Dataset['config']>(entity.config)
+          : entity.config,
+    } as Dataset;
   }
 
   async getDatasetByName(name: string): Promise<DatasetEntity | null> {

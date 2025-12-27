@@ -8,14 +8,14 @@ export default defineConfig({
   plugins: [
     react(),
     legacy({
-      targets: ['defaults', 'ie >= 11'],
-      additionalLegacyPolyfills: ['regenerator-runtime/runtime']
-    })
+      targets: ["defaults", "ie >= 11"],
+      additionalLegacyPolyfills: ["regenerator-runtime/runtime"],
+    }),
   ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
-      "src": path.resolve(__dirname, "src"),
+      src: path.resolve(__dirname, "src"),
     },
   },
   server: {
@@ -24,10 +24,11 @@ export default defineConfig({
     cors: true,
     proxy: {
       "/api": {
+        timeout: 20000,
         target: "http://localhost:3000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"),
       },
-    }
+    },
   },
 });
