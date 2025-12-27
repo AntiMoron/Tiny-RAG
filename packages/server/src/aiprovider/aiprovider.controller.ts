@@ -99,4 +99,22 @@ export class AiproviderController {
   async listAIProvidersByType(@Param('type') type: string) {
     return await this.aiProviderService.findProvidersByType(type as any);
   }
+
+  @Get('templates/:type/list')
+  listDefaultProviderConfigs(@Param('type') type: string) {
+    return this.aiProviderService.listDefaultProviderConfigs(
+      type as AIProvider['type'],
+    );
+  }
+
+  @Get('templates/:type/default/:brand')
+  getDefaultProviderConfigs(
+    @Param('type') type: string,
+    @Param('brand') brandType: string,
+  ) {
+    return this.aiProviderService.getDefaultProviderConfigs(
+      type as AIProvider['type'],
+      brandType,
+    );
+  }
 }

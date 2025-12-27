@@ -1,9 +1,20 @@
-import React from "react";
-import { Button, Form, Input, Radio } from "antd";
+import React, { useState } from "react";
+import {
+  Alert,
+  Button,
+  Form,
+  Flex,
+  Input,
+  Modal,
+  Radio,
+  Row,
+  Segmented,
+} from "antd";
 import { AIProvider } from "tinyrag-types/aiprovider";
 import AIProviderConfig from "../AIProviderConfig";
 import { useForm } from "antd/es/form/Form";
 import { useMount } from "ahooks";
+import service from "../../../util/service";
 
 export interface AIProviderConfigFormProps {
   loading?: boolean;
@@ -19,7 +30,9 @@ function normalizeJSONStorage(str: string) {
 }
 
 export default function AIProviderConfigForm(props: AIProviderConfigFormProps) {
+  const [templates, setTemplates] = useState<Record<string, string[]>>({});
   const { onFinish, loading, data } = props;
+  const [type, setType] = useState<AIProvider["type"]>("completion");
   const [form] = useForm();
   useMount(() => {
     if (data) {
@@ -32,72 +45,134 @@ export default function AIProviderConfigForm(props: AIProviderConfigFormProps) {
       }
       form.setFieldsValue(data);
     }
+    service.get(`/api/aiprovider/templates/${type}/list`).then((res) => {
+      setTemplates((prev) => {
+        return {
+          ...prev,
+          [type]: res.data,
+        };
+      });
+    });
   });
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={(values) => {
-        const { config } = values;
-        if (config) {
-          const { headers, resultMapping, paramMapping } = config;
-          config.headers = normalizeJSONStorage(headers);
-          config.paramMapping = normalizeJSONStorage(paramMapping);
-          config.resultMapping = normalizeJSONStorage(resultMapping);
-        }
-        onFinish?.(values);
-      }}
-    >
-      <Form.Item hidden name="id"></Form.Item>
-      <Form.Item label="Type" name="type" rules={[{ required: true }]}>
-        <Radio.Group defaultValue={"completion"}>
-          <Radio value="completion">completion</Radio>
-          <Radio value="embedding">embedding</Radio>
-          <Radio value="vision">vision</Radio>
-        </Radio.Group>
-      </Form.Item>
-      <Form.Item label="Name" name="name" rules={[{ required: true }]}>
-        <Input />
-      </Form.Item>
-      <Form.Item
-        label="Config"
-        name="config"
-        rules={[
-          {
-            validator(rule, value, callback) {
-              const jsonKeys = ["headers", "paramMapping", "resultMapping"];
-              for (const key of jsonKeys) {
-                const v = value[key];
-                if (!v) {
-                  continue;
-                }
-                try {
-                  if (typeof v === "string") {
-                    JSON.parse(v);
-                    callback();
-                    return;
-                  }
-                } catch {
-                  callback("key:" + key + ":JSON error");
-                }
-              }
-              callback();
-            },
-          },
-        ]}
+    <div>
+      <Flex gap="small" vertical>
+        <Row>
+          <Alert title="Load from templates"></Alert>
+        </Row>
+        <Row>
+          {templates[type] &&
+            templates[type].map((item) => {
+              return (
+                <Button
+                  onClick={() => {
+                    Modal.confirm({
+                      content: `Are you sure to load the template "${item}"? This will overwrite your current config.`,
+                      onOk: () => {
+                        service
+                          .get(
+                            `/api/aiprovider/templates/${type}/default/${item}`
+                          )
+                          .then((res) => {
+                            form.setFieldsValue({
+                              ...res.data,
+                            });
+                          });
+                      },
+                    });
+                  }}
+                >
+                  {item}
+                </Button>
+              );
+            })}
+        </Row>
+      </Flex>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={(values) => {
+          const { config } = values;
+          if (config) {
+            const { headers, resultMapping, paramMapping } = config;
+            config.headers = normalizeJSONStorage(headers);
+            config.paramMapping = normalizeJSONStorage(paramMapping);
+            config.resultMapping = normalizeJSONStorage(resultMapping);
+          }
+          onFinish?.(values);
+        }}
       >
-        <AIProviderConfig />
-      </Form.Item>
-      <Form.Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={loading}
-          disabled={loading}
+        <Form.Item hidden name="id"></Form.Item>
+        <Form.Item label="Type" name="type" rules={[{ required: true }]}>
+          <Radio.Group
+            defaultValue={"completion"}
+            onChange={(values) => {
+              const type = values.target.value;
+              setType(type);
+              if (templates[type]) {
+                return;
+              }
+              service
+                .get(`/api/aiprovider/templates/${type}/list`)
+                .then((res) => {
+                  setTemplates((prev) => {
+                    return {
+                      ...prev,
+                      [type]: res.data,
+                    };
+                  });
+                });
+            }}
+          >
+            <Radio value="completion">completion</Radio>
+            <Radio value="embedding">embedding</Radio>
+            <Radio value="vision">vision</Radio>
+          </Radio.Group>
+        </Form.Item>
+        <Form.Item label="Name" name="name" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Config"
+          name="config"
+          rules={[
+            {
+              validator(rule, value, callback) {
+                const jsonKeys = ["headers", "paramMapping", "resultMapping"];
+                for (const key of jsonKeys) {
+                  const v = value[key];
+                  if (!v) {
+                    continue;
+                  }
+                  try {
+                    if (typeof v === "string") {
+                      JSON.parse(v);
+                      callback();
+                      return;
+                    }
+                  } catch {
+                    callback("key:" + key + ":JSON error");
+                  }
+                }
+                callback();
+              },
+            },
+          ]}
         >
-          OK
-        </Button>
-      </Form.Item>
-    </Form>
+          <AIProviderConfig />
+        </Form.Item>
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            disabled={loading}
+          >
+            OK
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
   );
 }

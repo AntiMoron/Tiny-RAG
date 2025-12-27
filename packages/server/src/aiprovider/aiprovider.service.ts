@@ -155,7 +155,7 @@ export class AiproviderService {
     return await this.repo.save(provider);
   }
 
-  listDefaultProviderConfigs(
+  getDefaultProviderConfigs(
     type: AIProvider['type'],
     providerBrand: string,
   ): Omit<AIProvider, 'id' | 'name'> {
@@ -181,5 +181,23 @@ export class AiproviderService {
       );
     }
     return config;
+  }
+
+  listDefaultProviderConfigs(type: AIProvider['type']) {
+    let defaults: Record<string, Omit<AIProvider, 'id' | 'name'>> | undefined;
+    switch (type) {
+      case 'completion':
+        defaults = completionDefaults;
+        break;
+      case 'embedding':
+        defaults = embeddingDefaults;
+        break;
+      default:
+        throw new HttpException(
+          'Unsupported AI provider type',
+          HttpStatus.BAD_REQUEST,
+        );
+    }
+    return Object.keys(defaults);
   }
 }
