@@ -11,6 +11,7 @@ import {
   Row,
   Radio,
   Grid,
+  Flex,
 } from "antd";
 import * as _ from "lodash";
 import axios from "../../../../util/service";
@@ -21,6 +22,7 @@ import ProviderSelect from "../../../component/ProviderSelect";
 import DatasetBlock from "../../../component/Dataset";
 import { useNavigate } from "react-router";
 import JSONInput from "../../../component/JSONInput";
+import service from "../../../../util/service";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -30,7 +32,7 @@ export default function Page() {
   const [visible, setVisible] = useState(false);
   const [formType, setFormType] = useState("create");
   useMount(() => {
-    axios.get("/api/dataset/list").then((res) => {
+    service.get("/api/dataset/list").then((res) => {
       setData(res.data);
     });
   });
@@ -75,7 +77,7 @@ export default function Page() {
                           title: "Are you sure to delete this dataset?",
                           content: "This action cannot be undone.",
                           onOk: () => {
-                            axios
+                            service
                               .delete(`/api/dataset/delete/${id}`)
                               .then(() => {
                                 message.success("OK");
@@ -106,6 +108,7 @@ export default function Page() {
         onCancel={() => {
           setVisible(false);
         }}
+        width="80vw"
         footer={null}
       >
         <Form
@@ -147,53 +150,57 @@ export default function Page() {
           <Form.Item name="id" hidden>
             <Input />
           </Form.Item>
-
-          <Form.Item label="Type" name="type" rules={[{ required: true }]}>
-            <Radio.Group>
-              <Radio value="text">Text</Radio>
-              <Radio value="feishu">Feishu</Radio>
-            </Radio.Group>
-          </Form.Item>
-          <Form.Item
-            label="Name"
-            name="name"
-            rules={[
-              { required: true, message: "Please input the dataset name!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item label="Description" name="description">
-            <Input.TextArea rows={4} />
-          </Form.Item>
-          <Form.Item
-            label="Embedding Provider"
-            name="embededByProviderId"
-            rules={[
-              {
-                required: true,
-                message: "Please select an embedding provider!",
-              },
-            ]}
-          >
-            <ProviderSelect type="embedding" />
-          </Form.Item>
-          <Form.Item
-            label="Completion Provider"
-            name="completeByProviderId"
-            rules={[
-              {
-                required: true,
-                message: "Please select an completion provider!",
-              },
-            ]}
-          >
-            <ProviderSelect type="completion" />
-          </Form.Item>
-
-          <Form.Item label="Config" name="config">
-            <JSONInput />
-          </Form.Item>
+          <Flex gap="small">
+            <Col flex="1">
+              <Form.Item label="Type" name="type" rules={[{ required: true }]}>
+                <Radio.Group>
+                  <Radio value="text">Text</Radio>
+                  <Radio value="feishu">Feishu</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item
+                label="Name"
+                name="name"
+                rules={[
+                  { required: true, message: "Please input the dataset name!" },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item label="Description" name="description">
+                <Input.TextArea rows={4} />
+              </Form.Item>
+              <Form.Item
+                label="Embedding Provider"
+                name="embededByProviderId"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select an embedding provider!",
+                  },
+                ]}
+              >
+                <ProviderSelect type="embedding" />
+              </Form.Item>
+              <Form.Item
+                label="Completion Provider"
+                name="completeByProviderId"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select an completion provider!",
+                  },
+                ]}
+              >
+                <ProviderSelect type="completion" />
+              </Form.Item>
+            </Col>
+            <Col flex="1">
+              <Form.Item label="Config" name="config">
+                <JSONInput />
+              </Form.Item>
+            </Col>
+          </Flex>
 
           <Form.Item>
             <Button type="primary" htmlType="submit">
