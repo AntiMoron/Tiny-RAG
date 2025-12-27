@@ -7,6 +7,7 @@ import { getDocTaskList } from 'feishu2markdown';
 import checkParams from 'src/util/checkParams';
 import { HandleDocFolderParams } from 'feishu2markdown/dist/src/doc/type';
 import * as _ from 'lodash';
+import parseJSON from 'src/util/parseJSON';
 
 @Injectable()
 export class DatasetService {
@@ -20,7 +21,7 @@ export class DatasetService {
   }
 
   async getDatasetByName(name: string): Promise<DatasetEntity | null> {
-    if(!name) {
+    if (!name) {
       return null;
     }
     return await this.datasetRepo.findOneBy({ name });
@@ -42,7 +43,23 @@ export class DatasetService {
   }
 
   async listDatasets(): Promise<Dataset[]> {
-    return (await this.datasetRepo.find()) as Dataset[];
+    const ret = await this.datasetRepo.find();
+    return ret.map((item) => {
+      let config: Dataset['config'];
+      if (typeof item.config === 'string') {
+        try {
+          config = parseJSON<Dataset['config']>(item.config);
+        } catch {
+          throw new Error(`config incorrect for dataset<${item.id}>`);
+        }
+      } else {
+        config = item.config as Dataset['config'];
+      }
+      return {
+        ...item,
+        config,
+      };
+    }) as Dataset[];
   }
 
   async deleteDataset(id: string): Promise<void> {

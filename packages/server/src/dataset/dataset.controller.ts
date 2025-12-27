@@ -57,6 +57,9 @@ export class DatasetController {
     checkParams(body, ['name', 'embededByProviderId', 'completeByProviderId']);
     checkNotHaveParams(body, ['createdAt', 'updatedAt']);
     const newDataset = body as Dataset;
-    return await this.datasetService.updateDataset(datasetId, newDataset);
+    return await this.datasetService.updateDataset(datasetId, {
+      ...newDataset,
+      config: JSON.stringify(newDataset.config),
+    });
   }
 }

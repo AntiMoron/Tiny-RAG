@@ -118,12 +118,16 @@ export default function Page() {
             type: "text",
           }}
           onFinish={(values) => {
+            const newValue = {
+              ...values,
+              config: JSON.parse(values.config),
+            };
             axios
               .post(
                 formType === "edit"
                   ? `api/dataset/update/${values.id}`
                   : "api/dataset/add",
-                { ...values }
+                { ...newValue }
               )
               .then((res) => {
                 message.success("OK");

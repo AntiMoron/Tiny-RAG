@@ -1,9 +1,9 @@
 import { useMount } from "ahooks";
 import { Modal, Table } from "antd";
-import axios from "../../../../../../../../../util/service";
 import React, { useEffect, useState } from "react";
 import UUIDDisplay from "../../../../../../../../component/UUIDDisplay";
 import { KnowledgeTask } from "tinyrag-types/task";
+import service from "../../../../../../../../../util/service";
 
 export interface ChooseTaskProps {
   type: string;
@@ -34,7 +34,7 @@ export default function ChooseFeishuTask(props: ChooseTaskProps) {
     if (!datasetId) {
       return;
     }
-    axios.get(`/api/feishu/dataset/${datasetId}/tasks`).then((res) => {
+    service.get(`/api/feishu/dataset/${datasetId}/tasks`).then((res) => {
       setData(res.data);
     });
   }, [datasetId]);

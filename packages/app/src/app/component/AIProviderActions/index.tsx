@@ -93,7 +93,9 @@ export default function AIProviderActions(props: AIProviderActionsProps) {
           onFinish={(values) => {
             setEditConfirming(true);
             axios
-              .post("/api/aiprovider/update/", values)
+              .post("/api/aiprovider/update/", {
+                ...values,
+              })
               .then(() => {
                 message.success("Updated successfully");
                 setOpen(false);

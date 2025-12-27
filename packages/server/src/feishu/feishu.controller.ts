@@ -11,6 +11,8 @@ import { DatasetService } from 'src/dataset/dataset.service';
 import checkParams from 'src/util/checkParams';
 import { Knowledge } from 'tinyrag-types/knowledge';
 import { getDocTaskList } from 'feishu2markdown';
+import parseJSON from 'src/util/parseJSON';
+import { DatasetConfig } from 'tinyrag-types/dataset';
 
 @Controller('api/feishu')
 export class FeishuController {
@@ -28,22 +30,24 @@ export class FeishuController {
       throw new HttpException('Dataset not found', HttpStatus.NOT_FOUND);
     }
     const { type, config } = datasetEntity;
+    const parsedConfig =
+      typeof config === 'string' ? parseJSON<DatasetConfig>(config) : {};
     if (type !== 'feishu') {
       throw new HttpException(
         'Dataset type is incorrect',
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (!config) {
+    if (!parsedConfig) {
       throw new HttpException(
         'Dataset type is incorrect',
         HttpStatus.BAD_REQUEST,
       );
     } else {
-      checkParams(config, ['doc']);
-      checkParams(config?.doc, ['appId', 'appSecret', 'folderToken']);
+      checkParams(parsedConfig, ['doc']);
+      checkParams(parsedConfig?.doc, ['appId', 'appSecret', 'folderToken']);
     }
-    const { appId, appSecret, folderToken } = config.doc!;
+    const { appId, appSecret, folderToken } = parsedConfig.doc!;
     const tasks = await getDocTaskList({
       type: 'feishu',
       appId,

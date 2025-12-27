@@ -22,8 +22,8 @@ export class DatasetEntity {
   @Column({ length: 20, default: 'text' })
   type: string;
 
-  @Column({ type: 'json', nullable: true })
-  config?: DatasetConfig;
+  @Column({ type: 'text', nullable: true })
+  config?: string;
 
   @Column({ length: 50 })
   embededByProviderId: string;

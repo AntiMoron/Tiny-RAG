@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Button, Flex, Layout, message, Modal, Table } from "antd";
 import { useMount } from "ahooks";
-import axios from "../../../../util/service";
 import { AIProvider } from "tinyrag-types/aiprovider";
 import { CheckCircleFilled, PlusOutlined } from "@ant-design/icons";
 
@@ -123,7 +122,7 @@ export default function AIProviderPage() {
           loading={loading}
           onFinish={(values) => {
             setLoading(true);
-            axios
+            service
               .post("/api/aiprovider/add", values)
               .then((res) => {
                 setData([...data, res.data]);
