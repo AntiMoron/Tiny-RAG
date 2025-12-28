@@ -6,6 +6,7 @@ import {
   NotificationOutlined,
   UserOutlined,
   ApiOutlined,
+  LineChartOutlined,
 } from "@ant-design/icons";
 import { ItemType, MenuItemType } from "antd/es/menu/interface";
 
@@ -29,6 +30,11 @@ function useMemuData(props: {
       key: `apikey`,
       icon: React.createElement(ApiOutlined),
       label: `API Keys`,
+    },
+    {
+      key: `analysis`,
+      icon: React.createElement(LineChartOutlined),
+      label: `Analysis`,
     },
     {
       key: `user`,
