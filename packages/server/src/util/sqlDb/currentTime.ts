@@ -1,8 +1,7 @@
 import getEnvConfigValue from '../getEnvConfigValue';
 
-const dbType = getEnvConfigValue('DATABASE_TYPE');
-
 export default function getCurrentTime(): string {
+  const dbType = getEnvConfigValue('DATABASE_TYPE');
   if (dbType === 'sqlite') {
     return "datetime('now')";
   }

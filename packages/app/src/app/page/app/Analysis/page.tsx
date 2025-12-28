@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
+import service from "src/util/service";
 
 // Extend window interface for ECharts
 declare global {
@@ -23,11 +24,13 @@ const AnalysisPage = () => {
   // Initialize charts when component mounts
   useEffect(() => {
     if (window.echarts && completionTrendRef.current) {
-      completionChartRef.current = window.echarts.init(completionTrendRef.current);
+      completionChartRef.current = window.echarts.init(
+        completionTrendRef.current
+      );
       tokenChartRef.current = window.echarts.init(tokenUsageRef.current);
       responseChartRef.current = window.echarts.init(responseTimeRef.current);
       modelChartRef.current = window.echarts.init(modelUsageRef.current);
-      
+
       // Fetch and render data
       loadAllCharts();
     }
@@ -50,51 +53,48 @@ const AnalysisPage = () => {
       modelChartRef.current?.resize();
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // API service functions
   const fetchCompletionTrend = async () => {
-    const response = await fetch('/api/analysis/completion-trend');
-    if (!response.ok) throw new Error('Failed to fetch completion trend');
-    return response.json();
+    const response = service.get("/api/analysis/completion-trend");
+    return await response.then((a) => a.data);
   };
 
   const fetchTokenUsage = async () => {
-    const response = await fetch('/api/analysis/token-usage');
-    if (!response.ok) throw new Error('Failed to fetch token usage');
-    return response.json();
+    const response = service.get("/api/analysis/token-usage");
+    return await response.then((a) => a.data);
   };
 
   const fetchResponseTime = async () => {
-    const response = await fetch('/api/analysis/response-time');
-    if (!response.ok) throw new Error('Failed to fetch response time');
-    return response.json();
+    const response = service.get("/api/analysis/response-time");
+    return await response.then((a) => a.data);
   };
 
   const fetchModelUsage = async () => {
-    const response = await fetch('/api/analysis/model-usage');
-    if (!response.ok) throw new Error('Failed to fetch model usage');
-    return response.json();
+    const response = service.get("/api/analysis/model-usage");
+    return await response.then((a) => a.data);
   };
 
   // Load all chart data
   const loadAllCharts = async () => {
     try {
-      const [completionData, tokenData, responseData, modelData] = await Promise.all([
-        fetchCompletionTrend(),
-        fetchTokenUsage(),
-        fetchResponseTime(),
-        fetchModelUsage()
-      ]);
+      const [completionData, tokenData, responseData, modelData] =
+        await Promise.all([
+          fetchCompletionTrend(),
+          fetchTokenUsage(),
+          fetchResponseTime(),
+          fetchModelUsage(),
+        ]);
 
       renderCompletionTrend(completionData);
       renderTokenUsage(tokenData);
       renderResponseTime(responseData);
       renderModelUsage(modelData);
     } catch (error) {
-      console.error('Error loading chart data:', error);
+      console.error("Error loading chart data:", error);
     }
   };
 
@@ -102,42 +102,44 @@ const AnalysisPage = () => {
   const renderCompletionTrend = (data: any[]) => {
     const option = {
       title: {
-        text: 'Completion Trend',
-        left: 'center'
+        text: "Completion Trend",
+        left: "center",
       },
       tooltip: {
-        trigger: 'axis',
-        formatter: '{b}: {c} completions'
+        trigger: "axis",
+        formatter: "{b}: {c} completions",
       },
       grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
+        left: "3%",
+        right: "4%",
+        bottom: "3%",
+        containLabel: true,
       },
       xAxis: {
-        type: 'category',
-        data: data.map(item => item.hour),
+        type: "category",
+        data: data.map((item) => item.hour),
         axisLabel: {
           rotate: 45,
-          interval: 0
-        }
+          interval: 0,
+        },
       },
       yAxis: {
-        type: 'value',
-        name: 'Completions'
+        type: "value",
+        name: "Completions",
       },
-      series: [{
-        data: data.map(item => item.count),
-        type: 'line',
-        smooth: true,
-        itemStyle: {
-          color: '#5470C6'
+      series: [
+        {
+          data: data.map((item) => item.count),
+          type: "line",
+          smooth: true,
+          itemStyle: {
+            color: "#5470C6",
+          },
+          lineStyle: {
+            width: 3,
+          },
         },
-        lineStyle: {
-          width: 3
-        }
-      }]
+      ],
     };
 
     completionChartRef.current.setOption(option);
@@ -147,38 +149,40 @@ const AnalysisPage = () => {
   const renderTokenUsage = (data: any[]) => {
     const option = {
       title: {
-        text: 'Token Usage Trend',
-        left: 'center'
+        text: "Token Usage Trend",
+        left: "center",
       },
       tooltip: {
-        trigger: 'axis',
-        formatter: '{b}: {c} tokens'
+        trigger: "axis",
+        formatter: "{b}: {c} tokens",
       },
       grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
+        left: "3%",
+        right: "4%",
+        bottom: "3%",
+        containLabel: true,
       },
       xAxis: {
-        type: 'category',
-        data: data.map(item => item.hour),
+        type: "category",
+        data: data.map((item) => item.hour),
         axisLabel: {
           rotate: 45,
-          interval: 0
-        }
+          interval: 0,
+        },
       },
       yAxis: {
-        type: 'value',
-        name: 'Total Tokens'
+        type: "value",
+        name: "Total Tokens",
       },
-      series: [{
-        data: data.map(item => item.totalTokens),
-        type: 'bar',
-        itemStyle: {
-          color: '#91CC75'
-        }
-      }]
+      series: [
+        {
+          data: data.map((item) => item.totalTokens),
+          type: "bar",
+          itemStyle: {
+            color: "#91CC75",
+          },
+        },
+      ],
     };
 
     tokenChartRef.current.setOption(option);
@@ -188,41 +192,43 @@ const AnalysisPage = () => {
   const renderResponseTime = (data: any[]) => {
     const option = {
       title: {
-        text: 'Response Time Trend',
-        left: 'center'
+        text: "Response Time Trend",
+        left: "center",
       },
       tooltip: {
-        trigger: 'axis',
-        formatter: '{b}: {c} ms'
+        trigger: "axis",
+        formatter: "{b}: {c} ms",
       },
       grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
+        left: "3%",
+        right: "4%",
+        bottom: "3%",
+        containLabel: true,
       },
       xAxis: {
-        type: 'category',
-        data: data.map(item => item.hour),
+        type: "category",
+        data: data.map((item) => item.hour),
         axisLabel: {
           rotate: 45,
-          interval: 0
-        }
+          interval: 0,
+        },
       },
       yAxis: {
-        type: 'value',
-        name: 'Avg Response Time (ms)'
+        type: "value",
+        name: "Avg Response Time (ms)",
       },
-      series: [{
-        data: data.map(item => item.avgResponseTime),
-        type: 'line',
-        itemStyle: {
-          color: '#EE6666'
+      series: [
+        {
+          data: data.map((item) => item.avgResponseTime),
+          type: "line",
+          itemStyle: {
+            color: "#EE6666",
+          },
+          lineStyle: {
+            width: 3,
+          },
         },
-        lineStyle: {
-          width: 3
-        }
-      }]
+      ],
     };
 
     responseChartRef.current.setOption(option);
@@ -231,69 +237,112 @@ const AnalysisPage = () => {
   // Render model usage chart
   const renderModelUsage = (data: any[]) => {
     // Group data by provider
-    const providers = Array.from(new Set(data.map(item => item.providerId)));
-    
+    const models = Array.from(new Set(data.map((item) => item.model)));
+
     // Prepare series data
-    const series = providers.map(provider => ({
-      name: provider,
-      type: 'line',
+    const series = models.map((model) => ({
+      name: model,
+      type: "line",
       data: data
-        .filter(item => item.providerId === provider)
-        .map(item => ({
+        .filter((item) => item.model === model)
+        .map((item) => ({
           name: item.hour,
-          value: item.count
-        }))
+          value: item.count,
+        })),
     }));
 
     const option = {
       title: {
-        text: 'Model Usage Trend',
-        left: 'center'
+        text: "Model Usage Trend",
+        left: "center",
       },
       tooltip: {
-        trigger: 'axis'
+        trigger: "axis",
       },
       legend: {
-        data: providers,
-        bottom: 0
+        data: models,
+        bottom: 0,
       },
       grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '15%',
-        containLabel: true
+        left: "3%",
+        right: "4%",
+        bottom: "15%",
+        containLabel: true,
       },
       xAxis: {
-        type: 'category',
-        data: Array.from(new Set(data.map(item => item.hour))),
+        type: "category",
+        data: Array.from(new Set(data.map((item) => item.hour))),
         axisLabel: {
           rotate: 45,
-          interval: 0
-        }
+          interval: 0,
+        },
       },
       yAxis: {
-        type: 'value',
-        name: 'Completions'
+        type: "value",
+        name: "Completions",
       },
-      series
+      series,
     };
 
     modelChartRef.current.setOption(option);
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>System Analysis Dashboard</h1>
-      
+    <div style={{ padding: "20px" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
+        System Analysis Dashboard
+      </h1>
+
       {/* Chart containers */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-        <div ref={completionTrendRef} style={{ width: '100%', height: '300px', border: '1px solid #eee', borderRadius: '4px' }}></div>
-        <div ref={tokenUsageRef} style={{ width: '100%', height: '300px', border: '1px solid #eee', borderRadius: '4px' }}></div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "20px",
+          marginBottom: "20px",
+        }}
+      >
+        <div
+          ref={completionTrendRef}
+          style={{
+            width: "100%",
+            height: "300px",
+            border: "1px solid #eee",
+            borderRadius: "4px",
+          }}
+        ></div>
+        <div
+          ref={tokenUsageRef}
+          style={{
+            width: "100%",
+            height: "300px",
+            border: "1px solid #eee",
+            borderRadius: "4px",
+          }}
+        ></div>
       </div>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-        <div ref={responseTimeRef} style={{ width: '100%', height: '300px', border: '1px solid #eee', borderRadius: '4px' }}></div>
-        <div ref={modelUsageRef} style={{ width: '100%', height: '300px', border: '1px solid #eee', borderRadius: '4px' }}></div>
+
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}
+      >
+        <div
+          ref={responseTimeRef}
+          style={{
+            width: "100%",
+            height: "300px",
+            border: "1px solid #eee",
+            borderRadius: "4px",
+          }}
+        ></div>
+        <div
+          ref={modelUsageRef}
+          style={{
+            width: "100%",
+            height: "300px",
+            border: "1px solid #eee",
+            borderRadius: "4px",
+          }}
+        ></div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LogEntity } from './analysis.entity';
+import formatDate from 'src/util/sqlDb/formatDate';
 
 @Injectable()
 /**
@@ -22,7 +23,7 @@ export class AnalysisService {
   async getCompletionTrend(): Promise<{ hour: string; count: number }[]> {
     return this.logRepository
       .createQueryBuilder('log')
-      .select("DATE_FORMAT(log.createdAt, '%Y-%m-%d %H:00:00')", 'hour')
+      .select(formatDate('log.createdAt', '%Y-%m-%d %H'), 'hour')
       .addSelect('COUNT(log.id)', 'count')
       .groupBy('hour')
       .orderBy('hour', 'ASC')
@@ -35,7 +36,7 @@ export class AnalysisService {
   async getTokenUsageTrend(): Promise<{ hour: string; totalTokens: number }[]> {
     return this.logRepository
       .createQueryBuilder('log')
-      .select("DATE_FORMAT(log.createdAt, '%Y-%m-%d %H:00:00')", 'hour')
+      .select(formatDate('log.createdAt', '%Y-%m-%d %H'), 'hour')
       .addSelect(
         'SUM(log.input_token_count + log.output_token_count)',
         'totalTokens',
@@ -43,6 +44,25 @@ export class AnalysisService {
       .groupBy('hour')
       .orderBy('hour', 'ASC')
       .getRawMany();
+  }
+
+  /**
+   * Record API call information for analysis
+   */
+  async recordCall(params: {
+    inputTokenCount: number;
+    outputTokenCount: number;
+    providerId: string;
+    model: string;
+    responseTime: number;
+    reason: 'completion' | 'embedding' | 'test';
+  }): Promise<void> {
+    const log = this.logRepository.create();
+    log.input_token_count = params.inputTokenCount;
+    log.output_token_count = params.outputTokenCount;
+    log.providerId = params.providerId;
+    log.model = params.model;
+    await this.logRepository.save(log);
   }
 
   /**
@@ -57,7 +77,7 @@ export class AnalysisService {
   > {
     return this.logRepository
       .createQueryBuilder('log')
-      .select("DATE_FORMAT(log.createdAt, '%Y-%m-%d %H:00:00')", 'hour')
+      .select(formatDate('log.createdAt', '%Y-%m-%d %H'), 'hour')
       .addSelect('AVG(log.response_time)', 'avgResponseTime')
       .groupBy('hour')
       .orderBy('hour', 'ASC')
@@ -69,10 +89,11 @@ export class AnalysisService {
   > {
     return this.logRepository
       .createQueryBuilder('log')
-      .select("DATE_FORMAT(log.createdAt, '%Y-%m-%d %H:00:00')", 'hour')
+      .select(formatDate('log.createdAt', '%Y-%m-%d %H'), 'hour')
       .addSelect('log.providerId', 'providerId')
+      .addSelect('log.model', 'model')
       .addSelect('COUNT(log.id)', 'count')
-      .groupBy('hour, log.providerId')
+      .groupBy('hour, log.model')
       .orderBy('hour', 'ASC')
       .getRawMany();
   }

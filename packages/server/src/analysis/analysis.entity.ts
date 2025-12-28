@@ -1,13 +1,24 @@
 import getCurrentTime from 'src/util/sqlDb/currentTime';
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('analysis')
 export class LogEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()
   input_token_count: number;
+
+  @Column({ length: 50, nullable: true, default: 'unknown' })
+  model: string;
+
+  @Column({ length: 50, nullable: true, default: 'unknown' })
+  reason: string;
 
   @Column()
   output_token_count: number;
@@ -20,4 +31,10 @@ export class LogEntity {
     default: () => getCurrentTime(),
   })
   createdAt: Date;
+
+  @Column({
+    nullable: true,
+    default: 0,
+  })
+  response_time: number;
 }

@@ -19,11 +19,13 @@ export class RetrieveService {
     dataset: Dataset,
     question: string,
     count: number,
+    pReason?: 'test',
   ): Promise<ChunkRetrieveResult[]> {
     const { embededByProviderId } = dataset;
     const questionEmbedding = await this.embeddingService.embedById(
       embededByProviderId,
       question,
+      pReason,
     );
     const targetVector = questionEmbedding?.data?.result;
     if (!targetVector) {

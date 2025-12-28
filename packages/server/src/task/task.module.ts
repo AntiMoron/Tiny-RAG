@@ -5,9 +5,8 @@ import { QueueService } from './queue.service';
 import { TaskController } from './task.controller';
 import { ChunksplitModule } from 'src/chunksplit/chunksplit.module';
 import { ChunkModule } from 'src/chunk/chunk.module';
-import { DatasetService } from 'src/dataset/dataset.service';
 import { DatasetModule } from 'src/dataset/dataset.module';
-import { EmbeddingModule } from 'src/embedding/embedding.module'; 
+import { EmbeddingModule } from 'src/embedding/embedding.module';
 import { VectorDbModule } from 'src/vector-db/vector-db.module';
 
 @Module({

@@ -32,7 +32,8 @@ export default async function handleAIProviderConfiguration<
   T extends AICompletionResponse | AIEmbeddingResponse,
 >(provider: AIProvider, promptInput: string): Promise<T> {
   const { config } = provider;
-  const { endpoint, headers, method, paramMapping, resultMapping } = config;
+  const { endpoint, headers, method, paramMapping, resultMapping, model } =
+    config;
 
   const valueOptions = {
     ...config,
@@ -63,12 +64,14 @@ export default async function handleAIProviderConfiguration<
             _.set(acc, key, _.get(result, v));
             return acc as T;
           }, {} as any),
+          providerId: provider.id,
+          model: model || provider.config.model,
         } as T;
       }
       return {
         ...result,
         providerId: provider.id,
-        model: provider.config.model,
+        model: model || provider.config.model,
       };
     });
   }

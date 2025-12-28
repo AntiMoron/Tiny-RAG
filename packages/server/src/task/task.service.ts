@@ -141,6 +141,11 @@ export class TaskService implements OnModuleInit {
     } else if (taskType === 'sync_doc') {
       const { type, appId, appSecret, docUrl, docToken, datasetId } =
         data as SyncDocTaskBodyData;
+
+      const dataset = await this.datasetService.getDatasetById(datasetId);
+      if (!dataset) {
+        throw new Error('Dataset not found: ' + datasetId);
+      }
       // 1. fetch content
       // 2. create a knowledge as a document.
       // 3. chunk it
@@ -170,10 +175,6 @@ export class TaskService implements OnModuleInit {
         },
       });
 
-      const dataset = await this.datasetService.getDatasetById(datasetId);
-      if (!dataset) {
-        throw new Error('Dataset not found: ' + datasetId);
-      }
       const embededByProviderId = dataset.embededByProviderId;
       const knowledgeEntity =
         await this.knowledgeService.insertOrUpdateExternalKnowledge({

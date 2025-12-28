@@ -62,6 +62,7 @@ export class RetrieveController {
       dataset,
       question as string,
       3,
+      'test',
     );
     const validData = data.map((item) => _.pick(item, ['score', 'content']));
     const replyPrompt = RETRIEVE_TEST_PROMPT.replace(
@@ -71,6 +72,7 @@ export class RetrieveController {
     const completion = await this.completionService.completeById(
       dataset.completeByProviderId,
       replyPrompt,
+      'test',
     );
     return {
       validData,

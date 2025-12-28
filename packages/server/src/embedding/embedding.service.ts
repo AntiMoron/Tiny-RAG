@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { AIEmbeddingResponse } from 'tinyrag-types/embedding';
-import * as _ from 'lodash';
-import { Knowledge } from 'tinyrag-types/knowledge';
-import { KnowledgeService } from 'src/knowledge/knowledge.service';
 import { Inject, forwardRef } from '@nestjs/common';
 import { AiproviderService } from 'src/aiprovider/aiprovider.service';
 import handleAIProviderConfiguration from 'src/util/executeAI';
 import * as stopword from 'stopword';
 import * as s from 'segment';
+import { AnalysisService } from 'src/analysis/analysis.service';
 
 const segment = new s.Segment();
 segment.useDefault();
@@ -17,6 +15,7 @@ export class EmbeddingService {
   constructor(
     @Inject(forwardRef(() => AiproviderService))
     private readonly providerService: AiproviderService,
+    private analysisService: AnalysisService,
   ) {}
 
   async removeStopWords(input: string) {
@@ -47,7 +46,7 @@ export class EmbeddingService {
     // Remove stopwords for multiple languages
     const langs = [stopword.eng, stopword.zho, stopword.jpn];
     for (const lang of langs) {
-      tokens = stopword.removeStopwords(tokens, lang);
+      tokens = await stopword.removeStopwords(tokens, lang);
     }
 
     // Filter out empty tokens and deduplicate while preserving order
@@ -69,6 +68,7 @@ export class EmbeddingService {
   async embedById(
     providerId: string,
     input: string,
+    pReason?: 'test',
   ): Promise<AIEmbeddingResponse | undefined> {
     const provider = await this.providerService.findOne(providerId);
     if (!provider) {
@@ -79,10 +79,22 @@ export class EmbeddingService {
     }
     try {
       const removedInput = await this.removeStopWords(input);
+      const start = Date.now();
       const data = await handleAIProviderConfiguration<AIEmbeddingResponse>(
         { ...(provider as any) },
         removedInput,
       );
+      const end = Date.now();
+      const model = data.model;
+      const total = data?.usage?.total_tokens || 0;
+      await this.analysisService.recordCall({
+        inputTokenCount: total,
+        outputTokenCount: 0,
+        providerId: provider.id,
+        model,
+        reason: pReason ?? 'embedding',
+        responseTime: end - start,
+      });
       return data;
     } catch (err) {
       throw new Error(`AI Embedding failed: ${(err as Error).message}`);
