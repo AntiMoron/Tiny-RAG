@@ -1,4 +1,5 @@
 export interface TaskBodyData {
+  knowledge_id?: string;
   type: string;
 }
 

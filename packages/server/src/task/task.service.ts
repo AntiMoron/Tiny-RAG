@@ -15,7 +15,6 @@ import { DatasetService } from 'src/dataset/dataset.service';
 import { EmbeddingService } from 'src/embedding/embedding.service';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import { VectorDbService } from 'src/vector-db/vector-db.service';
-import { Dataset } from 'tinyrag-types/dataset';
 import * as fs from 'fs-extra';
 import { join, relative } from 'path';
 
@@ -84,7 +83,7 @@ export class TaskService implements OnModuleInit {
         if (!client.ready) {
           throw new Error(`Vector DB client<${client.type}> is not ready yet.`);
         }
-        await client.insert(dataset as Dataset, vector.length, [
+        await client.insert(dataset, vector.length, [
           {
             chunk_id: chunkId,
             knowledge_id: knowledge_id,
@@ -126,7 +125,7 @@ export class TaskService implements OnModuleInit {
             try {
               await this.chunkService.deleteChunks(deleteChunkIds);
               await this.vectorDbService.deleteEntities({
-                dataset: dataset as Dataset,
+                dataset,
                 chunkIds: deleteChunkIds,
               });
             } catch (err) {
@@ -177,7 +176,8 @@ export class TaskService implements OnModuleInit {
       }
       const embededByProviderId = dataset.embededByProviderId;
       const knowledgeEntity =
-        await this.knowledgeService.insertOrUpadteExternalKnowledge({
+        await this.knowledgeService.insertOrUpdateExternalKnowledge({
+          id: data.knowledge_id,
           content,
           dataset_id: datasetId,
           externalId: docToken || '',

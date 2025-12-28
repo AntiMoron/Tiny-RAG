@@ -11,7 +11,7 @@ import {
 import { TaskService } from './task.service';
 import { KnowledgeTask, TaskBody } from 'tinyrag-types/task';
 import { DatasetService } from 'src/dataset/dataset.service';
-
+import { KnowledgeService } from 'src/knowledge/knowledge.service';
 
 @Controller('api/task')
 export class TaskController {
@@ -19,6 +19,7 @@ export class TaskController {
     @Inject(forwardRef(() => DatasetService))
     private readonly datasetService: DatasetService,
     private readonly taskService: TaskService,
+    private readonly knowledgeService: KnowledgeService,
   ) {}
 
   @Get('status')
@@ -56,6 +57,12 @@ export class TaskController {
       // fetch
       for (let i = 0; i < docTokens.length; i++) {
         const token = docTokens[i];
+        const knowledgeEntity = await this.knowledgeService.insertKnowledge({
+          externalId: token,
+          content: '',
+          dataset_id: datasetId,
+        });
+
         const fetchTask: TaskBody = {
           type: 'sync_doc',
           data: {
@@ -63,7 +70,7 @@ export class TaskController {
             appId: doc?.appId || '',
             appSecret: doc?.appSecret || '',
             datasetId,
-            knowledge_id: token,
+            knowledge_id: knowledgeEntity.id,
             docToken: ChooseTask.params.docType === 'docx' ? token : '',
           } as TaskBody['data'],
         };

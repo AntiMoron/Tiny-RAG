@@ -48,8 +48,8 @@ export class KnowledgeService {
     return await this.knowledgeRepo.save(newKnowledge);
   }
 
-  async insertOrUpadteExternalKnowledge(
-    knowledge: Omit<Knowledge, 'id' | 'createdAt' | 'updatedAt'>,
+  async insertOrUpdateExternalKnowledge(
+    knowledge: Partial<Omit<Knowledge, 'createdAt' | 'updatedAt'>>,
   ) {
     const oldEntity = knowledge.externalId
       ? await this.knowledgeRepo.findOneBy({
