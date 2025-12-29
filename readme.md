@@ -96,3 +96,30 @@ cd packages/server && pnpm run start:dev
 ```bash
 cd packages/app && pnpm run start:dev
 ```
+
+
+## Deployment
+
+1. Build on server and deploy it.
+
+On your server side, execute:
+
+```
+pnpm run init
+pnpm run:build
+```
+
+2. Build on local machine first, then deploy to server.
+
+On your local machine, execute:
+
+```
+bash ./build_local.sh
+```
+
+Then on your server side, execute:
+
+```bash
+pnpm run init
+pnpm run:nobuild
+```
