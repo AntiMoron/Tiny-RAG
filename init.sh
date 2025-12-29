@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ pnpm -v ]]; then
+if command -v pnpm &> /dev/null; then
   echo "pnpm is already installed."
 else
   echo "Installing pnpm..."
