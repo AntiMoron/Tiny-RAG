@@ -16,8 +16,8 @@ read -p "Enter the project root directory to upload builds:"
 if [[ -n "$REPLY" ]]; then
   ROOT_DIR=$REPLY
   echo "Uploading builds to $ROOT_DIR..."
-  scp -r packages/server/dist/* "$ROOT_DIR/server/"
-  scp -r packages/app/dist/* "$ROOT_DIR/app/"
+  scp -r packages/server/dist/* "$ROOT_DIR/packages/server/"
+  scp -r packages/app/dist/* "$ROOT_DIR/packages/app/"
   echo "Builds uploaded."
 else
   echo "No directory provided. Skipping upload."
