@@ -26,8 +26,8 @@ WORKDIR /app
 RUN npm install -g pnpm
 RUN mkdir -p ./packages/server
 COPY --from=builder /app/packages/server/dist ./packages/server/dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages/server/node_modules ./packages/server/node_modules
+# COPY --from=builder /app/node_modules ./node_modules
+# COPY --from=builder /app/packages/server/node_modules ./packages/server/node_modules
 COPY --from=builder /app/packages/server/package*.json ./packages/server/
 RUN cd ./packages/server/
 

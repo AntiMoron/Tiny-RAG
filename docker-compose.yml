@@ -18,7 +18,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-    command: pnpm run start
+    command: pnpm run start:prod
 
   app:
     build:
