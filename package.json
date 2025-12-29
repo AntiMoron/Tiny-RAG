@@ -5,7 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "init": "node ./init_env.js"
+    "init": "node ./init_env.js",
+    "run:nobuild": "docker compose -f ./docker-compose.nobuild.yml up -d",
+    "run:build": "docker compose up -d",
+    "stop": "docker compose down"
   },
   "keywords": [],
   "author": "",
