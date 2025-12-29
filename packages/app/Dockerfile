@@ -9,7 +9,6 @@ COPY package*.json ./
 RUN npm install -g pnpm
 COPY . .
 RUN pnpm i
-RUN cd /app/packages/app && pnpm i
 WORKDIR /app/packages/app
 # Conditionally run build based on SKIP_BUILD argument
 RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping build step"; fi
