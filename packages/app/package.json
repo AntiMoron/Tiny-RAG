@@ -10,7 +10,7 @@
   "scripts": {
     "start:dev": "vite",
     "build": "vite build",
-    "start": "serve dist",
+    "start": "serve dist -p 3001",
     "clean": "rm -rf ./dist"
   },
   "dependencies": {
