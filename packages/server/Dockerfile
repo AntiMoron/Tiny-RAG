@@ -23,6 +23,7 @@ RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping bui
 FROM node:22-alpine
 
 WORKDIR /app
+RUN npm install -g pnpm
 RUN mkdir -p ./packages/server
 COPY --from=builder /app/packages/server/dist ./packages/server/dist
 COPY --from=builder /app/node_modules ./node_modules
