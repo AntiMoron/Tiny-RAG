@@ -2,6 +2,8 @@ FROM node:22 AS builder
 
 # Add build argument to control whether to build
 ARG SKIP_BUILD=false
+# Add build argument to control whether to install dependencies
+ARG SKIP_INSTALL=false
 
 WORKDIR /app
 # Copy workspace configuration files
@@ -11,10 +13,10 @@ COPY packages/server/package*.json ./packages/server/
 RUN npm install -g pnpm
 # Copy all source files
 COPY . .
-RUN pnpm i
+RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm i; else echo "Skipping install step"; fi
 # Set working directory to server package and build
 WORKDIR /app/packages/server
-RUN pnpm rebuild
+RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm rebuild; else echo "Skipping rebuild step"; fi
 # Conditionally run build based on SKIP_BUILD argument
 RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping build step"; fi
 

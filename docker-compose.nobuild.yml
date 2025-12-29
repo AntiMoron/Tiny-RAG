@@ -9,6 +9,7 @@ services:
       dockerfile: ./packages/server/Dockerfile
       args:
         - SKIP_BUILD=true
+        - SKIP_INSTALL=true
     ports:
       - "3000:3000"
     volumes:
@@ -29,6 +30,7 @@ services:
       dockerfile: ./packages/app/Dockerfile
       args:
         - SKIP_BUILD=true
+        - SKIP_INSTALL=true
     ports:
       - "3001:3001"
     volumes:
