@@ -5,6 +5,7 @@ import { Dataset } from 'tinyrag-types/dataset';
 import VectorDBBase, { VectorDBType } from '../../interface';
 import getEnvConfigValue from 'src/util/getEnvConfigValue';
 import { WinstonLogger } from 'nest-winston';
+import * as _ from 'lodash';
 
 type LocalEntry = {
   dataset_id: string;
@@ -25,6 +26,12 @@ export default class LocalVectorDB implements VectorDBBase {
     this.baseDir =
       getEnvConfigValue('LOCAL_VECTOR_PATH') ||
       path.resolve(process.cwd(), 'data', 'local-vector');
+
+    this.persistCollection = _.debounce(
+      this.persistCollection.bind(this),
+      2000,
+      { leading: false, trailing: true },
+    );
   }
 
   private collectionFile(name: string) {
@@ -36,7 +43,6 @@ export default class LocalVectorDB implements VectorDBBase {
       await fs.mkdir(this.baseDir, { recursive: true });
       this._ready = true;
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.warn(
         'LocalVectorDB init failed:',
         (err as Error)?.message || err,
@@ -45,9 +51,10 @@ export default class LocalVectorDB implements VectorDBBase {
     }
   }
 
-  async destroy(): Promise<void> {
+  destroy(): Promise<void> {
     this._ready = false;
     this.cache.clear();
+    return Promise.resolve();
   }
 
   get ready(): boolean {
@@ -80,8 +87,40 @@ export default class LocalVectorDB implements VectorDBBase {
     const file = this.collectionFile(name);
     const tmp = `${file}.tmp`;
     const data = this.cache.get(name) ?? [];
+    const targetDir = path.dirname(file);
+    await fs.access(targetDir).catch(async () => {
+      await fs.mkdir(targetDir, { recursive: true });
+    });
     await fs.writeFile(tmp, JSON.stringify(data), 'utf8');
-    await fs.rename(tmp, file);
+    await this.retryRename(tmp, file);
+  }
+
+  /**
+   * 辅助方法：带重试的重命名（解决文件系统延迟/EBUSY）
+   * @param from 源文件路径
+   * @param to 目标文件路径
+   * @param retries 重试次数
+   * @param delay 重试间隔（ms）
+   */
+  private async retryRename(
+    from: string,
+    to: string,
+    retries: number = 3,
+    delay: number = 100,
+  ): Promise<void> {
+    try {
+      await fs.rename(from, to);
+    } catch (err) {
+      const error = err as { code: string; message: string };
+      // 仅对 ENOENT/EBUSY 重试，其他错误直接抛出
+      if ((error.code === 'ENOENT' || error.code === 'EBUSY') && retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return this.retryRename(from, to, retries - 1, delay);
+      }
+      throw new Error(
+        `Rename error（${error.code}）：${from} → ${to}, reason: ${error.message}`,
+      );
+    }
   }
 
   // cosine similarity

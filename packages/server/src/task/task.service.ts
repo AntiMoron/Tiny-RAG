@@ -114,9 +114,22 @@ export class TaskService implements OnModuleInit {
         }
         const allChunks =
           await this.chunkService.getChunkStatusByKnowledgeId(knowledge_id);
-        const anyFail = allChunks.some((c) => c.indexStatus === 'fail');
+        const isOldMap: Record<string, boolean> = Array.isArray(deleteChunkIds)
+          ? deleteChunkIds.reduce(
+              (acc, curr) => {
+                acc[curr] = true;
+                return acc;
+              },
+              {} as Record<string, boolean>,
+            )
+          : {};
+        const anyFail = allChunks
+          .filter((a) => {
+            return !isOldMap[a.id];
+          })
+          .some((c) => c.indexStatus === 'fail');
         if (anyFail) {
-          await this.knowledgeService.updateKnowledgeStatus(
+          await this.knowledgeService.updateKnowledgeIndexStatus(
             knowledge_id,
             'fail',
           );
@@ -132,16 +145,28 @@ export class TaskService implements OnModuleInit {
               this.logger.error('Failed to delete old chunks:', err);
             }
           }
-          await this.knowledgeService.updateKnowledgeStatus(
+          await this.knowledgeService.updateKnowledgeIndexStatus(
             knowledge_id,
             'success',
           );
         }
       }
     } else if (taskType === 'sync_doc') {
-      const { type, appId, appSecret, docUrl, docToken, datasetId } =
-        data as SyncDocTaskBodyData;
-
+      const {
+        type,
+        appId,
+        appSecret,
+        docUrl,
+        docToken,
+        datasetId,
+        knowledge_id: knowledgeId,
+      } = data as SyncDocTaskBodyData;
+      if (knowledgeId) {
+        await this.knowledgeService.updateKnowledgeIndexStatus(
+          knowledgeId,
+          'doing',
+        );
+      }
       const dataset = await this.datasetService.getDatasetById(datasetId);
       if (!dataset) {
         throw new Error('Dataset not found: ' + datasetId);

@@ -5,4 +5,5 @@ export interface Knowledge {
   createdAt: Date;
   updatedAt: Date;
   externalId?: string;
+  indexStatus?: string;
 }

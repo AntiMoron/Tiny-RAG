@@ -57,11 +57,21 @@ export class TaskController {
       // fetch
       for (let i = 0; i < docTokens.length; i++) {
         const token = docTokens[i];
-        const knowledgeEntity = await this.knowledgeService.insertKnowledge({
-          externalId: token,
-          content: '',
-          dataset_id: datasetId,
-        });
+        let knowledgeEntity =
+          await this.knowledgeService.findByExternalId(token);
+        if (!knowledgeEntity) {
+          knowledgeEntity = await this.knowledgeService.insertKnowledge({
+            externalId: token,
+            content: '',
+            dataset_id: datasetId,
+            indexStatus: 'pending',
+          });
+        } else {
+          await this.knowledgeService.updateKnowledgeIndexStatus(
+            knowledgeEntity.id,
+            'pending',
+          );
+        }
 
         const fetchTask: TaskBody = {
           type: 'sync_doc',

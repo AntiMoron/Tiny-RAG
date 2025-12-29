@@ -10,7 +10,8 @@
   "scripts": {
     "start:dev": "vite",
     "build": "vite build",
-    "start": "serve dist"
+    "start": "serve dist",
+    "clean": "rm -rf ./dist"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",

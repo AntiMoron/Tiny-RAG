@@ -14,7 +14,7 @@ export class ChunkEntity {
   @Column({ length: 50 })
   knowledge_id: string;
 
-  @Column()
+  @Column({ length: 50 })
   dataset_id: string;
 
   @Column({ length: 50 })

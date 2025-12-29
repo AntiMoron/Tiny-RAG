@@ -81,6 +81,25 @@ export class KnowledgeService {
     }
   }
 
+  async findByExternalId(externalId: string): Promise<Knowledge | undefined> {
+    const knowledgeEntity = await this.knowledgeRepo.findOneBy({
+      externalId,
+    });
+    if (!knowledgeEntity) {
+      return undefined;
+    }
+    return {
+      ...knowledgeEntity,
+    } as Knowledge;
+  }
+
+  async updateKnowledgeIndexStatus(
+    id: string,
+    status: 'pending' | 'success' | 'fail' | 'doing',
+  ) {
+    return await this.knowledgeRepo.update({ id }, { indexStatus: status });
+  }
+
   async findByIds(ids: string[]): Promise<Knowledge[]> {
     const client = this.vectorDbService;
     if (!client.ready) {
@@ -118,13 +137,6 @@ export class KnowledgeService {
 
   async getKnowledgeCount(datasetId: string) {
     return await this.knowledgeRepo.countBy({ dataset_id: datasetId });
-  }
-
-  async updateKnowledgeStatus(
-    id: string,
-    indexStatus: 'doing' | 'success' | 'fail',
-  ) {
-    return await this.knowledgeRepo.update({ id }, { indexStatus });
   }
 
   async deleteKnowledge(id: string) {
