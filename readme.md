@@ -104,9 +104,9 @@ cd packages/app && pnpm run start:dev
 
 On your server side, execute:
 
-```
+```bash
 pnpm run init
-pnpm run:build
+pnpm run run:build
 ```
 
 2. Build on local machine first, then deploy to server.
@@ -121,5 +121,5 @@ Then on your server side, execute:
 
 ```bash
 pnpm run init
-pnpm run:nobuild
+pnpm run run:nobuild
 ```
