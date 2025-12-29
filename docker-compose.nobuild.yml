@@ -22,7 +22,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-    command: pnpm start
+    command: pnpm run start
 
   app:
     build:
@@ -43,6 +43,6 @@ services:
       - NODE_ENV=production
       - PORT=3001
       - REACT_APP_API_URL=http://server:3000
-    command: sh -c "pnpm start"
+    command: sh -c "pnpm run start"
     depends_on:
       - server
