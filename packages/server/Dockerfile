@@ -1,5 +1,8 @@
 FROM node:22 AS builder
 
+# Add build argument to control whether to build
+ARG SKIP_BUILD=false
+
 WORKDIR /app
 # Copy workspace configuration files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -12,7 +15,8 @@ RUN pnpm i
 # Set working directory to server package and build
 WORKDIR /app/packages/server
 RUN pnpm rebuild
-RUN pnpm run build
+# Conditionally run build based on SKIP_BUILD argument
+RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping build step"; fi
 
 FROM node:22-alpine
 
