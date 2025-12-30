@@ -23,8 +23,6 @@ RUN npm install -g pnpm
 RUN mkdir -p ./packages/app
 COPY --from=builder /app/packages/app/dist ./packages/app/dist
 COPY --from=builder /app/packages/app/package*.json ./packages/app/
-COPY --from=builder /app/node_modules ./node_modules/
-COPY --from=builder /app/packages/app/node_modules ./packages/app/node_modules
 RUN cd ./packages/app/
 
 EXPOSE 3001
