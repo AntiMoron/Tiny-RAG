@@ -10,12 +10,22 @@ services:
       args:
         - SKIP_BUILD=true
         - SKIP_INSTALL=true
-    ports:
-      - "3000:3000"
+    network_mode: host
     volumes:
       - ./deploy/server:/app/packages/server
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
       - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
+    # Resource controls (both compose-friendly and swarm deploy for broader compatibility)
+    cpus: 0.5
+    mem_limit: 512M
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     environment:
       - NODE_ENV=production
       - PORT=3000
