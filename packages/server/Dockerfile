@@ -20,18 +20,8 @@ RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm rebuild; else echo "Skipping reb
 # Conditionally run build based on SKIP_BUILD argument
 RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping build step"; fi
 
-FROM node:22-alpine
-
-WORKDIR /app
-RUN npm install -g pnpm
-RUN mkdir -p ./packages/server
-COPY --from=builder /app/ ./
-COPY --from=builder /app/packages/server/dist ./packages/server/dist
-COPY --from=builder /app/packages/server/package*.json ./packages/server/
-RUN cd ./packages/server/
+WORKDIR /app/packages/server
 
 EXPOSE 3000
-
-WORKDIR /app/packages/server
 
 CMD ["pnpm", "run", "start:prod"]
