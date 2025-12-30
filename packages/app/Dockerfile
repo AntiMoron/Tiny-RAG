@@ -27,4 +27,7 @@ COPY --from=builder /app/packages/app/package*.json ./packages/app/
 RUN cd ./packages/app/
 
 EXPOSE 3001
+
+WORKDIR /app/packages/app
+
 CMD ["pnpm", "run", "start"]

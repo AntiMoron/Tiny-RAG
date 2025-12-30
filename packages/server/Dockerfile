@@ -32,4 +32,6 @@ RUN cd ./packages/server/
 
 EXPOSE 3000
 
+WORKDIR /app/packages/server
+
 CMD ["pnpm", "run", "start:prod"]
