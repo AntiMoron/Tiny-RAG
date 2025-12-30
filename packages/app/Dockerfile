@@ -7,7 +7,6 @@ ARG SKIP_BUILD=false
 ARG SKIP_INSTALL=false
 
 WORKDIR /app
-COPY package*.json ./
 RUN npm install -g pnpm
 COPY . .
 RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm i; else echo "Skipping install step"; fi

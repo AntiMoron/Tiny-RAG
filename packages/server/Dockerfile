@@ -5,11 +5,6 @@ ARG SKIP_BUILD=false
 # Add build argument to control whether to install dependencies
 ARG SKIP_INSTALL=false
 
-WORKDIR /app
-# Copy workspace configuration files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-# Copy server package files
-COPY packages/server/package*.json ./packages/server/
 RUN npm install -g pnpm
 # Copy all source files
 COPY . .
