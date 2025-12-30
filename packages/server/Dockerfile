@@ -8,14 +8,14 @@ ARG SKIP_INSTALL=false
 RUN npm install -g pnpm
 # Copy all source files
 COPY . .
+WORKDIR /app/packages/server
+
 RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm i; else echo "Skipping install step"; fi
 # Set working directory to server package and build
-WORKDIR /app/packages/server
 RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm rebuild; else echo "Skipping rebuild step"; fi
 # Conditionally run build based on SKIP_BUILD argument
 RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping build step"; fi
 
-WORKDIR /app/packages/server
 
 EXPOSE 3000
 
