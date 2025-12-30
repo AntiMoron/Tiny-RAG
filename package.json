@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "init": "node ./init_env.js",
-    "deploy:app": "pnpm deploy --filter=tiny-rag-app --legacy ./deploy/app/",
-    "deploy:server": "pnpm deploy --filter=tiny-rag-server --legacy ./deploy/server/",
+    "deploy:app": "rm -rf ./deploy/app && pnpm deploy --filter=tiny-rag-app --legacy ./deploy/app/",
+    "deploy:server": "rm -rf ./deploy/server && pnpm deploy --filter=tiny-rag-server --legacy ./deploy/server/",
     "run:nobuild": "pnpm run deploy:app && pnpm run deploy:server && docker compose -f ./docker-compose.nobuild.yml up -d",
     "run:build": "docker compose up -d",
     "stop": "docker compose down"
