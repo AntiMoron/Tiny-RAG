@@ -65,7 +65,7 @@ export default function PageLayout() {
                   icon={<GithubFilled />}
                   type="link"
                 ></Button>
-                <span style={{ color: "#ffffff" }}>Star</span>
+                <span style={{ color: "#2b2b2b" }}>Star</span>
               </a>
             </Flex>
           </Header>

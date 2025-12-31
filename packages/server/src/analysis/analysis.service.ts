@@ -93,7 +93,9 @@ export class AnalysisService {
       .addSelect('log.providerId', 'providerId')
       .addSelect('log.model', 'model')
       .addSelect('COUNT(log.id)', 'count')
-      .groupBy('hour, log.model')
+      .groupBy('hour')
+      .addGroupBy('log.model')
+      .addGroupBy('log.providerId')
       .orderBy('hour', 'ASC')
       .getRawMany();
   }
