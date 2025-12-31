@@ -1,4 +1,5 @@
 import getCurrentTime from 'src/util/sqlDb/currentTime';
+import { getDateType } from 'src/util/sqlDb/getDateType';
 import {
   Column,
   CreateDateColumn,
@@ -24,13 +25,13 @@ export class AIProviderEntity {
   config: string;
 
   @CreateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     default: () => getCurrentTime(),
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     default: () => getCurrentTime(),
     onUpdate: getCurrentTime(),
   })

@@ -1,4 +1,5 @@
 import getCurrentTime from 'src/util/sqlDb/currentTime';
+import { getDateType } from 'src/util/sqlDb/getDateType';
 import {
   Column,
   CreateDateColumn,
@@ -24,7 +25,7 @@ export class ChunkEntity {
   content: string;
 
   @CreateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     default: () => getCurrentTime(),
   })
   createdAt: Date;

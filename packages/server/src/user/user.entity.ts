@@ -1,4 +1,5 @@
 import getCurrentTime from 'src/util/sqlDb/currentTime';
+import { getDateType } from 'src/util/sqlDb/getDateType';
 import {
   Column,
   CreateDateColumn,
@@ -18,7 +19,7 @@ export class UserEntity {
   encrypt_pwd: string;
 
   @CreateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     default: () => getCurrentTime(),
   })
   createdAt: Date;

@@ -1,4 +1,5 @@
 import getCurrentTime from 'src/util/sqlDb/currentTime';
+import { getDateType } from 'src/util/sqlDb/getDateType';
 import {
   Column,
   CreateDateColumn,
@@ -27,7 +28,7 @@ export class LogEntity {
   providerId: string;
 
   @CreateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     default: () => getCurrentTime(),
   })
   createdAt: Date;

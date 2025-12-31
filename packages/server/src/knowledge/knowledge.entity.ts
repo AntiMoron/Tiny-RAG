@@ -1,4 +1,5 @@
 import getCurrentTime from 'src/util/sqlDb/currentTime';
+import { getDateType } from 'src/util/sqlDb/getDateType';
 import {
   Column,
   CreateDateColumn,
@@ -21,13 +22,13 @@ export class KnowledgeEntity {
   dataset_id: string;
 
   @CreateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     default: () => getCurrentTime(),
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     default: () => getCurrentTime(),
     onUpdate: getCurrentTime(),
   })

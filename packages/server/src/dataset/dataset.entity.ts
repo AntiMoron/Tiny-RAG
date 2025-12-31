@@ -1,4 +1,5 @@
 import getCurrentTime from 'src/util/sqlDb/currentTime';
+import { getDateType } from 'src/util/sqlDb/getDateType';
 import { type DatasetConfig } from 'tinyrag-types/dataset';
 import {
   Column,
@@ -32,14 +33,14 @@ export class DatasetEntity {
   completeByProviderId: string;
 
   @CreateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     precision: 3,
     default: () => getCurrentTime(),
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'datetime',
+    type: getDateType(),
     precision: 3,
     default: () => getCurrentTime(),
     onUpdate: getCurrentTime(),
