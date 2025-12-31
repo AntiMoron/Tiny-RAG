@@ -7,8 +7,11 @@ ARG SKIP_INSTALL=false
 
 RUN npm install -g pnpm
 # Copy all source files
-WORKDIR /app/packages/server
+WORKDIR /app
+
 COPY . .
+
+WORKDIR /app/packages/server
 
 RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm i; else echo "Skipping install step"; fi
 # Set working directory to server package and build

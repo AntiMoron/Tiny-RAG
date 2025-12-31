@@ -14,7 +14,6 @@ WORKDIR /app/packages/app
 # Conditionally run build based on SKIP_BUILD argument
 RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping build step"; fi
 
-WORKDIR /app/packages/app
 EXPOSE 3001
 
 CMD ["pnpm", "run", "start"]
