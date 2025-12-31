@@ -33,6 +33,7 @@ export class AIProviderEntity {
 
   @UpdateDateColumn({
     type: getDateType(),
+    precision: 0,
     default: () => getCurrentTime(0),
     onUpdate: getCurrentTime(0),
   })
