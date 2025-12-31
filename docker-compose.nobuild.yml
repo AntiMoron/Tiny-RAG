@@ -10,8 +10,7 @@ services:
       args:
         - SKIP_BUILD=true
         - SKIP_INSTALL=true
-    networks:
-      - host
+    network_mode: host
     volumes:
       - ./deploy/server:/app/packages/server
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
