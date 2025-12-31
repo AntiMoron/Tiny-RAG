@@ -10,11 +10,8 @@ services:
       args:
         - SKIP_BUILD=true
         - SKIP_INSTALL=true
-    ports:
-      - "3000:3000"
-      - "3306:3306"
-      - "19530:19530"
-      - "19121:19121"
+    networks:
+      - host
     volumes:
       - ./deploy/server:/app/packages/server
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
@@ -53,5 +50,3 @@ services:
       - PORT=3001
       - REACT_APP_API_URL=http://server:3000
     command: sh -c "pnpm run start"
-    depends_on:
-      - server
