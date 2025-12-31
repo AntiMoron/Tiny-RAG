@@ -10,6 +10,9 @@ services:
         - SKIP_BUILD=${SKIP_BUILD:-false}
     ports:
       - "3000:3000"
+      - "3306:3306"
+      - "19530:19530"
+      - "19121:19121"
     volumes:
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
       - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml

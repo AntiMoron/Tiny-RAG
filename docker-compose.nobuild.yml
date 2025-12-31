@@ -10,7 +10,11 @@ services:
       args:
         - SKIP_BUILD=true
         - SKIP_INSTALL=true
-    network_mode: host
+    ports:
+      - "3000:3000"
+      - "3306:3306"
+      - "19530:19530"
+      - "19121:19121"
     volumes:
       - ./deploy/server:/app/packages/server
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
