@@ -4,13 +4,14 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "packageManager": "pnpm@10.24.0",
   "scripts": {
     "start:dev": "vite",
     "build": "vite build",
-    "start": "serve dist -p 3001",
+    "start:prod": "serve dist -p 3001",
+    "start": "pnpm start:prod",
     "clean": "rm -rf ./dist"
   },
   "dependencies": {

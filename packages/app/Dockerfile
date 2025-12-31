@@ -6,14 +6,17 @@ ARG SKIP_BUILD=false
 # Add build argument to control whether to install dependencies
 ARG SKIP_INSTALL=false
 
-WORKDIR /app
 RUN npm install -g pnpm
+
+WORKDIR /app
+
 COPY ./deploy/app ./packages/app
-RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm i; else echo "Skipping install step"; fi
 WORKDIR /app/packages/app
+
+RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm i; else echo "Skipping install step"; fi
 # Conditionally run build based on SKIP_BUILD argument
 RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping build step"; fi
 
 EXPOSE 3001
 
-CMD ["pnpm", "run", "start"]
+CMD ["pnpm", "run", "start:prod"]

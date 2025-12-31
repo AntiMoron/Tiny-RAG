@@ -34,7 +34,7 @@ export class DatasetService {
     return await this.datasetRepo.findOneBy({ name });
   }
 
-  async createDataset(dataset: Dataset): Promise<DatasetEntity> {
+  async createDataset(dataset: Dataset): Promise<Dataset> {
     let datasetConfig = dataset.config as any;
     if (datasetConfig && typeof datasetConfig !== 'string') {
       datasetConfig = dataset.config
@@ -46,7 +46,15 @@ export class DatasetService {
       ...dataset,
       config: datasetConfig,
     });
-    return this.datasetRepo.save(newDataset);
+    const data = await this.datasetRepo.save(newDataset);
+    return {
+      ...data,
+      type: data.type as Dataset['type'],
+      config:
+        typeof data.config === 'string'
+          ? parseJSON<Dataset['config']>(data.config)
+          : data.config,
+    };
   }
 
   async listDatasets(): Promise<Dataset[]> {

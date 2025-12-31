@@ -12,7 +12,6 @@ services:
         - SKIP_INSTALL=true
     network_mode: host
     volumes:
-      - ./deploy/server:/app/packages/server
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
       - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
     # Resource controls (both compose-friendly and swarm deploy for broader compatibility)
@@ -41,7 +40,6 @@ services:
     ports:
       - "3001:3001"
     volumes:
-      - ./deploy/app:/app/packages/app
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
       - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
     environment:

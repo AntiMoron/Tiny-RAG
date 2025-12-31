@@ -32,7 +32,7 @@ export class DatasetController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    await this.datasetService.createDataset(body as Dataset);
+    return await this.datasetService.createDataset(body as Dataset);
   }
 
   @Get('list')

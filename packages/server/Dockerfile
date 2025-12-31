@@ -19,7 +19,6 @@ RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm rebuild; else echo "Skipping reb
 # Conditionally run build based on SKIP_BUILD argument
 RUN if [ "$SKIP_BUILD" != "true" ]; then pnpm run build; else echo "Skipping build step"; fi
 
-
 EXPOSE 3000
 
 CMD ["pnpm", "run", "start:prod"]
