@@ -8,7 +8,7 @@ ARG SKIP_INSTALL=false
 
 WORKDIR /app
 RUN npm install -g pnpm
-COPY . .
+COPY ./deploy/app ./packages/app
 RUN if [ "$SKIP_INSTALL" != "true" ]; then pnpm i; else echo "Skipping install step"; fi
 WORKDIR /app/packages/app
 # Conditionally run build based on SKIP_BUILD argument

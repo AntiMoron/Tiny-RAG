@@ -9,7 +9,7 @@ RUN npm install -g pnpm
 # Copy all source files
 WORKDIR /app
 
-COPY . .
+COPY ./deploy/server ./packages/server
 
 WORKDIR /app/packages/server
 
