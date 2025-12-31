@@ -84,9 +84,12 @@ export class TaskController {
             docToken: ChooseTask.params.docType === 'docx' ? token : '',
           } as TaskBody['data'],
         };
-        const job = await this.taskService.addTask(fetchTask);
+        // Create an idempotent job id so repeated submissions won't enqueue duplicates
+        const jobId = `sync_doc:${datasetId}:${token}`;
+        const job = await this.taskService.addTask(fetchTask, { jobId });
         if (job) {
-          tasks.push(job.id!);
+          const returnedId = (job as any).id ?? job;
+          tasks.push(String(returnedId));
         }
       }
     }

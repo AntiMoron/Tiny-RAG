@@ -46,8 +46,12 @@ export class TaskService implements OnModuleInit {
   }
 
   // Public API used by controllers or other services to enqueue work
-  async addTask(taskBody: TaskBody) {
-    return await this.queueService.addTask(taskBody);
+  // Accepts optional opts to allow providing `jobId` for deduplication (idempotency)
+  async addTask(
+    taskBody: TaskBody,
+    opts?: { jobId?: string; attempts?: number; backoff?: number },
+  ) {
+    return await this.queueService.addTask(taskBody, opts);
   }
 
   /**
