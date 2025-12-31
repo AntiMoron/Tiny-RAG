@@ -16,6 +16,10 @@ services:
     volumes:
       - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
       - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
+      # Host mappings for persistent data and static assets
+      - ./server/data:/app/packages/server/data
+      - ./data:/app/data
+      - ./server/public:/app/packages/server/public
     environment:
       - NODE_ENV=production
       - PORT=3000
