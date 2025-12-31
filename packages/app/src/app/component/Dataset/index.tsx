@@ -19,11 +19,17 @@ export interface DatasetProps {
 
 const useStyles = createStyles(({ token }) => ({
   root: {
-    width: 300,
+    width: "100%",
+    maxWidth: 340,
     backgroundColor: token.colorBgContainer,
-    borderRadius: token.borderRadius,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+    borderRadius: token.borderRadiusLG,
+    boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
     border: `1px solid ${token.colorBorderSecondary}`,
+    transition: "all 0.3s ease",
+    '&:hover': {
+      transform: "translateY(-4px)",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+    }
   },
   header: {
     borderBottom: "none",
@@ -36,13 +42,18 @@ const useStyles = createStyles(({ token }) => ({
 
 const stylesCard: CardProps["styles"] = {
   root: {
-    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-    borderRadius: 8,
+    borderRadius: 12,
+    overflow: "hidden",
   },
   title: {
-    fontSize: 16,
-    fontWeight: 500,
+    fontSize: 18,
+    fontWeight: 600,
+    color: "#2c3e50",
+    padding: "16px 16px 0",
   },
+  body: {
+    padding: "16px",
+  }
 };
 
 export default function DatasetBlock(props: DatasetProps) {
@@ -81,10 +92,11 @@ export default function DatasetBlock(props: DatasetProps) {
   return (
     <Card
       {...sharedCardProps}
-      title="Dataset"
+      title={item?.name || "Dataset"}
       styles={stylesCard}
       extra={<Button type="link">More</Button>}
-      variant="borderless"
+      variant="outlined"
+      bordered={false}
     >
       <div
         style={{ cursor: "pointer" }}
@@ -94,9 +106,47 @@ export default function DatasetBlock(props: DatasetProps) {
       >
         <Meta
           {...sharedCardMetaProps}
-          title={item?.name}
-          description={item?.description}
+          title={
+            <div style={{
+              fontSize: '16px',
+              fontWeight: 600,
+              color: '#2c3e50',
+              marginBottom: '4px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {item?.name}
+            </div>
+          }
+          description={
+            <div style={{
+              color: '#7f8c8d',
+              fontSize: '14px',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {item?.description || 'No description available'}
+            </div>
+          }
         />
+        <div style={{
+          marginTop: '12px',
+          fontSize: '12px',
+          color: '#95a5a6',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span>Created: {new Date(item?.createdAt || Date.now()).toLocaleDateString()}</span>
+          <HeartOutlined style={{ cursor: 'pointer', transition: 'color 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#e74c3c'}
+            onMouseOut={(e) => e.currentTarget.style.color = '#95a5a6'}
+          />
+        </div>
       </div>
     </Card>
   );

@@ -74,13 +74,15 @@ export class UserService {
     };
 
     const accessToken = this.jwtService.sign(payload as unknown as any, {
-      // expiresIn: getEnvConfigValue('JWT_ACCESS_TOKEN_EXPIRES_IN') || '1h',
+      expiresIn: (getEnvConfigValue('JWT_ACCESS_TOKEN_EXPIRES_IN') ||
+        '1h') as any,
       secret: getEnvConfigValue('JWT_SECRET'),
     });
 
     // 3. 生成刷新令牌（长期有效，用于刷新访问令牌）
     const refreshToken = this.jwtService.sign(payload as unknown as any, {
-      // expiresIn: getEnvConfigValue('JWT_REFRESH_TOKEN_EXPIRES_IN') || '7d',
+      expiresIn: (getEnvConfigValue('JWT_REFRESH_TOKEN_EXPIRES_IN') ||
+        '1h') as any,
       secret: getEnvConfigValue('JWT_SECRET'),
     });
 
@@ -105,16 +107,34 @@ export class UserService {
 
       // 生成新的访问令牌
       const newAccessToken = this.jwtService.sign(
-        JSON.stringify({ sub: payload.sub, username: payload.username }),
+        { sub: payload.sub, username: payload.username },
         {
-          // expiresIn: getEnvConfigValue('JWT_ACCESS_TOKEN_EXPIRES_IN') || '1h',
+          expiresIn: (getEnvConfigValue('JWT_ACCESS_TOKEN_EXPIRES_IN') ||
+            '1h') as any,
           secret: getEnvConfigValue('JWT_SECRET'),
         },
       );
-
       return { accessToken: newAccessToken };
     } catch (error) {
-      throw new UnauthorizedException('刷新令牌无效或已过期');
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+  }
+
+  async getUserFromToken(token: string) {
+    try {
+      const payload = this.jwtService.verify(token, {
+        // secret: getEnvConfigValue('JWT_SECRET'),
+      }) as unknown as {
+        sub: string;
+        username: string;
+      };
+      const user = await this.getUserById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
     }
   }
 }

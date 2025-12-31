@@ -11,18 +11,23 @@ const { Header, Footer, Sider, Content } = Layout;
 // https://flatuicolors.com/
 
 const headerStyle: React.CSSProperties = {
-  textAlign: "center",
-  color: "#2b2b2b",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  color: "#fff",
   height: 64,
-  paddingInline: 48,
-  lineHeight: "64px",
-  background: "#3498db",
+  paddingInline: 24,
+  background: "#2c3e50",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+  zIndex: 1,
 };
 
 const footerStyle: React.CSSProperties = {
   textAlign: "center",
-  color: "#fff",
-  backgroundColor: "#3498db",
+  color: "#b0b0b0",
+  backgroundColor: "#2c3e50",
+  padding: "16px 0",
+  fontSize: "14px",
 };
 
 const layoutStyle = {
@@ -31,6 +36,7 @@ const layoutStyle = {
   width: "100%",
   maxWidth: "100%",
   minHeight: "100vh",
+  backgroundColor: "#f5f7fa",
 };
 
 export default function PageLayout() {
@@ -52,14 +58,14 @@ export default function PageLayout() {
         <Layout style={layoutStyle}>
           <Header style={headerStyle}>
             <Flex>
-              <div style={{ flex: 1, textAlign: "left" }}>Tiny RAG</div>
+              <div style={{ flex: 1, textAlign: "left", fontSize: "18px", fontWeight: 600 }}>Tiny RAG</div>
               <a href="https://github.com/AntiMoron/Tiny-RAG">
                 <Button
                   style={{ color: "black" }}
                   icon={<GithubFilled />}
                   type="link"
                 ></Button>
-                <span style={{ color: "#2b2b2b" }}>Star</span>
+                <span style={{ color: "#ffffff" }}>Star</span>
               </a>
             </Flex>
           </Header>
@@ -70,15 +76,28 @@ export default function PageLayout() {
               borderRadius: borderRadiusLG,
             }}
           >
-            <Sider style={{ background: colorBgContainer }} width={200}>
+            <Sider
+              style={{
+                background: "#fff",
+                boxShadow: "2px 0 8px rgba(0, 0, 0, 0.05)"
+              }}
+              width={220}
+            >
               <Menu mode="inline" style={{ height: "100%" }} items={menuData} />
             </Sider>
-            <div style={{ padding: "0 48px", width: "100%" }}>
+            <div style={{ padding: "24px", width: "100%" }}>
               <Breadcrumb
                 style={{ margin: "16px 0" }}
                 items={[{ title: "Home" }, { title: "List" }, { title: "App" }]}
               />
-              <Content style={{ minHeight: 280, width: "100%" }}>
+              <Content style={{
+                minHeight: 280,
+                width: "100%",
+                background: "#fff",
+                borderRadius: "8px",
+                padding: "24px",
+                boxShadow: "0 1px 4px rgba(0, 0, 0, 0.05)"
+              }}>
                 <Outlet />
               </Content>
             </div>

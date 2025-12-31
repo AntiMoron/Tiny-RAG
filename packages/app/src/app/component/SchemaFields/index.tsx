@@ -41,8 +41,13 @@ export default function SchemaFields(props: SchemaFieldsProps) {
           );
         }
         return (
-          <div key={k} style={{ marginBottom: 16 }}>
-            <div style={{ marginBottom: 4 }}>{schema.label ?? schema.name}</div>
+          <div key={k} style={{ marginBottom: 24 }}>
+            <div style={{
+              marginBottom: 8,
+              fontSize: '14px',
+              color: '#2c3e50',
+              fontWeight: 500
+            }}>{schema.label ?? schema.name}</div>
             <C
               {...schema.props}
               value={_.get(value, schema.name)}
@@ -55,6 +60,11 @@ export default function SchemaFields(props: SchemaFieldsProps) {
                   inputValue = e?.target.value || e?.value || e;
                 }
                 onChange?.(_.set(v, schema.name, inputValue));
+              }}
+              style={{
+                borderRadius: '8px',
+                borderColor: '#e0e0e0',
+                transition: 'border-color 0.2s'
               }}
             />
           </div>

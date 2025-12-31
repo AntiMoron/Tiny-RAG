@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import checkParams from 'src/util/checkParams';
 import express from 'express';
@@ -14,6 +14,21 @@ export class UserController {
 
     private readonly userService: UserService,
   ) {}
+
+  @Get('profile')
+  async getUserInfo(@Req() req: express.Request, @Res() res: express.Response) {
+    const cookie = req.cookies?.[COOKIE_NAME];
+    // get user info from cookie
+    const user = await this.userService.getUserFromToken(cookie);
+    const { accessToken } = this.userService.refreshAccessToken(cookie);
+    const redisTokenKey = `token:${user.id}:${user.username}`;
+    await this.redisClient.set(redisTokenKey, accessToken, 'EX', 3600);
+    res.cookie(COOKIE_NAME, accessToken, {
+      maxAge: 3600 * 1000,
+      httpOnly: true,
+    });
+    return res.json(_.pick(user, ['id', 'username', 'createdAt']));
+  }
 
   @Public()
   @Post('login')

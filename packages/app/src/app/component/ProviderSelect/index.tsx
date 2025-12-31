@@ -33,10 +33,16 @@ export default function ProviderSelect(props: ProviderSelectProps) {
       className={cx("w-full", className)}
       value={value}
       onChange={onChange}
-      style={style}
+      style={{
+        ...style,
+        borderRadius: '8px',
+        borderColor: '#e0e0e0',
+        transition: 'border-color 0.2s'
+      }}
       options={data.map((a) => {
         return { label: a.name, value: a.id, key: a.id };
       })}
+      placeholder="Select a provider..."
     ></Select>
   );
 }

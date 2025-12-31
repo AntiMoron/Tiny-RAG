@@ -5,6 +5,7 @@ const defaultValues: Record<string, string> = {
   ADMIN_PASSWORD: 'ilovetinyrag',
   JWT_SECRET: 'tinyrag',
   PUBLIC_HOST: 'http://localhost:3000',
+  JWT_ACCESS_TOKEN_EXPIRES_IN: '3600s',
 
   DATABASE_TYPE: 'mysql',
 

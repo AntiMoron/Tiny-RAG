@@ -37,6 +37,7 @@
     "better-sqlite3": "^12.5.0",
     "bullmq": "^1.79.0",
     "cookie-es": "^2.0.0",
+    "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
     "feishu2markdown": "^1.2.0",
     "fs-extra": "^11.3.2",

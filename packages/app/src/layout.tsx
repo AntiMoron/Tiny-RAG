@@ -9,6 +9,7 @@ import KnowledgeCreatePage from "./app/page/app/Dataset/[id].ts/knowledge/create
 import KnowledgeTestPage from "./app/page/app/Dataset/[id].ts/knowledge/test/page";
 import LoginPage from "./app/page/login/page";
 import AnalysisPage from "./app/page/app/Analysis/page";
+import UserPage from "./app/page/app/UserInfo/page";
 
 export default function Layout() {
   return (
@@ -21,6 +22,7 @@ export default function Layout() {
             <Route index element={<DatasetPage />} path="dataset"></Route>
             <Route index element={<AnalysisPage />} path="analysis"></Route>
             <Route element={<DatasetDetailPage />} path="dataset/:id"></Route>
+            <Route element={<UserPage />} path="user"></Route>
             <Route element={<AIProviderPage />} path="aiprovider"></Route>
             <Route
               element={<KnowledgeCreatePage />}

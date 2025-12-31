@@ -117,6 +117,7 @@ export default function AIProviderPage() {
         title="Add AI Provider"
         onCancel={() => setShow(false)}
         footer={null}
+        width="80vw"
       >
         <AIProviderConfigForm
           loading={loading}

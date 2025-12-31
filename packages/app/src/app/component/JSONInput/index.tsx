@@ -18,6 +18,13 @@ export default function JSONInput(props: JSONInputProps) {
       onChange={(e) => {
         onChange?.(e.target.value);
       }}
+      placeholder="Enter JSON content here..."
+      style={{
+        ...style,
+        borderRadius: '8px',
+        borderColor: '#e0e0e0',
+        transition: 'border-color 0.2s'
+      }}
     />
   );
 }
