@@ -77,9 +77,9 @@ export default function KnowledgeTestPage() {
             </Form>
           </Col>
           <Col flex={1}>
-            <Typography.Paragraph title={data?.replyPrompt}>
+            {/* <Typography.Paragraph title={data?.replyPrompt}>
               {data?.replyPrompt}
-            </Typography.Paragraph>
+            </Typography.Paragraph> */}
             <Flex gap={12}>
               <Col flex={1}>
                 <ResponseDisplay>{data?.completion}</ResponseDisplay>
