@@ -26,7 +26,8 @@ export class ChunkEntity {
 
   @CreateDateColumn({
     type: getDateType(),
-    default: () => getCurrentTime(),
+    precision: 0,
+    default: () => getCurrentTime(0),
   })
   createdAt: Date;
 

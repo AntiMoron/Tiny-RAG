@@ -3,8 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AiproviderModule } from './aiprovider/aiprovider.module';
-import { AIProviderEntity } from './aiprovider/aiprovider.entity';
-import { ApiKeyEntity } from './apikey/apiKey.entity';
 import { EmbeddingModule } from './embedding/embedding.module';
 import { CompletionModule } from './completion/completion.module';
 import { ApikeyModule } from './apikey/apikey.module';
@@ -13,8 +11,6 @@ import { WinstonModule } from 'nest-winston';
 import { KnowledgeModule } from './knowledge/knowledge.module';
 import { DatasetModule } from './dataset/dataset.module';
 import * as winston from 'winston';
-import { DatasetEntity } from './dataset/dataset.entity';
-import { KnowledgeEntity } from './knowledge/knowledge.entity';
 import { ConfigModule } from '@nestjs/config';
 import { ChunksplitModule } from './chunksplit/chunksplit.module';
 import { ChunkModule } from './chunk/chunk.module';
@@ -22,11 +18,9 @@ import { SyncdocModule } from './syncdoc/syncdoc.module';
 import { TaskModule } from './task/task.module';
 import { FeishuModule } from './feishu/feishu.module';
 import getEnvConfigValue from './util/getEnvConfigValue';
-import { ChunkEntity } from './chunk/chunk.entity';
 import { VectorDbModule } from './vector-db/vector-db.module';
 import { RetrieveModule } from './retrieve/retrieve.module';
 import { RedisModule } from './redis/redis.module';
-import { UserEntity } from './user/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import { LruCacheModule } from './cache/lru-cache.module';
@@ -36,8 +30,8 @@ import { JwtAuthGuard } from './auth/auth.guard';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AnalysisModule } from './analysis/analysis.module';
-import { LogEntity } from './analysis/analysis.entity';
-// import * as sqlite3 from 'better-sqlite3';
+import entities from './util/entities';
+import getDbType from './util/sqlDb/dbType';
 
 @Module({
   imports: [
@@ -46,15 +40,7 @@ import { LogEntity } from './analysis/analysis.entity';
     }),
     (async (): Promise<DynamicModule> => {
       await ConfigModule.envVariablesLoaded;
-      const entities = [
-        AIProviderEntity,
-        KnowledgeEntity,
-        DatasetEntity,
-        ChunkEntity,
-        ApiKeyEntity,
-        UserEntity,
-        LogEntity,
-      ];
+      getDbType(true);
       const databaseType = getEnvConfigValue('DATABASE_TYPE');
       const sqliteFilePath = getEnvConfigValue('SQLITE_FILE_PATH');
       const synchronize =

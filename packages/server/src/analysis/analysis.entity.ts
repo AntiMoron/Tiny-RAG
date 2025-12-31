@@ -28,8 +28,9 @@ export class LogEntity {
   providerId: string;
 
   @CreateDateColumn({
+    precision: 0,
     type: getDateType(),
-    default: () => getCurrentTime(),
+    default: () => getCurrentTime(0),
   })
   createdAt: Date;
 

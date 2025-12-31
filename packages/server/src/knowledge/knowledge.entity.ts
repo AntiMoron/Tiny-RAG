@@ -23,14 +23,16 @@ export class KnowledgeEntity {
 
   @CreateDateColumn({
     type: getDateType(),
-    default: () => getCurrentTime(),
+    precision: 0,
+    default: () => getCurrentTime(0),
   })
   createdAt: Date;
 
   @UpdateDateColumn({
     type: getDateType(),
-    default: () => getCurrentTime(),
-    onUpdate: getCurrentTime(),
+    precision: 0,
+    default: () => getCurrentTime(0),
+    onUpdate: getCurrentTime(0),
   })
   updatedAt: Date;
 

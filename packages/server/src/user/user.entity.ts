@@ -20,7 +20,8 @@ export class UserEntity {
 
   @CreateDateColumn({
     type: getDateType(),
-    default: () => getCurrentTime(),
+    default: () => getCurrentTime(0),
+    precision: 0,
   })
   createdAt: Date;
 }

@@ -1,7 +1,7 @@
-import getEnvConfigValue from '../getEnvConfigValue';
+import getDbType from './dbType';
 
 export function getDateType(): 'datetime' | 'timestamp' {
-  const dbType = getEnvConfigValue('DATABASE_TYPE');
+  const dbType = getDbType();
   if (dbType === 'sqlite') {
     return 'datetime';
   }

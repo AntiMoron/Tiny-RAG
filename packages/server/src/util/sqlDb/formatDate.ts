@@ -1,7 +1,7 @@
-import getEnvConfigValue from '../getEnvConfigValue';
+import getDbType from './dbType';
 
 export default function formatDate(field: string, format: string): string {
-  const dbType = getEnvConfigValue('DATABASE_TYPE');
+  const dbType = getDbType();
   if (dbType === 'sqlite') {
     return `strftime('${format}', ${field})`;
   }
