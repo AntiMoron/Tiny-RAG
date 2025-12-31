@@ -15,8 +15,6 @@ import { ExportServiceApiKey } from "tinyrag-types/apikey";
 import { PlusOutlined } from "@ant-design/icons";
 import UUIDDisplay from "../../../component/UUIDDisplay";
 
-const { Header, Content, Footer, Sider } = Layout;
-
 export default function APIKeyPage() {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState<ExportServiceApiKey[]>([]);
@@ -29,8 +27,8 @@ export default function APIKeyPage() {
     loadData();
   });
   return (
-    <Layout>
-      <Header>
+    <div>
+      <div style={{ marginBottom: 24, textAlign: 'right' }}>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -40,8 +38,9 @@ export default function APIKeyPage() {
         >
           Add API Key
         </Button>
-      </Header>
-      <Content>
+      </div>
+      
+      <div style={{ padding: '16px', backgroundColor: '#ffffff' }}>
         <p>Manage your API keys here.</p>
         <Table
           dataSource={data}
@@ -83,7 +82,7 @@ export default function APIKeyPage() {
             },
           ]}
         />
-      </Content>
+      </div>
       <Modal
         open={open}
         footer={null}
@@ -119,6 +118,6 @@ export default function APIKeyPage() {
           </Form.Item>
         </Form>
       </Modal>
-    </Layout>
+    </div>
   );
 }

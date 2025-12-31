@@ -16,7 +16,7 @@ export default function UserPage(props: UserPageProps) {
     });
   });
   return (
-    <div>
+    <div style={{ backgroundColor: '#ffffff', padding: '24px', borderRadius: '8px' }}>
       <Form form={form}>
         <Form.Item label="User ID" name="id">
           <Input disabled></Input>

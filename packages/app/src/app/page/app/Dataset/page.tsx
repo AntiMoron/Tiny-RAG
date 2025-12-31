@@ -23,8 +23,6 @@ import SchemaFields from "src/app/component/SchemaFields";
 import { docConfigSchema } from "src/util/constants";
 import TextArea from "antd/es/input/TextArea";
 
-const { Header, Content } = Layout;
-
 export default function Page() {
   const navigate = useNavigate();
   const [data, setData] = useState<Dataset[]>([]);
@@ -37,8 +35,8 @@ export default function Page() {
   });
   const [form] = Form.useForm();
   return (
-    <Layout>
-      <Header>
+    <div style={{ backgroundColor: '#ffffff', minHeight: '100%' }}>
+      <div style={{ marginBottom: 24, textAlign: 'right', padding: '16px 0' }}>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -50,14 +48,15 @@ export default function Page() {
         >
           Add Dataset
         </Button>
-      </Header>
-      <Content>
+      </div>
+      
+      <div style={{ padding: '0 16px' }}>
         {_.chunk(data, 3).map((row, rowIndex) => {
           return (
-            <Row gutter={16} key={rowIndex} style={{ marginBottom: 16 }}>
+            <Row gutter={[16, 16]} key={rowIndex}>
               {row.map((item) => {
                 return (
-                  <Col>
+                  <Col xs={24} sm={12} md={8} key={item.id}>
                     <DatasetBlock
                       item={item}
                       onEdit={() => {
@@ -97,7 +96,7 @@ export default function Page() {
             </Row>
           );
         })}
-      </Content>
+      </div>
       <Modal
         title="Add Dataset"
         open={visible}
@@ -209,6 +208,6 @@ export default function Page() {
           </Form.Item>
         </Form>
       </Modal>
-    </Layout>
+    </div>
   );
 }

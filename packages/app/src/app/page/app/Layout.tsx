@@ -14,11 +14,11 @@ const headerStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  color: "#fff",
+  color: "#333",
   height: 64,
   paddingInline: 24,
-  background: "#2c3e50",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+  background: "#ffffff",
+  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
   zIndex: 1,
 };
 
@@ -36,7 +36,7 @@ const layoutStyle = {
   width: "100%",
   maxWidth: "100%",
   minHeight: "100vh",
-  backgroundColor: "#f5f7fa",
+  backgroundColor: "#ffffff",
 };
 
 export default function PageLayout() {
@@ -78,14 +78,14 @@ export default function PageLayout() {
           >
             <Sider
               style={{
-                background: "#fff",
-                boxShadow: "2px 0 8px rgba(0, 0, 0, 0.05)"
+                background: "#f9f9f9",
+                borderRight: "1px solid #f0f0f0",
               }}
               width={220}
             >
               <Menu mode="inline" style={{ height: "100%" }} items={menuData} />
             </Sider>
-            <div style={{ padding: "24px", width: "100%" }}>
+            <div style={{ padding: "24px", width: "100%", backgroundColor: "#ffffff" }}>
               <Breadcrumb
                 style={{ margin: "16px 0" }}
                 items={[{ title: "Home" }, { title: "List" }, { title: "App" }]}
