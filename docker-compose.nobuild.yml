@@ -17,7 +17,7 @@ services:
       # Host mappings for persistent data and static assets
       - ./server/data:/app/packages/server/data
       - ./data:/app/data
-      - ./server/public:/app/packages/server/public:ro
+      - ./server/public:/app/packages/server/public
     # Resource controls (both compose-friendly and swarm deploy for broader compatibility)
     cpus: 0.5
     mem_limit: 512M
