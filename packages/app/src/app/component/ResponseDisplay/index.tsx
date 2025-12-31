@@ -1,18 +1,12 @@
 import React, { PropsWithChildren, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import cx from "classnames";
 import { Image, Modal } from "antd";
 import "./index.css";
 
-const customParser = unified()
-  .use(remarkParse, {
-    loose: true,
-    gfm: true,
-  })
-  .use(remarkGfm);
+// keep custom remark-parse options by passing remarkParse with options to remarkPlugins
 
 export interface ResponseDisplayProps {
   className?: string;
@@ -58,13 +52,14 @@ export default function ResponseDisplay(
 
     return (
       <div className={cx("reply-container", className)} style={style}>
-        <ReactMarkdown
-          parser={customParser}
-          remarkPlugins={[remarkGfm]}
-          components={components}
-        >
-          {children}
-        </ReactMarkdown>
+        <Image.PreviewGroup>
+          <ReactMarkdown
+            remarkPlugins={[[remarkParse, { loose: true, gfm: true }], remarkGfm]}
+            components={components}
+          >
+            {children}
+          </ReactMarkdown>
+        </Image.PreviewGroup>
 
         <Modal
           open={videoPreview.visible}
