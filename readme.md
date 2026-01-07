@@ -127,3 +127,11 @@ pnpm run run:nobuild
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=AntiMoron/Tiny-RAG&type=date&legend=top-left)](https://www.star-history.com/#AntiMoron/Tiny-RAG&type=date&legend=top-left)
+
+
+## Contributors
+
+
+<a href="https://github.com/AntiMoron/Tiny-RAG/graphs/contributors">
+<img src="https://contrib.rocks/image?repo=AntiMoron/Tiny-RAG" />
+</a>
