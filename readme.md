@@ -123,3 +123,7 @@ Then on your server side, execute:
 pnpm run init
 pnpm run run:nobuild
 ```
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tiny-rag/tiny-rag&type=date&legend=top-left)](https://www.star-history.com/#tiny-rag/tiny-rag&type=date&legend=top-left)
